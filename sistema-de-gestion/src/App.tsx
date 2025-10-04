@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Menu from './pages/Menu'
-import GestionStock from './pages/GestionStock';
+import GestionStock from './pages/GestionStock.tsx';
 // import './App.css'
 
 function App() {
