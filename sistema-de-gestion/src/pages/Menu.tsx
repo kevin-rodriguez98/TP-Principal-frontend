@@ -1,12 +1,15 @@
 import Header from '../components/Header.tsx'
-import Main from '../components/Main.tsx'
+import HomeOperaciones from '../components/HomeOperaciones.tsx'
 import Footer from '../components/Footer.tsx'
+import "../styles/Menu.css";
 
 const Menu = () => {
     return (
-        <div>
+        <div className='menu-container'>
             <Header />
-            <Main />
+             <main>
+                <HomeOperaciones />
+            </main>
             <Footer/>
         </div>
     )

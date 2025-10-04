@@ -4,7 +4,6 @@ const Header = () => {
     const estilosTitulo = {
         fontFamily: "Times New Roman",
         fontSize:"26px",
-        color:'white'
     };
 
     return (

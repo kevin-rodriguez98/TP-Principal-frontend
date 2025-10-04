@@ -1,33 +1,66 @@
+.div-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 2%;
+}
+
+.div-titulo {
+  margin: 5%;
+  display: flex;
+  justify-content: center;
+}
+
+.div-OP {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 2%;
+  gap: 20px; /* espacio entre cards */
+}
+
+/* Card de operación */
 .operacion {
-    width: 90px;
-    height: 90px;
-    background-color: gray;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 5%;
-    margin: 3%;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.3s;
+  width: 120px; /* más grande en PC */
+  height: 120px;
+  background-color: gray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s;
 }
 
 .operacion:hover {
-    background-color: #e0e0e0;
-    transform: scale(1.05);
-    cursor: pointer;
+  background-color: #e0e0e0;
+  transform: scale(1.05);
 }
 
 .label {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 0.9rem;
-    text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-
 .operacion-icon {
+  width: 60px;
+  height: 60px;
+  margin: 5px 0;
+}
+
+/* --- Responsivo para Mobile --- */
+@media (max-width: 768px) {
+  .operacion {
+    width: 100px;
+    height: 100px;
+    padding: 5%;
+  }
+
+  .operacion-icon {
     width: 50px;
     height: 50px;
-    margin: 1%;
+  }
 }

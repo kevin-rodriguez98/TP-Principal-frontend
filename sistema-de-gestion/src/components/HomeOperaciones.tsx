@@ -1,9 +1,9 @@
-import Operacion from '../components/Operacion.tsx'
+import Operacion from './Operacion.tsx'
 import '../styles/Main.css'
 
 
 
-const Main = () => {
+const HomeOperaciones = () => {
 
     const modules = [
 
@@ -33,4 +33,4 @@ const Main = () => {
     )
 }
 
-export default Main
+export default HomeOperaciones

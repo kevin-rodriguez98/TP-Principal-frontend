@@ -4,10 +4,25 @@
 }
 
 .nav {
-    width: 100%;
-    padding: 5%;
-    background-color: rgb(219, 55, 82);
+    padding: 2%; 
+    background: linear-gradient(90deg, #a071fe, #b13c7e, #ff5757);
     display: flex;
     justify-content: flex-start;
-    
+}
+
+.nav .logo h1 {
+    color: white;
+    letter-spacing: 1px;
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+    .nav {
+        padding: 5%;
+    }
 }

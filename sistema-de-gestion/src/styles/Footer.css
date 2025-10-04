@@ -1,6 +1,17 @@
 .footer {
-    background-color: #b9045f;
+    display: flex;
+    align-items: center;       
+    justify-content: space-between;
+    background: linear-gradient(90deg, #8c52ff, #b13c7e, #ff5757);
     color: white;
-    padding: 1rem;
-    text-align: center;
+    padding: 1.5rem 5%; 
+}
+
+.footer-logo {
+    height: 40px;               
+    width: auto;
+}
+
+.footer p {
+    margin: 0;                   
 }

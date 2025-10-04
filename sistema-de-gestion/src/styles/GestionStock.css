@@ -1,0 +1,227 @@
+/* --- Contenedor principal --- */
+main {
+  margin: auto;
+  padding: 50px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 70vh;
+}
+
+/* --- Título --- */
+h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* --- Contenedores de los desplegables y cards --- */
+.card {
+  border: 2px solid #ff5ca2;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  padding: 15px;
+  background-color: #fff0f6;
+}
+
+/* --- Botones --- */
+button {
+  background-color: #ff99cc;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: background 0.3s;
+  margin-left: 14px;
+  margin-top: 14px;
+
+}
+
+button:hover {
+  background-color: #ff66b2;
+}
+
+/* --- Inputs y selects --- */
+input, select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* --- Formularios horizontales --- */
+.formulario-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.formulario-horizontal input,
+.formulario-horizontal select {
+  flex: 1 1 120px; /* crece pero mínimo 120px */
+}
+
+.formulario-horizontal button {
+  flex: 0 0 auto;
+  padding: 10px 15px;
+}
+
+/* --- Adaptación móvil --- */
+@media (max-width: 768px) {
+  .formulario-horizontal {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formulario-horizontal input,
+  .formulario-horizontal select,
+  .formulario-horizontal button {
+    width: 100%;
+  }
+}
+
+/* --- Tabla de insumos --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #ff99cc;
+  color: white;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #fce4ec;
+}
+
+/* --- Botones dentro de la tabla --- */
+.btn-editar {
+  background-color: #ff4081;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.btn-editar:hover {
+  background-color: #e91e63;
+}
+
+.btn-eliminar {
+  background-color: #f44336;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+
+.btn-eliminar:hover {
+  background-color: #d32f2f;
+}
+
+/* --- Paginación --- */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.paginacion button {
+  padding: 5px 10px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .formulario-horizontal {
+    flex-direction: column;
+    align-items: stretch; /* ocupa todo el ancho de la card */
+    gap: 10px;
+  }
+
+  .formulario-horizontal input,
+  .formulario-horizontal select,
+  .formulario-horizontal button {
+    width: 100%; /* fuerza que ocupen el 100% del contenedor */
+    box-sizing: border-box; /* evita que el padding haga overflow */
+  }
+
+  /* General para cualquier form fuera de .formulario-horizontal */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  form input,
+  form select,
+  form button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  button {
+        margin-left: 0;
+        margin-top: 0;
+    }
+  
+}
+
+@media (max-width: 768px) {
+  table thead {
+    display: none;
+  }
+
+  table tbody tr {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fff0f6;
+  }
+
+  table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    text-align: left;
+    border: none;
+  }
+
+  table tbody td.actions {
+    justify-content: flex-end;
+    margin-top: 5px;
+  }
+
+  table tbody td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-weight: bold;
+  }
+table tbody tr td:nth-child(odd) {
+  background-color: #fcbad0;
+}
+
+table tbody tr td:nth-child(even) {
+  background-color: #ffe6f2;
+}
+
+table tbody tr td.actions {
+  background-color: transparent;
+}
+}
