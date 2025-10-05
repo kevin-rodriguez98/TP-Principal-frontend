@@ -1,25 +1,35 @@
-*{
+* {
     margin: 0;
     padding: 0;
 }
 
 .nav {
-    padding: 2%; 
+    padding: 2%;
     background: linear-gradient(90deg, #a071fe, #b13c7e, #ff5757);
     display: flex;
     justify-content: flex-start;
 }
 
-.nav .logo h1 {
+.nav .logo .title {
+    font-family: 'Roboto';
+    font-size: "26px";
+    font-weight:lighter;
     color: white;
-    letter-spacing: 1px;
+    /* letter-spacing: 1px; */
     animation: pulse 3s ease-in-out infinite;
     cursor: pointer;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 @media (max-width: 768px) {
