@@ -175,7 +175,7 @@ const GestionStock = () => {
 
           <div className="paginacion">
             <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>Anterior</button>
-            <span>Página {currentPage} de {totalPages}</span>
+            <span>Página {currentPage}-{totalPages}</span>
             <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>Siguiente</button>
           </div>
         </section>
@@ -221,7 +221,7 @@ const GestionStock = () => {
             </form>
           </section>
         )}
-      <button onClick={() => navigate("/")} className="btn-guardar">Volver</button>
+      <button onClick={() => navigate("/")} className="btn-guardar btn-volver">Volver</button>
       </main>
       <Footer />
 

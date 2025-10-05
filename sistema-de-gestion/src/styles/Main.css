@@ -1,9 +1,10 @@
 .div-main {
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 2%;
 }
+
 
 .div-titulo {
     margin: 5%;
@@ -14,8 +15,8 @@
 .div-OP {
     display: flex;
     flex-wrap: wrap;
-    justify-content:center;
-    margin:2%;
-
+    justify-content: center;
+    margin: 2%;
+    gap: 20px;
+    /* espacio entre cards */
 }
-
