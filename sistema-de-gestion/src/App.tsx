@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Menu from './pages/Menu'
 import GestionStock from './pages/GestionStock.tsx';
-// import './App.css'
+import RegistroInsumos from './pages/RegistroInsumos.tsx';
 
 function App() {
 
@@ -11,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Menu />} />
         <Route path="/GestionStock" element={<GestionStock />} />
+        <Route path="/registroInsumos" element={<RegistroInsumos />} />
       </Routes>
     </>
   )

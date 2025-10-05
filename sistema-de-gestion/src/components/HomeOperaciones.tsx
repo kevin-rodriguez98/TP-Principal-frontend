@@ -6,6 +6,7 @@ import { OpContext } from '../Context/OpContext';
 
 
 const HomeOperaciones = () => {
+
     const { modulos } = useContext(OpContext)!;
 
     return (

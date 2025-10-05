@@ -31,7 +31,7 @@ export function OpProvider({ children }: OpProviderProps) {
             icon: './stock.png',
             acciones: [
                 { label: "Gestionar insumos", onClick: () => navigate("/GestionStock") },
-                { label: "Registro insumos", onClick: () => navigate("/produccion") }
+                { label: "Registro insumos", onClick: () => navigate("/registroInsumos") }
             ]
         },
 

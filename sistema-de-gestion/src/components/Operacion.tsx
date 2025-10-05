@@ -2,13 +2,12 @@ import { useState } from 'react';
 import '../styles/Operacion.css'
 import { AnimatePresence, motion } from 'framer-motion';
 
+
 import { type Modulo } from '../Context/OpContext';
 
-interface OperacionProps {
-    modulo: Modulo;
-}
 
-const Operacion: React.FC<OperacionProps> = ({ modulo }) => {
+const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {
+
 
     const [mostrarSubmenu, setMostrarSubmenu] = useState(false);
 
