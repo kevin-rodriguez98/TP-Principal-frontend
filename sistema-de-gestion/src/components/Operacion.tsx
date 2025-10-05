@@ -1,29 +1,24 @@
 import { useState } from 'react';
 import '../styles/Operacion.css'
-import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { type Modulo } from '../Context/OpContext';
+
 interface OperacionProps {
-    label: string;
-    icon: string;
-    route: string;
-    acciones: string[];
+    modulo: Modulo;
 }
 
-
-const Operacion: React.FC<OperacionProps> = ({ label, icon, acciones, route }) => {
+const Operacion: React.FC<OperacionProps> = ({ modulo }) => {
 
     const [mostrarSubmenu, setMostrarSubmenu] = useState(false);
 
-
-    const navigate = useNavigate();
     return (
         <div className='operacion'
             onMouseEnter={() => setMostrarSubmenu(true)}
             onMouseLeave={() => setMostrarSubmenu(false)}
         >
-            <img src={icon} alt={label} className='operacion-icon' />
-            <label className='label' >{label}</label>
+            <img src={modulo.icon} alt={modulo.label} className='operacion-icon' />
+            <label className='label' >{modulo.label}</label>
 
             <AnimatePresence>
                 {mostrarSubmenu && (
@@ -34,15 +29,15 @@ const Operacion: React.FC<OperacionProps> = ({ label, icon, acciones, route }) =
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3 }}
                     >
-                        {acciones.map((accion, index) => (
+                        {modulo.acciones.map((accion, index) => (
                             <motion.button
                                 key={index}
                                 className="submenu-btn"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate(route)}
+                                onClick={accion.onClick}
                             >
-                                {accion}
+                                {accion.label}
                             </motion.button>
                         ))}
                     </motion.div>
