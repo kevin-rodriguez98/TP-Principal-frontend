@@ -4,12 +4,15 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { BrowserRouter as Router } from 'react-router-dom';
 import { OpProvider } from './Context/OpContext';
+import { InsumoProvider } from './Context/InsumoContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Router>
       <OpProvider>
-      <App />
+        <InsumoProvider>
+          <App />
+        </InsumoProvider>
       </OpProvider>
     </Router>
   </StrictMode>,
