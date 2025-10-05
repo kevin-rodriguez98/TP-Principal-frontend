@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Modal from "../components/modal/Modal";
 import "../styles/GestionStock.css";
+import { useNavigate } from "react-router-dom";
 
 interface Insumo {
   codigo: number;
@@ -14,6 +15,7 @@ interface Insumo {
 }
 
 const GestionStock = () => {
+  const navigate = useNavigate();
   const [insumos, setInsumos] = useState<Insumo[]>([
     { codigo: 101, nombre: "Leche", categoria: "Lácteos", marca: "La Serenísima", cantidad: 100, lote: "L001" },
     { codigo: 102, nombre: "Leche", categoria: "Lácteos", marca: "Sancor", cantidad: 80, lote: "L002" },
@@ -219,6 +221,7 @@ const GestionStock = () => {
             </form>
           </section>
         )}
+      <button onClick={() => navigate("/")} className="btn-guardar">Volver</button>
       </main>
       <Footer />
 
@@ -232,6 +235,8 @@ const GestionStock = () => {
       )}
     </div>
   );
+
+
 };
 
 export default GestionStock;
