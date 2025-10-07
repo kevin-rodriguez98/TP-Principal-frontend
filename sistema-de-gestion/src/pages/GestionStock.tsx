@@ -11,8 +11,8 @@ import { InsumoContext } from '../Context/InsumoContext';
 const GestionStock = () => {
   const navigate = useNavigate();
 
-  const { insumos, setInsumos, nuevoInsumo, setNuevoInsumo,insumoEditar, setInsumoEditar,modal, setModal,
-            handleAddInsumo, handleDelete, handleUpdateInsumo } = useContext(InsumoContext)!;
+  const { insumos, nuevoInsumo, setNuevoInsumo, insumoEditar, setInsumoEditar, modal, setModal,
+    handleAddInsumo, handleDelete, handleUpdateInsumo } = useContext(InsumoContext)!;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -33,10 +33,8 @@ const GestionStock = () => {
             <input
               type="text"
               placeholder="Código de producto"
-              value={nuevoInsumo.codigo === 0 ? "" : nuevoInsumo.codigo}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                setNuevoInsumo({ ...nuevoInsumo, codigo: Number(value) });
+              value={nuevoInsumo.codigo}
+              onChange={(e) => {setNuevoInsumo({ ...nuevoInsumo, codigo: (e.target.value) });
               }}
               required
             />
@@ -63,11 +61,10 @@ const GestionStock = () => {
             />
             <input
               type="text"
-              placeholder="Stock"
-              value={nuevoInsumo.cantidad === 0 ? "" : nuevoInsumo.cantidad}
+              placeholder="cantidad"
+              value={nuevoInsumo.cantidad}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                setNuevoInsumo({ ...nuevoInsumo, cantidad: Number(value) });
+                setNuevoInsumo({ ...nuevoInsumo, cantidad: Number(e.target.value) });
               }}
               required
             />
@@ -76,6 +73,20 @@ const GestionStock = () => {
               placeholder="Lote"
               value={nuevoInsumo.lote}
               onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, lote: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="unidad"
+              value={nuevoInsumo.unidad}
+              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, unidad: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="umbralMin."
+              value={nuevoInsumo.umbralMinimoStock}
+              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, umbralMinimoStock: Number(e.target.value) })}
               required
             />
             <button type="submit" className="btn-guardar">Guardar</button>
@@ -91,7 +102,7 @@ const GestionStock = () => {
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Marca</th>
-                <th>Stock</th>
+                <th>Cantidad</th>
                 <th>Lote</th>
                 <th>Acciones</th>
               </tr>
@@ -145,7 +156,7 @@ const GestionStock = () => {
               />
               <input
                 type="text"
-                placeholder="Stock"
+                placeholder="cantidad"
                 value={insumoEditar.cantidad}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "");
