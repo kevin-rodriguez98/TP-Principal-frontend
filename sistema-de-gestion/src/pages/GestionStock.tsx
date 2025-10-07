@@ -29,69 +29,107 @@ const GestionStock = () => {
 
         <section className="card">
           <h3>Alta de Insumo</h3>
-          <form className="formulario" onSubmit={handleAddInsumo}>
+          <form
+            className="formulario"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddInsumo(e);
+            }}
+          >
             <input
               type="text"
               placeholder="Código de producto"
               value={nuevoInsumo.codigo}
-              onChange={(e) => {setNuevoInsumo({ ...nuevoInsumo, codigo: (e.target.value) });
-              }}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, codigo: e.target.value.trim() })
+              }
               required
             />
+
             <input
               type="text"
               placeholder="Nombre"
               value={nuevoInsumo.nombre}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, nombre: e.target.value })}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, nombre: e.target.value.trim() })
+              }
               required
             />
+
             <input
               type="text"
               placeholder="Categoría"
               value={nuevoInsumo.categoria}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, categoria: e.target.value })}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, categoria: e.target.value.trim() })
+              }
               required
             />
+
             <input
               type="text"
               placeholder="Marca"
               value={nuevoInsumo.marca}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, marca: e.target.value })}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, marca: e.target.value.trim() })
+              }
               required
             />
+
             <input
-              type="text"
-              placeholder="cantidad"
-              value={nuevoInsumo.cantidad}
-              onChange={(e) => {
-                setNuevoInsumo({ ...nuevoInsumo, cantidad: Number(e.target.value) });
-              }}
+              type="number"
+              placeholder="Cantidad"
+              value={nuevoInsumo.stock || ""}
+              min="1"
+              onChange={(e) =>
+                setNuevoInsumo({
+                  ...nuevoInsumo,
+                  stock: Number(e.target.value) || 0,
+                })
+              }
               required
             />
+
             <input
               type="text"
               placeholder="Lote"
               value={nuevoInsumo.lote}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, lote: e.target.value })}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, lote: e.target.value.trim() })
+              }
               required
             />
+
             <input
               type="text"
-              placeholder="unidad"
+              placeholder="Unidad"
               value={nuevoInsumo.unidad}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, unidad: e.target.value })}
+              onChange={(e) =>
+                setNuevoInsumo({ ...nuevoInsumo, unidad: e.target.value.trim() })
+              }
               required
             />
+
             <input
-              type="text"
-              placeholder="umbralMin."
-              value={nuevoInsumo.umbralMinimoStock}
-              onChange={(e) => setNuevoInsumo({ ...nuevoInsumo, umbralMinimoStock: Number(e.target.value) })}
+              type="number"
+              placeholder="Umbral mínimo"
+              value={nuevoInsumo.umbralMinimoStock || ""}
+              min="0"
+              onChange={(e) =>
+                setNuevoInsumo({
+                  ...nuevoInsumo,
+                  umbralMinimoStock: Number(e.target.value) || 0,
+                })
+              }
               required
             />
-            <button type="submit" className="btn-guardar">Guardar</button>
+
+            <button type="submit" className="btn-guardar">
+              Guardar
+            </button>
           </form>
         </section>
+
 
         <section className="card">
           <h3>Lista de Insumos</h3>
@@ -114,7 +152,7 @@ const GestionStock = () => {
                   <td data-label="Nombre">{item.nombre}</td>
                   <td data-label="Categoría">{item.categoria}</td>
                   <td data-label="Marca">{item.marca}</td>
-                  <td data-label="Cantidad">{item.cantidad}</td>
+                  <td data-label="Cantidad">{item.stock}</td>
                   <td data-label="Lote">{item.lote}</td>
                   <td data-label="Acciones" className="actions">
                     <button className="btn-editar" onClick={() => setInsumoEditar(item)}>Editar</button>
@@ -157,10 +195,10 @@ const GestionStock = () => {
               <input
                 type="text"
                 placeholder="cantidad"
-                value={insumoEditar.cantidad}
+                value={insumoEditar.stock}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "");
-                  setInsumoEditar({ ...insumoEditar, cantidad: Number(value) });
+                  setInsumoEditar({ ...insumoEditar, stock: Number(value) });
                 }}
               />
               <input

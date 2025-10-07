@@ -6,7 +6,7 @@ export interface Insumo {
     categoria: string;
     marca: string
     unidad: string;
-    cantidad: number;
+    stock: number;
     lote: string;
     umbralMinimoStock: number;
 }
@@ -44,7 +44,7 @@ export interface Insumo {
     categoria: string;
     marca: string
     unidad: string;
-    cantidad: number;
+    stock: number;
     lote: string;
     umbralMinimoStock: number;
 }
@@ -56,21 +56,21 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
     // Obtener datos desde Spring Boot
     useEffect(() => {
-    fetch("http://localhost:8080/productos/insumos/obtener")
+    fetch("https://tp-principal-backend.onrender.com/productos/insumos/obtener")
         .then(response => response.json())
         .then(data => setInsumos(data))
         .catch(error => console.error("Error cargando insumos:", error));
 }, []);
 
-    const [nuevoInsumo, setNuevoInsumo] = useState<Omit<Insumo, "lote"> & { lote: string }>({
+    const [nuevoInsumo, setNuevoInsumo] = useState<Insumo>({
     codigo: "",
     nombre: "",
     categoria: "",
     marca: "",
     unidad: "",
-    cantidad: 0,
+    stock: 1.0,
     lote: "",
-    umbralMinimoStock: 0
+    umbralMinimoStock: 1
     });
 
     const [insumoEditar, setInsumoEditar] = useState<Insumo | null>(null);
@@ -85,6 +85,22 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 const handleAddInsumo = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validación básica
+    if (
+        !nuevoInsumo.codigo.trim() ||
+        !nuevoInsumo.nombre.trim() ||
+        !nuevoInsumo.categoria.trim() ||
+        !nuevoInsumo.marca.trim() ||
+        !nuevoInsumo.unidad.trim() ||
+        nuevoInsumo.stock === null ||
+        nuevoInsumo.stock <= 0 ||
+        !nuevoInsumo.lote.trim() ||
+        nuevoInsumo.umbralMinimoStock === null
+    ) {
+        setModal({ tipo: "error", mensaje: "Todos los campos son obligatorios y deben tener datos válidos" });
+        return;
+    }
+
     if (insumos.some(i => i.codigo === nuevoInsumo.codigo)) {
         setModal({ tipo: "error", mensaje: "Ya existe un insumo con ese código" });
         return;
@@ -96,12 +112,12 @@ const handleAddInsumo = (e: React.FormEvent) => {
         categoria: String(nuevoInsumo.categoria),
         marca: String(nuevoInsumo.marca),
         unidad: String(nuevoInsumo.unidad),
-        cantidad: Number(nuevoInsumo.cantidad),
+        stock: Number(nuevoInsumo.stock),
         lote: String(nuevoInsumo.lote),
         umbralMinimoStock: Number(nuevoInsumo.umbralMinimoStock)
     };
 
-    fetch("http://localhost:8080/productos/insumos/agregar", {
+    fetch("https://tp-principal-backend.onrender.com/productos/insumos/agregar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoParaEnviar),
@@ -118,9 +134,9 @@ const handleAddInsumo = (e: React.FormEvent) => {
             categoria: "",
             marca: "",
             unidad: "",
-            cantidad: 0,
+            stock: 1,
             lote: "",
-            umbralMinimoStock: 0
+            umbralMinimoStock: 1
         });
         setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
     })
@@ -132,13 +148,14 @@ const handleAddInsumo = (e: React.FormEvent) => {
 
 
 
+
 const handleDelete = (codigo: string) => {
     setModal({
         tipo: "confirm",
         mensaje: "¿Seguro que deseas eliminar este insumo?",
         onConfirm: () => {
             // Petición DELETE al backend
-            fetch(`http://localhost:8080/productos/insumos/eliminar/${codigo}`, {
+            fetch(`https://tp-principal-backend.onrender.com/productos/insumos/eliminar/${codigo}`, {
                 method: "DELETE"
             })
                 .then(response => {
@@ -161,7 +178,7 @@ const handleUpdateInsumo = (e: React.FormEvent) => {
     if (!insumoEditar) return;
 
     // Petición PUT al backend
-    fetch(`http://localhost:8080/productos/insumos/editar/${insumoEditar.codigo}`, {
+    fetch(`https://tp-principal-backend.onrender.com/productos/insumos/editar/${insumoEditar.codigo}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoEditar),
