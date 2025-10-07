@@ -56,7 +56,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
     // Obtener datos desde Spring Boot
     useEffect(() => {
-    fetch("https://tp-principal-backend.onrender.com/productos/insumos/obtener")
+    fetch("http://localhost:8080/productos/insumos/obtener")
         .then(response => response.json())
         .then(data => setInsumos(data))
         .catch(error => console.error("Error cargando insumos:", error));
@@ -117,7 +117,7 @@ const handleAddInsumo = (e: React.FormEvent) => {
         umbralMinimoStock: Number(nuevoInsumo.umbralMinimoStock)
     };
 
-    fetch("https://tp-principal-backend.onrender.com/productos/insumos/agregar", {
+    fetch("http://localhost:8080/productos/insumos/agregar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoParaEnviar),
@@ -155,7 +155,7 @@ const handleDelete = (codigo: string) => {
         mensaje: "¿Seguro que deseas eliminar este insumo?",
         onConfirm: () => {
             // Petición DELETE al backend
-            fetch(`https://tp-principal-backend.onrender.com/productos/insumos/eliminar/${codigo}`, {
+            fetch(`http://localhost:8080/productos/insumos/eliminar/${codigo}`, {
                 method: "DELETE"
             })
                 .then(response => {
@@ -178,7 +178,7 @@ const handleUpdateInsumo = (e: React.FormEvent) => {
     if (!insumoEditar) return;
 
     // Petición PUT al backend
-    fetch(`https://tp-principal-backend.onrender.com/productos/insumos/editar/${insumoEditar.codigo}`, {
+    fetch(`http://localhost:8080/productos/insumos/editar/${insumoEditar.codigo}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoEditar),
