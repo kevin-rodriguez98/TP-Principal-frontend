@@ -16,7 +16,8 @@ const Form_Registro = () => {
                     }}>
                     <div className=".select">
                         <label style={{ margin: '20px' }}>Tipo:</label>
-                        <select style={{ backgroundColor: 'transparent', border: '2px solid #ff5ca2' }} name="tipo" >
+                        <select style={{ backgroundColor: 'transparent', border: '2px solid #ff5ca2' }} name="tipo" required>
+                            <option value="-">-</option>
                             <option value="Ingreso">Ingreso</option>
                             <option value="Egreso">Egreso</option>
                         </select>

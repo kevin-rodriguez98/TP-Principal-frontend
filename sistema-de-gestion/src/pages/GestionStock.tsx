@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Modal from "../components/modal/Modal";
 import "../styles/GestionStock.css";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
@@ -13,7 +12,7 @@ import Form_Registro from "../components/Form_Registro";
 const GestionStock = () => {
   const navigate = useNavigate();
 
-  const { insumos, insumoEditar, setInsumoEditar, modal, setModal, handleDelete, handleUpdateInsumo, open, setOpen, openEditor, setOpenEditor } = useContext(InsumoContext)!;
+  const { insumos, insumoEditar, setInsumoEditar, handleDelete, handleUpdateInsumo, open, setOpen, openEditor, setOpenEditor } = useContext(InsumoContext)!;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -200,14 +199,6 @@ const GestionStock = () => {
       </main>
       <Footer />
 
-      {modal && (
-        <Modal
-          tipo={modal.tipo}
-          mensaje={modal.mensaje}
-          onConfirm={modal.onConfirm}
-          onClose={() => setModal(null)}
-        />
-      )}
     </div>
   );
 

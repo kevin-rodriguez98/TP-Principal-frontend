@@ -47,8 +47,7 @@ h2 {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: background 0.3s;
-  margin-left: 14px;
-  margin-top: 14px;
+  margin:10px
 
 }
 
@@ -239,13 +238,15 @@ tr:nth-child(even) {
 /* ===== BOTONES FLOTANTES ===== */
 .fab-container {
   position: fixed;
-  bottom: 120px;
+  bottom: 100px;
   right: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 1000;
 }
+
+
 
 .fab {
   width: 55px;
@@ -280,7 +281,7 @@ tr:nth-child(even) {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 1000;
 }
 
 .modal {

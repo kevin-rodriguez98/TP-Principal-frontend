@@ -69,9 +69,9 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     categoria: "",
     marca: "",
     unidad: "",
-    stock: 1.0,
+    stock: 0,
     lote: "",
-    umbralMinimoStock: 1
+    umbralMinimoStock: 0
     });
 
     const [insumoEditar, setInsumoEditar] = useState<Insumo | null>(null);
