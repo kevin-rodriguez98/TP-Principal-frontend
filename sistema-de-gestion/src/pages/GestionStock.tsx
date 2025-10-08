@@ -7,12 +7,13 @@ import { useContext } from 'react';
 import { InsumoContext } from '../Context/InsumoContext';
 import Form_Alta from "../components/Form_Alta";
 import Form_Registro from "../components/Form_Registro";
+import Modal from "../components/modal/Modal";
 
 
 const GestionStock = () => {
   const navigate = useNavigate();
 
-  const { insumos, insumoEditar, setInsumoEditar, handleDelete, handleUpdateInsumo, open, setOpen, openEditor, setOpenEditor } = useContext(InsumoContext)!;
+  const { insumos, insumoEditar,modal, setModal, setInsumoEditar, handleDelete, handleUpdateInsumo, open, setOpen, openEditor, setOpenEditor } = useContext(InsumoContext)!;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -196,8 +197,19 @@ const GestionStock = () => {
             </form>
           </section>
         )}
+
+
       </main>
       <Footer />
+
+      {modal && (
+        <Modal
+          tipo={modal.tipo}
+          mensaje={modal.mensaje}
+          onConfirm={modal.onConfirm}
+          onClose={() => setModal(null)}
+        />
+      )}
 
     </div>
   );
