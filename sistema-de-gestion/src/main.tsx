@@ -5,13 +5,16 @@ import App from './App.tsx'
 import { BrowserRouter as Router } from 'react-router-dom';
 import { OpProvider } from './Context/OpContext';
 import { InsumoProvider } from './Context/InsumoContext';
+import { RegistroProvider } from './Context/RegistroContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Router>
       <OpProvider>
         <InsumoProvider>
-          <App />
+          <RegistroProvider>
+            <App />
+          </RegistroProvider>
         </InsumoProvider>
       </OpProvider>
     </Router>

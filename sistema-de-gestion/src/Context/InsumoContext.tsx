@@ -30,6 +30,14 @@ interface InsumoContextType {
     handleAddInsumo: (e: React.FormEvent) => void;
     handleDelete: (codigo: string) => void;
     handleUpdateInsumo: (e: React.FormEvent) => void;
+
+    open:boolean;
+    loading: boolean;
+    openEditor: boolean;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpenEditor: React.Dispatch<React.SetStateAction<boolean>>;
+
 }
 
 export const InsumoContext = createContext<InsumoContextType | undefined>(undefined);
@@ -38,25 +46,18 @@ interface InsumoProviderProps {
     children: React.ReactNode;
 }
 
-export interface Insumo {
-    codigo: string;
-    nombre: string;
-    categoria: string;
-    marca: string
-    unidad: string;
-    stock: number;
-    lote: string;
-    umbralMinimoStock: number;
-}
-
 
 export function InsumoProvider({ children }: InsumoProviderProps) {
+
+    const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false)
+    const [openEditor, setOpenEditor] = useState(false)
 
     const [insumos, setInsumos] = useState<Insumo[]>([]);
 
     // Obtener datos desde Spring Boot
     useEffect(() => {
-    fetch("http://localhost:8080/productos/insumos/obtener")
+    fetch("https://tp-principal-backend.onrender.com/productos/insumos/obtener")
         .then(response => response.json())
         .then(data => setInsumos(data))
         .catch(error => console.error("Error cargando insumos:", error));
@@ -117,7 +118,7 @@ const handleAddInsumo = (e: React.FormEvent) => {
         umbralMinimoStock: Number(nuevoInsumo.umbralMinimoStock)
     };
 
-    fetch("http://localhost:8080/productos/insumos/agregar", {
+    fetch("https://tp-principal-backend.onrender.com/productos/insumos/agregar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoParaEnviar),
@@ -155,7 +156,7 @@ const handleDelete = (codigo: string) => {
         mensaje: "¿Seguro que deseas eliminar este insumo?",
         onConfirm: () => {
             // Petición DELETE al backend
-            fetch(`http://localhost:8080/productos/insumos/eliminar/${codigo}`, {
+            fetch(`https://tp-principal-backend.onrender.com/productos/insumos/eliminar/${codigo}`, {
                 method: "DELETE"
             })
                 .then(response => {
@@ -178,7 +179,7 @@ const handleUpdateInsumo = (e: React.FormEvent) => {
     if (!insumoEditar) return;
 
     // Petición PUT al backend
-    fetch(`http://localhost:8080/productos/insumos/editar/${insumoEditar.codigo}`, {
+    fetch(`https://tp-principal-backend.onrender.com/productos/insumos/editar/${insumoEditar.codigo}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(insumoEditar),
@@ -203,7 +204,7 @@ const handleUpdateInsumo = (e: React.FormEvent) => {
     return (
         <InsumoContext.Provider value={{
             insumos, setInsumos, nuevoInsumo, setNuevoInsumo, insumoEditar, setInsumoEditar, modal, setModal,
-            handleAddInsumo, handleDelete, handleUpdateInsumo
+            handleAddInsumo, handleDelete, handleUpdateInsumo, open, setOpen, openEditor, setOpenEditor, loading,setLoading
         }}>
             {children}
         </InsumoContext.Provider>

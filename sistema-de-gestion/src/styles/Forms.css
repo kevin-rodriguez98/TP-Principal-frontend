@@ -1,0 +1,49 @@
+
+.tituloSeccion {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.card {
+    border: 2px solid #ff5ca2;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 15px;
+    background-color: #fff0f6;
+    display: flex;
+    flex-direction: column;
+}
+
+.select {
+    display: flex;
+}
+
+input,
+select {
+    padding: 3%;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.btn-guardar {
+    background-color: #ff99cc;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+    margin-left: 14px;
+    margin-top: 14px;
+
+}
+
+button:hover {
+    background-color: #ff66b2;
+}

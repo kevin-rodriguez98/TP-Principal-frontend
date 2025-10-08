@@ -1,39 +1,51 @@
 /* --- Contenedor principal --- */
 .gestion-stock {
   margin: auto;
-  padding: 10px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* --- Título --- */
 h2 {
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1rem;
-}
+  margin: 1rem;
 
-/* --- Contenedores de los desplegables y cards --- */
+}
+  
+.tituloSeccion{
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+
+} 
 .card {
   border: 2px solid #ff5ca2;
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin: 2%;
   overflow: hidden;
   padding: 15px;
   background-color: #fff0f6;
+  display: flex;
+  flex-direction: column;
 }
 
+
+
 /* --- Botones --- */
-button {
+.btn-volver, .btn-paginacion {
   background-color: #ff99cc;
   color: white;
   font-weight: bold;
   font-size: 1rem;
   border: none;
-  padding: 12px;
+  padding: 9px;
   cursor: pointer;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: background 0.3s;
   margin-left: 14px;
   margin-top: 14px;
@@ -44,13 +56,6 @@ button:hover {
   background-color: #ff66b2;
 }
 
-/* --- Inputs y selects --- */
-input, select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
 
 /* --- Formularios horizontales --- */
 .formulario-horizontal {
@@ -62,7 +67,8 @@ input, select {
 
 .formulario-horizontal input,
 .formulario-horizontal select {
-  flex: 1 1 120px; /* crece pero mínimo 120px */
+  flex: 1 1 120px;
+  /* crece pero mínimo 120px */
 }
 
 .formulario-horizontal button {
@@ -92,7 +98,8 @@ table {
   font-size: 0.9rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
@@ -151,15 +158,18 @@ tr:nth-child(even) {
 @media (max-width: 768px) {
   .formulario-horizontal {
     flex-direction: column;
-    align-items: stretch; /* ocupa todo el ancho de la card */
+    align-items: stretch;
+    /* ocupa todo el ancho de la card */
     gap: 10px;
   }
 
   .formulario-horizontal input,
   .formulario-horizontal select,
   .formulario-horizontal button {
-    width: 100%; /* fuerza que ocupen el 100% del contenedor */
-    box-sizing: border-box; /* evita que el padding haga overflow */
+    width: 100%;
+    /* fuerza que ocupen el 100% del contenedor */
+    box-sizing: border-box;
+    /* evita que el padding haga overflow */
   }
 
   /* General para cualquier form fuera de .formulario-horizontal */
@@ -168,17 +178,13 @@ tr:nth-child(even) {
     flex-direction: column;
     gap: 10px;
   }
-  form input,
-  form select,
-  form button {
-    width: 100%;
-    box-sizing: border-box;
-  }
+
+
   button {
-        margin-left: 0;
-        margin-top: 0;
-    }
-  
+    margin-left: 0;
+    margin-top: 0;
+  }
+
 }
 
 @media (max-width: 768px) {
@@ -213,15 +219,95 @@ tr:nth-child(even) {
     content: attr(data-label) ": ";
     font-weight: bold;
   }
-table tbody tr td:nth-child(odd) {
-  background-color: #fcbad0;
+
+  table tbody tr td:nth-child(odd) {
+    background-color: #fcbad0;
+  }
+
+  table tbody tr td:nth-child(even) {
+    background-color: #ffe6f2;
+  }
+
+  table tbody tr td.actions {
+    background-color: transparent;
+  }
 }
 
-table tbody tr td:nth-child(even) {
-  background-color: #ffe6f2;
+
+
+
+/* ===== BOTONES FLOTANTES ===== */
+.fab-container {
+  position: fixed;
+  bottom: 120px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
 }
 
-table tbody tr td.actions {
-  background-color: transparent;
+.fab {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: none;
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
 }
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+.fab-alta {
+  background-color: #ff69b4; /* rosa fuerte */
+}
+
+.fab-registro {
+  background-color: #28a745; /* verde */
+}
+
+/* ===== MODAL ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  margin: 3%;
+  padding: 1rem;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: showUp 0.25s ease-out;
+}
+
+.close-btn {
+  position: absolute;
+  padding: 2%;
+  top: 2px;
+  right: 10px;
+  border: none;
+  background: #ff5ca2;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Animación al aparecer */
+@keyframes showUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
