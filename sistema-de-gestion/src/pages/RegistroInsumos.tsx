@@ -11,7 +11,7 @@ import ListadoRegistro from "../components/ListadoRegistro.tsx";
 const RegistroInsumos = () => {
     const navigate = useNavigate();
 
-    const {modal, setModal, open, setOpen } = useContext(RegistroContext)!;
+    const { modal, setModal, open, setOpen } = useContext(RegistroContext)!;
 
 
 
@@ -20,10 +20,14 @@ const RegistroInsumos = () => {
             <Header />
             <main className="flex-1 p-6 gestion-stock">
                 <h2 className="titulo">Registro de Insumos</h2>
+
                 <section className="card">
-                    <h3 className="tituloSeccion">Lista de Registros</h3>
-                    <ListadoRegistro />
+                    <h3 className="tituloSeccion">Lista de Insumos</h3>
+                    <div className="table-wrapper">
+                        <ListadoRegistro />
+                    </div>
                 </section>
+                
                 <div className="fab-container">
                     <button
                         className="fab fab-registro"

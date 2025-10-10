@@ -10,6 +10,7 @@ import ListadoInsumo from "../components/ListadoInsumo";
 import "../styles/GestionStock.css";
 
 
+
 const GestionStock = () => {
   const navigate = useNavigate();
 
@@ -25,19 +26,15 @@ const GestionStock = () => {
 
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
-          <ListadoInsumo  />
+          <div className="table-wrapper">
+            <ListadoInsumo />
+          </div>
         </section>
 
         <div className="fab-container">
           <button className="fab fab-alta" onClick={() => setTipoModal("alta")}>
             +
           </button>
-          {/* <button
-            className="fab fab-registro"
-            onClick={() => setTipoModal("movimiento")}
-          >
-            ⇄
-          </button> */}
         </div>
 
         {tipoModal && (
@@ -53,12 +50,6 @@ const GestionStock = () => {
                   <Form_Alta />
                 </>
               )}
-              {/* {tipoModal === "movimiento" && (
-                <>
-                  <h2>Registro de Movimiento</h2>
-                  <Form_Registro />
-                </>
-              )} */}
               {tipoModal === "editar" && (
                 <>
                   <h2>Editar Insumo</h2>

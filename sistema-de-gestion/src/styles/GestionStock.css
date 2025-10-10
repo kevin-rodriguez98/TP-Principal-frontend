@@ -15,204 +15,98 @@ h2 {
   margin: 1rem;
 
 }
-  
-.tituloSeccion{
+
+.tituloSeccion {
   font-size: 1rem;
-  color:brown;
+  color: brown;
   font-weight: bold;
   margin-bottom: 1rem;
 
-} 
+}
+
+
 .card {
   border: 2px solid #080808;
   border-radius: 10px;
   margin: 2%;
-  overflow: hidden;
   padding: 15px;
   background-color: #fff0f6;
   display: flex;
   flex-direction: column;
+  width: 90%;
+}
+
+
+
+
+/* VERSION ALDANA----------------------------------------------------- */
+
+/* .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
 table {
-  width: 100%; /* Ocupa todo el ancho posible */
-  table-layout: fixed; /* Para que las columnas sean proporcionales */
-  font-size: 16px; /* Agranda texto */
+  width: 100%;
+  table-layout: fixed;
+  font-size: 16px;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+table th,
+table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+
+table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+    min-width: 600px;
+  }
+
+  table th,
+  table td {
+    padding: 8px;
+    width: 100px;
+    border: 1px solid black;
+
+  }
+
+  table td:first-child,
+  table th:first-child {
+    width: 60px;
+  }
+} */
+
+
+
+/* VERSION JULI--------------------------------------------------------------------------- */
+
+table {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 16px;
   border-collapse: collapse;
 }
 
-table th, table td {
-  padding: 12px; /* Más espacio */
+table th,
+table td {
+  padding: 12px;
   text-align: left;
   border: 1px solid #ddd;
 }
 
 table th {
   background-color: #f4f4f4;
-}
-
-.card {
-  overflow-x: auto; /* Permite scroll si la tabla es muy ancha */
-}
-
-
-
-
-
-/* --- Botones --- */
-.btn-volver, .btn-paginacion {
-  background-color: #ff99cc;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
-  border: none;
-  padding: 9px;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s;
-  margin:10px
-
-}
-
-
-/* --- Formularios horizontales --- */
-.formulario-horizontal {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.formulario-horizontal input,
-.formulario-horizontal select {
-  flex: 1 1 120px;
-  /* crece pero mínimo 120px */
-}
-
-.formulario-horizontal button {
-  flex: 0 0 auto;
-  padding: 10px 15px;
-}
-
-/* --- Adaptación móvil --- */
-@media (max-width: 768px) {
-  .formulario-horizontal {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .formulario-horizontal input,
-  .formulario-horizontal select,
-  .formulario-horizontal button {
-    width: 100%;
-  }
-}
-
-/* --- Tabla de insumos --- */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-.tabla-insumo th {
-  background-color: #5f0ff5;
-  color: white;
-  font-weight: bold;
-}
-
-
-.tabla-registro th {
-  background-color: #28a745;
-  color: white;
-  font-weight: bold;
-}
-
-tr:nth-child(even) {
-  background-color: #fce4ec;
-}
-
-/* --- Botones dentro de la tabla --- */
-.btn-editar {
-  background-color: #3a34ff;
-  color: white;
-  border-radius: 6px;
-  padding: 5px 10px;
-  margin-right: 5px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-editar:hover {
-  background-color: #0400f9;
-}
-
-.btn-eliminar {
-  background-color: #f44336;
-  color: white;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-eliminar:hover {
-  background-color: #d32f2f;
-}
-
-/* --- Paginación --- */
-.paginacion {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.paginacion button {
-  padding: 5px 10px;
-  font-weight: bold;
-}
-
-@media (max-width: 768px) {
-  .formulario-horizontal {
-    flex-direction: column;
-    align-items: stretch;
-    /* ocupa todo el ancho de la card */
-    gap: 10px;
-  }
-
-  .formulario-horizontal input,
-  .formulario-horizontal select,
-  .formulario-horizontal button {
-    width: 100%;
-    /* fuerza que ocupen el 100% del contenedor */
-    box-sizing: border-box;
-    /* evita que el padding haga overflow */
-  }
-
-  /* General para cualquier form fuera de .formulario-horizontal */
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-
-  button {
-    margin-left: 0;
-    margin-top: 0;
-  }
-
 }
 
 @media (max-width: 768px) {
@@ -262,6 +156,88 @@ tr:nth-child(even) {
 }
 
 
+/* --- Botones dentro de la tabla --- */
+
+.actions {
+  display: flex;          /* coloca los botones en fila */
+  gap: 5px;               /* espacio entre botones */
+  justify-content: flex-start; /* opcional: alineación izquierda */
+  align-items: center;    /* centra verticalmente */
+}
+
+.actions button {
+  flex: 0 0 auto;         /* evita que los botones se estiren */
+}
+
+/* Botón editar */
+.btn-editar {
+  background-color: #4368fa; /* color de fondo */
+  color: white;              /* color del icono */
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;         /* tamaño del botón */
+  cursor: pointer;
+  display: flex;             /* para centrar el icono */
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;           /* tamaño del icono */
+  transition: background 0.3s;
+}
+
+.btn-editar:hover {
+  background-color: #0400f9;
+}
+
+/* Botón eliminar */
+.btn-eliminar {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background 0.3s;
+}
+
+.btn-eliminar:hover {
+  background-color: #d32f2f;
+}
+
+
+/* --- Paginación --- */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.paginacion button {
+  padding: 5px 10px;
+  font-weight: bold;
+}
+
+.btn-volver,
+.btn-paginacion {
+  background-color: #ff99cc;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  padding: 9px;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+  margin: 10px
+}
+
+
 
 
 
@@ -295,11 +271,13 @@ tr:nth-child(even) {
 }
 
 .fab-alta {
-  background-color: #28a745; /* rosa fuerte */
+  background-color: #28a745;
+  /* rosa fuerte */
 }
 
 .fab-registro {
-  background-color: #28a745; /* verde */
+  background-color: #28a745;
+  /* verde */
 }
 
 /* ===== MODAL ===== */
@@ -321,7 +299,7 @@ tr:nth-child(even) {
   padding: 1rem;
   border-radius: 10px;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   animation: showUp 0.25s ease-out;
 }
 
@@ -338,11 +316,16 @@ tr:nth-child(even) {
 
 /* Animación al aparecer */
 @keyframes showUp {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-
-
 
 
 /* ====SPINNER==== */
@@ -356,22 +339,6 @@ tr:nth-child(even) {
   margin: 0 auto 10px;
 }
 
-
-.spinner-cell {
-  display: flex;           /* Hace que sea un contenedor flexible */
-  flex-direction: column;  /* Coloca icono y texto en columna */
-  align-items: center;     /* Centra horizontalmente */
-  justify-content: center; /* Centra verticalmente */
-  padding: 20px;
-  width: 100%;             /* Asegura que ocupe toda la celda */
-}
-
-.spinner {
-  width: 60px;
-  height: 60px;
-}
-
-
 @media (max-width: 768px) {
   .spinner-cell {
     display: flex;
@@ -379,19 +346,6 @@ tr:nth-child(even) {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    width: 100%;
+    width: 90%;
   }
 }
-
-
-.spinner-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  box-sizing: border-box;
-  width: 100%;
-  overflow-x: hidden;
-}
-

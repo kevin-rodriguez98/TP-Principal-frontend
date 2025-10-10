@@ -39,8 +39,8 @@ interface RegistroProviderProps {
 }
 
 export function RegistroProvider({ children }: RegistroProviderProps) {
-    // const URL = "http://localhost:8080/movimiento-insumo";
-    const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
+    const URL = "http://localhost:8080/movimiento-insumo";
+    // const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
     const [open, setOpen] = useState<"movimiento" | null>(null);
     const [registros, setRegistros] = useState<Registro[]>([]);
     const [nuevoRegistro, setNuevoRegistro] = useState<Registro>({

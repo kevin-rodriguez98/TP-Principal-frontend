@@ -127,7 +127,7 @@ useEffect(() => {
                 umbralMinimoStock: 0,
             });
             setTipoModal(null);
-            setModal({ tipo: "success", mensaje: "✅ Insumo agregado con éxito" });
+            setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
         } catch {
             setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." });
         }

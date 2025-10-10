@@ -41,7 +41,7 @@ function ListadoRegistro() {
 
 
     return (
-        <div className="listado-container">
+        <div className="tabla-insumos">
             <table>
                 <thead>
                     <tr>

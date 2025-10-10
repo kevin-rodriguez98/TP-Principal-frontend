@@ -4,6 +4,8 @@ import "../styles/GestionStock.css";
 import spinner from "/loading.gif";
 import SinResultados from "./SinResultados.tsx";
 import type { Insumo } from "../Context/InsumoContext.tsx";
+import { MdDelete } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 export interface Columna<T> {
     key: keyof T;
@@ -89,13 +91,13 @@ function ListadoInsumo() {
                                             setTipoModal("editar");
                                         }}
                                     >
-                                        Editar
+                                        <FaEdit />
                                     </button>
                                     <button
                                         className="btn-eliminar"
                                         onClick={() => handleDelete(item.codigo)}
                                     >
-                                        Eliminar
+                                        <MdDelete />
                                     </button>
                                 </td>
                             </tr>
