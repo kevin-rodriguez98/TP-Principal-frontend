@@ -1,33 +1,20 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { InsumoContext } from "../Context/InsumoContext";
-import type { Insumo } from "../Context/InsumoContext.tsx";
-import type { Columna } from "../components/Listado.tsx";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Form_Alta from "../components/Form_Alta";
 import Form_editar from "../components/Form_editar";
 import Modal from "../components/modal/Modal";
-import Listado from "../components/Listado";
+import ListadoInsumo from "../components/ListadoInsumo";
 import "../styles/GestionStock.css";
 
 
 const GestionStock = () => {
   const navigate = useNavigate();
 
-const columnasInsumo: Columna<Insumo>[] = [
-  { key: "codigo", label: "Código" },
-  { key: "nombre", label: "Nombre" },
-  { key: "categoria", label: "Categoría" },
-  { key: "marca", label: "Marca" },
-  { key: "stock", label: "Cantidad" },
-  { key: "unidad", label: "Unidad" },
-  { key: "lote", label: "Lote" },
-];
 
-
-
-  const { insumos, modal, setModal, tipoModal, setTipoModal } =
+  const { modal, setModal, tipoModal, setTipoModal } =
     useContext(InsumoContext)!;
 
   return (
@@ -38,7 +25,7 @@ const columnasInsumo: Columna<Insumo>[] = [
 
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
-          <Listado lista={insumos} columnas={columnasInsumo} />
+          <ListadoInsumo  />
         </section>
 
         <div className="fab-container">

@@ -1,52 +1,50 @@
 import { useContext, useState, useEffect } from "react";
-import { InsumoContext } from "../Context/InsumoContext";
+import { InsumoContext } from "../Context/InsumoContext.tsx";
 import "../styles/GestionStock.css";
 import spinner from "/loading.gif";
-import SinResultados from "../components/SinResultados"; // 👈 importa tu componente
+import SinResultados from "./SinResultados.tsx";
+import type { Insumo } from "../Context/InsumoContext.tsx";
 
 export interface Columna<T> {
     key: keyof T;
     label: string;
 }
 
-interface ListadoProps<T> {
-    lista: T[];
-    columnas: Columna<T>[];
-}
+const columnasInsumo: Columna<Insumo>[] = [
+    { key: "codigo", label: "Código" },
+    { key: "nombre", label: "Nombre" },
+    { key: "categoria", label: "Categoría" },
+    { key: "marca", label: "Marca" },
+    { key: "stock", label: "Cantidad" },
+    { key: "unidad", label: "Unidad" },
+    { key: "lote", label: "Lote" },
+];
 
-function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = lista.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(lista.length / itemsPerPage);
-
-    // Estados locales de carga y error
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
-
-    const { setInsumoEditar, handleDelete, setTipoModal } =
+function ListadoInsumo() {
+    const { insumos, setInsumoEditar, handleDelete, setTipoModal, error } =
         useContext(InsumoContext)!;
 
-    // ⏳ Simular carga y detectar error si no hay datos
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const currentItems = insumos.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+    const totalPages = Math.ceil(insumos.length / itemsPerPage);
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!lista || lista.length === 0) {
-                setHasError(true);
-            }
-            setIsLoading(false);
-        }, 2000);
+        const timer = setTimeout(() => setIsLoading(false), 1500);
         return () => clearTimeout(timer);
-    }, [lista]);
+    }, [insumos]);
 
     return (
         <div>
             <table className="tabla-insumos">
                 <thead>
                     <tr>
-                        {columnas.map((col, i) => (
-                            <th key={i}>{col.label}</th>
+                        {columnasInsumo.map((col) => (
+                            <th key={col.key as string}>{col.label}</th>
                         ))}
                         <th>Acciones</th>
                     </tr>
@@ -54,40 +52,40 @@ function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
                 <tbody>
                     {isLoading ? (
                         <tr>
-                            <td colSpan={columnas.length + 1} className="spinner-cell">
-                                <img
-                                    src={spinner}
-                                    alt="Cargando..."
-                                    width={60}
-                                    height={60}
-                                    className="spinner"
-                                />
+                            <td colSpan={columnasInsumo.length + 1} className="spinner-cell">
+                                <img src={spinner} alt="Cargando..." width={60} height={60} />
                                 <p>Cargando datos...</p>
                             </td>
                         </tr>
-                    ) : hasError ? (
+                    ) : error ? (
                         <tr>
-                            <td colSpan={columnas.length + 1}>
-                                <SinResultados /> {/* 👈 tu componente cuando el back falla */}
+                            <td colSpan={columnasInsumo.length + 1} className="error-cell">
+                                <SinResultados
+                                    titulo={error}
+                                    mensaje="No encontramos insumos"
+                                />
                             </td>
                         </tr>
                     ) : currentItems.length === 0 ? (
                         <tr>
-                            <td colSpan={columnas.length + 1}>
-                                <SinResultados />
+                            <td colSpan={columnasInsumo.length + 1}>
+                                <SinResultados
+                                    titulo="No existen insumos"
+                                    mensaje="Intenta mas tarde"
+                                />
                             </td>
                         </tr>
                     ) : (
-                        currentItems.map((item, i) => (
-                            <tr key={i}>
-                                {columnas.map((col) => (
+                        currentItems.map((item) => (
+                            <tr key={item.codigo}>
+                                {columnasInsumo.map((col) => (
                                     <td key={String(col.key)}>{String(item[col.key])}</td>
                                 ))}
                                 <td className="actions">
                                     <button
                                         className="btn-editar"
                                         onClick={() => {
-                                            setInsumoEditar(item as any);
+                                            setInsumoEditar(item);
                                             setTipoModal("editar");
                                         }}
                                     >
@@ -95,9 +93,7 @@ function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
                                     </button>
                                     <button
                                         className="btn-eliminar"
-                                        onClick={() =>
-                                            handleDelete && handleDelete((item as any).codigo)
-                                        }
+                                        onClick={() => handleDelete(item.codigo)}
                                     >
                                         Eliminar
                                     </button>
@@ -108,10 +104,10 @@ function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
                 </tbody>
             </table>
 
-            {!isLoading && !hasError && currentItems.length > 0 && (
+            {!isLoading && !error && currentItems.length > 0 && (
                 <div className="paginacion">
                     <button
-                        disabled={currentPage === 1 || totalPages === 0}
+                        disabled={currentPage === 1}
                         onClick={() => setCurrentPage((p) => p - 1)}
                     >
                         Anterior
@@ -120,7 +116,7 @@ function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
                         Página {currentPage} / {totalPages}
                     </span>
                     <button
-                        disabled={currentPage === totalPages || totalPages === 0}
+                        disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => p + 1)}
                     >
                         Siguiente
@@ -131,4 +127,4 @@ function Listado<T extends object>({ lista = [], columnas }: ListadoProps<T>) {
     );
 }
 
-export default Listado;
+export default ListadoInsumo;

@@ -38,6 +38,7 @@ table {
   width: 100%; /* Ocupa todo el ancho posible */
   table-layout: fixed; /* Para que las columnas sean proporcionales */
   font-size: 16px; /* Agranda texto */
+  border-collapse: collapse;
 }
 
 table th, table td {
@@ -263,10 +264,12 @@ tr:nth-child(even) {
 
 
 
+
+
 /* ===== BOTONES FLOTANTES ===== */
 .fab-container {
   position: fixed;
-  bottom: 50px;
+  bottom: 105px;
   right: 10px;
   display: flex;
   flex-direction: column;
@@ -352,3 +355,43 @@ tr:nth-child(even) {
   display: block;
   margin: 0 auto 10px;
 }
+
+
+.spinner-cell {
+  display: flex;           /* Hace que sea un contenedor flexible */
+  flex-direction: column;  /* Coloca icono y texto en columna */
+  align-items: center;     /* Centra horizontalmente */
+  justify-content: center; /* Centra verticalmente */
+  padding: 20px;
+  width: 100%;             /* Asegura que ocupe toda la celda */
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+}
+
+
+@media (max-width: 768px) {
+  .spinner-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
+  }
+}
+
+
+.spinner-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+}
+

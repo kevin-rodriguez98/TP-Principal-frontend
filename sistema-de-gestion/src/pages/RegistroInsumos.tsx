@@ -1,31 +1,19 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { RegistroContext } from "../Context/RegistroContext";
-import type { Registro } from "../Context/RegistroContext.tsx";
-import type { Columna } from "../components/Listado.tsx";
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import Modal from "../components/modal/Modal.tsx";
 import Form_Registro from "../components/Form_Registro.tsx";
 import "../styles/GestionStock.css";
-import Listado from "../components/Listado.tsx";
+import ListadoRegistro from "../components/ListadoRegistro.tsx";
 
 const RegistroInsumos = () => {
     const navigate = useNavigate();
 
-    const { registros, setNuevoRegistro, setRegistros, nuevoRegistro, modal, setModal, handleAddRegistro, open, setOpen } = useContext(RegistroContext)!;
+    const {modal, setModal, open, setOpen } = useContext(RegistroContext)!;
 
-    const columnasRegistro: Columna<Registro>[] = [
-        { key: "codigo", label: "Código" },
-        { key: "nombre", label: "Nombre" },
-        { key: "categoria", label: "Categoría" },
-        { key: "marca", label: "Marca" },
-        { key: "stock", label: "Cantidad" },
-        { key: "unidad", label: "Unidad" },
-        { key: "lote", label: "Lote" },
-        { key: "proveedor", label: "proveedor" },
-        { key: "venta", label: "venta" },
-    ];
+
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -34,7 +22,7 @@ const RegistroInsumos = () => {
                 <h2 className="titulo">Registro de Insumos</h2>
                 <section className="card">
                     <h3 className="tituloSeccion">Lista de Registros</h3>
-                    <Listado lista={registros} columnas={columnasRegistro} />
+                    <ListadoRegistro />
                 </section>
                 <div className="fab-container">
                     <button
