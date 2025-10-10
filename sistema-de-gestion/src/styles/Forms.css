@@ -1,11 +1,14 @@
-
+.formulario {
+    display:flex;
+    flex-direction: column;
+}
 .tituloSeccion {
     font-size: 0.8rem;
     font-weight: bold;
     margin-bottom: 1rem;
 }
 
-.card {
+.card-alta {
     border: 2px solid #ff5ca2;
     border-radius: 10px;
     overflow: hidden;
@@ -26,24 +29,20 @@ select {
     border-radius: 6px;
     border: 1px solid #ccc;
     box-sizing: border-box;
+    margin: 1%;
 }
 
-.btn-guardar {
-    background-color: #ff99cc;
+.btn-guardar, .btn-actualizar {
+    background-color: #00a226;
     color: white;
     font-weight: bold;
     font-size: 1rem;
     border: none;
-    padding: 2px;
+    padding: 2%;
     cursor: pointer;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: background 0.3s;
     margin-left: 14px;
     margin-top: 14px;
-
-}
-
-button:hover {
-    background-color: #ff66b2;
 }

@@ -9,7 +9,7 @@ const Form_Alta = () => {
 
     return (
         <div className="forms">
-            <section className="card">
+            <section className="card-alta">
                 <form
                     className="formulario"
                     onSubmit={(e) => {
@@ -59,7 +59,7 @@ const Form_Alta = () => {
 
                     <input
                         type="number"
-                        placeholder="Cantidad"
+                        placeholder="Stock"
                         value={nuevoInsumo.stock || ""}
                         min="0"
                         onChange={(e) =>
@@ -73,20 +73,20 @@ const Form_Alta = () => {
 
                     <input
                         type="text"
-                        placeholder="Lote"
-                        value={nuevoInsumo.lote}
-                        onChange={(e) =>
-                            setNuevoInsumo({ ...nuevoInsumo, lote: e.target.value.trim() })
-                        }
-                        required
+                        placeholder="unidad"
+                        value={nuevoInsumo.unidad}
+                        onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setNuevoInsumo({ ...nuevoInsumo, unidad: (value) });
+                        }}
                     />
 
                     <input
                         type="text"
-                        placeholder="Unidad"
-                        value={nuevoInsumo.unidad}
+                        placeholder="Lote"
+                        value={nuevoInsumo.lote}
                         onChange={(e) =>
-                            setNuevoInsumo({ ...nuevoInsumo, unidad: e.target.value.trim() })
+                            setNuevoInsumo({ ...nuevoInsumo, lote: e.target.value.trim() })
                         }
                         required
                     />

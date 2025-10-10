@@ -1,0 +1,29 @@
+.sin-resultados {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.icono-triste {
+    font-size: 4rem;
+    color: #f66a6a;
+    margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

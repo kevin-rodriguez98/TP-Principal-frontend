@@ -8,7 +8,9 @@ export interface Registro {
     unidad: string;
     stock: number;
     lote: string;
+    proveedor: string;
     tipo: string;
+    venta:string | "";
 }
 
 interface ModalData {
@@ -21,18 +23,18 @@ interface RegistroContextType {
     modal: ModalData | null;
     setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
     handleAddRegistro: (e: React.FormEvent) => void;
-
     registros: Registro[];
     setRegistros: React.Dispatch<React.SetStateAction<Registro[]>>;
     nuevoRegistro:Registro;
     setNuevoRegistro: React.Dispatch<React.SetStateAction<Registro>>;
-
-    open:boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    loading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    openEditor: boolean;
-    setOpenEditor: React.Dispatch<React.SetStateAction<boolean>>;
+    open: "movimiento" | null;
+    setOpen: React.Dispatch<React.SetStateAction<"movimiento" | null>>;
+    // open:boolean;
+    // setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    // loading: boolean;
+    // setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    // openEditor: boolean;
+    // setOpenEditor: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const RegistroContext = createContext<RegistroContextType | undefined>(undefined);
@@ -42,11 +44,8 @@ interface RegistroProviderProps {
 }
 
 export function RegistroProvider({ children }: RegistroProviderProps) {
-
-    const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false)
-    const [openEditor, setOpenEditor] = useState(false)
-
+    const URL = "http://localhost:8080/movimiento-insumo"
+    const [open, setOpen] = useState<"movimiento" | null >(null);
     const [registros, setRegistros] = useState<Registro[]>([]);
     const [nuevoRegistro, setNuevoRegistro] = useState<Registro>({
         codigo: "",
@@ -56,9 +55,10 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
         unidad: "",
         stock: 1,
         lote: "",
-        tipo:"" 
+        tipo:"" ,
+        proveedor:"",
+        venta:""
     });
-    
     
     const [modal, setModal] = useState<{
         tipo: "confirm" | "success" | "error";
@@ -68,7 +68,7 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
     
     // Obtener datos desde Spring Boot
     useEffect(() => {
-    fetch("https://tp-principal-backend.onrender.com//movimiento-insumo/obtener")
+        fetch(`${URL}/obtener`)
         .then(response => response.json())
         .then(data => setRegistros(data))
         .catch(error => console.error("Error cargando registro:", error));
@@ -93,7 +93,7 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
         tipo: String(nuevoRegistro.tipo)
     };
 
-    fetch("https://tp-principal-backend.onrender.com/movimiento-insumo/agregar", {
+        fetch(`${URL}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registroParaEnviar),
@@ -112,7 +112,9 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
             unidad: "",
             stock: 1,
             lote: "",
-            tipo:""
+            tipo:"",
+            proveedor:"",
+            venta:""
         });
         setModal({ tipo: "success", mensaje: "Registro agregado con éxito" });
     })
@@ -126,7 +128,7 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
 
     return (
         <RegistroContext.Provider value={{
-            setNuevoRegistro, setRegistros, registros, nuevoRegistro ,modal, setModal, handleAddRegistro, open, setOpen, openEditor, setOpenEditor, loading, setLoading
+            setNuevoRegistro, setRegistros, registros, nuevoRegistro ,modal, setModal, handleAddRegistro, open, setOpen
         }}>
             {children}
         </RegistroContext.Provider>

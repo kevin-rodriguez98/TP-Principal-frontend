@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route } from 'react-router-dom';
 import Menu from './pages/Menu'
 import GestionStock from './pages/GestionStock.tsx';
-import RegistroInsumos from './pages/RegistroInsumos.tsx';
+import RegistroInsumos from "./pages/RegistroInsumos.tsx";
 
 function App() {
 
@@ -19,7 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Menu />} />
         <Route path="/GestionStock" element={<GestionStock />} />
-        <Route path="/registroInsumos" element={<RegistroInsumos />} />
+        <Route path="/RegistroInsumos" element={<RegistroInsumos />} />
       </Routes>
     </>
   )

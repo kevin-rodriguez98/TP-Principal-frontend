@@ -1,10 +1,11 @@
 import { useContext } from 'react'
 import "../styles/Forms.css";
 import { RegistroContext } from '../Context/RegistroContext';
+import Modal from './modal/Modal';
 
 const Form_Registro = () => {
 
-    const { nuevoRegistro, setNuevoRegistro, handleAddRegistro } = useContext(RegistroContext)!;
+    const { nuevoRegistro, setNuevoRegistro, handleAddRegistro, modal, setModal} = useContext(RegistroContext)!;
 
     return (
         <div>
@@ -26,7 +27,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="Codigo"
-                        value={""}
+                        value={nuevoRegistro?.codigo || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, codigo: e.target.value.trim() })
                         }
@@ -35,7 +36,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="nombre"
-                        value={""}
+                        value={nuevoRegistro?.nombre || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, nombre: e.target.value.trim() })
                         }
@@ -44,7 +45,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="categoria"
-                        value={""}
+                        value={nuevoRegistro?.categoria || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, categoria: e.target.value.trim() })
                         }
@@ -52,7 +53,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="unidad"
-                        value={""}
+                        value={nuevoRegistro?.unidad || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, unidad: e.target.value.trim() })
                         }
@@ -61,7 +62,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="stock"
-                        value={""}
+                        value={nuevoRegistro?.stock || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, stock: Number(e.target.value.trim()) })
                         }
@@ -70,7 +71,7 @@ const Form_Registro = () => {
                     <input
                         type="text"
                         placeholder="lote"
-                        value={""}
+                        value={nuevoRegistro?.lote || ""}
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, lote: e.target.value.trim() })
                         }
@@ -79,6 +80,15 @@ const Form_Registro = () => {
                     <button type="submit" className="btn-guardar">Guardar</button>
                 </form>
             </section>
+
+            {modal && (
+                            <Modal
+                                tipo={modal.tipo}
+                                mensaje={modal.mensaje}
+                                onConfirm={modal.onConfirm}
+                                onClose={() => setModal(null)}
+                            />
+                        )}
         </div>
 
     )
