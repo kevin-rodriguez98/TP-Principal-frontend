@@ -7,6 +7,23 @@ const Form_Registro = () => {
     const { nuevoRegistro, setNuevoRegistro, handleAddRegistro, modal, setModal } =
         useContext(RegistroContext)!;
 
+
+    const camposIncompletos = () => {
+        return (
+            nuevoRegistro.tipo.trim() == "" ||
+            nuevoRegistro.codigo.trim() == "" ||
+            nuevoRegistro.nombre.trim() === "" ||
+            nuevoRegistro.categoria.trim() === "" ||
+            nuevoRegistro.marca.trim() === "" ||
+            nuevoRegistro.unidad.trim() === "" ||
+            nuevoRegistro.stock <= 0 ||
+            nuevoRegistro.lote === "" ||
+            nuevoRegistro.proveedor === "" 
+            // nuevoRegistro.destino === ""
+            // nuevoRegistro.responsable === "" ||
+        );
+    };
+
     return (
         <div>
             <section className="card">
@@ -152,10 +169,14 @@ const Form_Registro = () => {
                         onChange={(e) =>
                             setNuevoRegistro({ ...nuevoRegistro, destino: e.target.value.trim() })
                         }
-                        disabled={nuevoRegistro?.tipo === "Ingreso"} 
+                        disabled={nuevoRegistro?.tipo === "Ingreso"}
                     />
 
-                    <button type="submit" className="btn-guardar">
+                    <button
+                        type="submit"
+                        disabled={camposIncompletos()}
+                        className="btn-guardar"
+                    >
                         Guardar
                     </button>
                 </form>

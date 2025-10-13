@@ -1,7 +1,8 @@
 .formulario {
-    display:flex;
+    display: flex;
     flex-direction: column;
 }
+
 .tituloSeccion {
     font-size: 0.8rem;
     font-weight: bold;
@@ -32,7 +33,8 @@ select {
     margin: 1%;
 }
 
-.btn-guardar, .btn-actualizar {
+.btn-guardar,
+.btn-actualizar {
     background-color: #00a226;
     color: white;
     font-weight: bold;
@@ -53,6 +55,26 @@ select {
     justify-content: center;
 }
 
+
+
 .div-cantidad input {
-width: 50%;
+    width: 50%;
 }
+
+
+.btn-guardar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-guardar:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+

@@ -1,15 +1,33 @@
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { InsumoContext } from '../../Context/InsumoContext';
 import Modal from "../modal/Modal";
 import "../../styles/Forms.css";
 
 const Form_editar = () => {
 
-    const { insumoEditar, setInsumoEditar, handleUpdateInsumo, modal, setModal } = useContext(InsumoContext)!;
+    const { insumoEditar, setInsumoEditar, handleUpdateInsumo, modal, setModal, insumos } = useContext(InsumoContext)!;
+    const insumoOriginal = useMemo(() => {
+        if (!insumoEditar) return null;
+        return insumos.find(i => i.codigo === insumoEditar.codigo) || null;
+    }, [insumoEditar, insumos]);
+
 
     if (!insumoEditar) {
         return <p style={{ textAlign: "center" }}>No hay insumo seleccionado para editar.</p>;
     }
+
+    const hayCambios = () => {
+        if (!insumoEditar || !insumoOriginal) return false;
+        return (
+            insumoEditar.nombre !== insumoOriginal.nombre ||
+            insumoEditar.categoria !== insumoOriginal.categoria ||
+            insumoEditar.marca !== insumoOriginal.marca ||
+            insumoEditar.stock !== insumoOriginal.stock ||
+            insumoEditar.unidad !== insumoOriginal.unidad ||
+            insumoEditar.umbralMinimoStock !== insumoOriginal.umbralMinimoStock
+        );
+    };
+
 
     return (
         <div className="forms">
@@ -97,7 +115,19 @@ const Form_editar = () => {
                         value={insumoEditar.lote}
                         onChange={(e) => setInsumoEditar({ ...insumoEditar, lote: e.target.value })}
                     /> */}
-                    <button type="submit" className="btn-actualizar">Actualizar</button>
+                    <button
+                        type="submit"
+                        style={{
+                            backgroundColor: hayCambios() ? "green" : "gray",
+                            cursor: hayCambios() ? "pointer" : "not-allowed"
+                        }}
+                        disabled={!hayCambios()}
+                        className="btn-actualizar"
+                    >
+                        Actualizar
+                    </button>
+
+
                 </form>
             </section>
 

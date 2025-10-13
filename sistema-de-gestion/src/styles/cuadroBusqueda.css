@@ -33,7 +33,10 @@
     font-size: 20px;
     transition: 0.2s;
 }
-
+.div-registro{
+        display: flex;
+    justify-content: center;
+}
 @media (max-width: 768px) {
     .form-buscar {
         flex-direction: column;

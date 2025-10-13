@@ -162,25 +162,23 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     const handleAddInsumo = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (
-            !nuevoInsumo.codigo.trim() ||
-            !nuevoInsumo.nombre.trim() ||
-            !nuevoInsumo.categoria.trim() ||
-            !nuevoInsumo.marca.trim() ||
-            !nuevoInsumo.unidad.trim() ||
-            nuevoInsumo.stock <= 0 ||
-            nuevoInsumo.umbralMinimoStock <= 0
-            // !nuevoInsumo.lote.trim()
-        ) {
-            setModal({
-                tipo: "error",
-                mensaje: "Todos los campos son obligatorios y deben ser válidos",
-            });
-            return;
-        }
 
         if (insumos.some((i) => i.codigo === nuevoInsumo.codigo)) {
             setModal({ tipo: "error", mensaje: "Ya existe un insumo con ese código" });
+            return;
+        }
+
+        const nombreCategoriaExistente = insumos.some(
+            (i) =>
+            (i.nombre.toLowerCase() === nuevoInsumo.nombre.toLowerCase() &&
+                i.categoria.toLowerCase() === nuevoInsumo.categoria.toLowerCase() && i.marca.toLowerCase() === nuevoInsumo.marca.toLowerCase())
+        );
+
+        if (nombreCategoriaExistente) {
+            setModal({
+                tipo: "error",
+                mensaje: "Ya existe un insumo con el mismo nombre, categoría y marca.",
+            });
             return;
         }
 
@@ -207,7 +205,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             setTipoModal(null);
             setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
         } catch {
-            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." + { error } });
+            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." });
         }
     };
 
@@ -242,14 +240,16 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         // Verificar si ya existe otro insumo con el mismo nombre y categoría
         const nombreCategoriaExistente = insumos.some(
             (i) =>
-            (i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
-                i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() && i.marca.toLowerCase() === insumoEditar.marca.toLowerCase())
+                i.codigo !== insumoEditar.codigo && // <-- Excluimos el insumo que estamos editando
+                i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
+                i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() &&
+                i.marca.toLowerCase() === insumoEditar.marca.toLowerCase()
         );
 
         if (nombreCategoriaExistente) {
             setModal({
                 tipo: "error",
-                mensaje: "Ya existe un insumo con el mismo nombre, categoría y marca.",
+                mensaje: "Ya existe otro insumo con el mismo nombre, categoría y marca.",
             });
             return;
         }

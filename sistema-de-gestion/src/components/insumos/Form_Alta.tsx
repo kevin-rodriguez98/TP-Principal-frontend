@@ -7,6 +7,22 @@ const Form_Alta = () => {
 
     const { nuevoInsumo, setNuevoInsumo, handleAddInsumo, modal, setModal } = useContext(InsumoContext)!;
 
+
+const camposIncompletos = () => {
+    return (
+
+        nuevoInsumo.codigo.trim() === "" ||
+        nuevoInsumo.nombre.trim() === "" ||
+        nuevoInsumo.categoria.trim() === "" ||
+        nuevoInsumo.marca.trim() === "" ||
+        nuevoInsumo.unidad.trim() === "" ||
+        nuevoInsumo.stock <= 0 ||
+        nuevoInsumo.umbralMinimoStock === 0
+    );
+};
+
+
+
     return (
         <div className="forms">
             <section className="card-alta">
@@ -86,7 +102,7 @@ const Form_Alta = () => {
                             <option value="litros">lts.</option>
                             <option value="toneladas">t.</option>
                         </select>
-                        
+
                         <input
                             type="number"
                             placeholder="Umbral mín."
@@ -102,8 +118,11 @@ const Form_Alta = () => {
                         />
                     </div>
 
-
-                    <button type="submit" className="btn-guardar">
+                    <button
+                        type="submit"
+                        disabled={camposIncompletos()}
+                        className="btn-guardar"
+                    >
                         Guardar
                     </button>
                 </form>

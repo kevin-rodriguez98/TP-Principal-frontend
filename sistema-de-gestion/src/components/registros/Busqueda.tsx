@@ -107,6 +107,7 @@ const Busqueda = () => {
             </select>
 
 
+
             <input
                 type="text"
                 name="proveedor"
@@ -115,23 +116,21 @@ const Busqueda = () => {
                 onChange={handleFilter}
             />
 
-            <input
+            {/* <input
                 type="text"
                 name="destino"
                 value={filtros.destino || ""}
                 placeholder="Destino..."
                 onChange={handleFilter}
-            />
+            /> */}
 
-            <input
+            {/* <input
                 type="text"
                 name="responsable"
                 value={filtros.responsable || ""}
                 placeholder="Responsable..."
                 onChange={handleFilter}
-            />
-
-
+            /> */}
 
             <button type="submit" title="Reiniciar filtros" className="btn-reset">
                 <RiResetRightFill />
