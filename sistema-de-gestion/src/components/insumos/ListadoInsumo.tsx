@@ -1,11 +1,13 @@
 import { useContext, useState, useEffect } from "react";
-import { InsumoContext } from "../Context/InsumoContext.tsx";
-import "../styles/GestionStock.css";
-import spinner from "/loading.gif";
-import SinResultados from "./SinResultados.tsx";
-import type { Insumo } from "../Context/InsumoContext.tsx";
+import { InsumoContext } from "../../Context/InsumoContext.tsx";
+import { FaExclamationTriangle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import type { Insumo } from "../../Context/InsumoContext.tsx";
 import { FaEdit } from "react-icons/fa";
+import "../../styles/GestionStock.css";
+import SinResultados from "./../SinResultados.tsx";
+import spinner from "/loading.gif";
+
 
 export interface Columna<T> {
     key: keyof T;
@@ -19,6 +21,7 @@ const columnasInsumo: Columna<Insumo>[] = [
     { key: "marca", label: "Marca" },
     { key: "stock", label: "Cantidad" },
     { key: "unidad", label: "Unidad" },
+    { key: "umbralMinimoStock", label: "Umbral Mínimo" },
 ];
 
 function ListadoInsumo() {
@@ -79,7 +82,15 @@ function ListadoInsumo() {
                         currentItems.map((item) => (
                             <tr key={item.codigo}>
                                 {columnasInsumo.map((col) => (
-                                    <td key={String(col.key)}>{String(item[col.key])}</td>
+                                    <td key={String(col.key)} className={col.key === "stock" && item.stock < item.umbralMinimoStock ? "stock-bajo" : ""}>
+
+                                        {col.key === "stock" && item.stock < item.umbralMinimoStock ? (
+                                            <>
+                                                {item.stock} <FaExclamationTriangle color="red" title="debajo del umbral" className="simbolo-warning" />
+                                            </>
+                                        ) : (
+                                            String(item[col.key])
+                                        )} </td>
                                 ))}
                                 <td className="actions">
                                     <button

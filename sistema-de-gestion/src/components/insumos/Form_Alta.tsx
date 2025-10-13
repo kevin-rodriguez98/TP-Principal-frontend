@@ -1,7 +1,7 @@
 import { useContext } from 'react'
-import { InsumoContext } from '../Context/InsumoContext';
-import Modal from "../components/modal/Modal";
-import "../styles/Forms.css";
+import { InsumoContext } from '../../Context/InsumoContext';
+import Modal from "../modal/Modal";
+import "../../styles/Forms.css";
 
 const Form_Alta = () => {
 

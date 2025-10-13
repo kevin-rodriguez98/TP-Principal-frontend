@@ -349,3 +349,16 @@ table th {
     width: 90%;
   }
 }
+
+
+/* STOCK BAJO */
+
+.stock-bajo {
+    color: red;
+    font-weight: bold;
+}
+
+
+.simbolo-warning {
+  margin-left: 10%;
+}

@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { InsumoContext } from "../Context/InsumoContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Form_Alta from "../components/Form_Alta";
-import Form_editar from "../components/Form_editar";
+import Form_Alta from "../components/insumos/Form_Alta";
+import Form_editar from "../components/insumos/Form_editar";
 import Modal from "../components/modal/Modal";
-import ListadoInsumo from "../components/ListadoInsumo";
+import ListadoInsumo from "../components/insumos/ListadoInsumo";
 import "../styles/GestionStock.css";
-import CuadroBusq from "../components/CuadroBusq";
+import Busqueda_insumos from "../components/insumos/Busqueda_insumos";
 
 
 
@@ -27,7 +27,7 @@ const GestionStock = () => {
 
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
-          <CuadroBusq />
+          <Busqueda_insumos />
           <div className="table-wrapper">
             <ListadoInsumo />
           </div>

@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from "react";
 import { RiResetRightFill } from "react-icons/ri";
-import { InsumoContext } from "../Context/InsumoContext";
-import "../styles/cuadroBusqueda.css";
+import { InsumoContext } from "../../Context/InsumoContext";
+import "../../styles/cuadroBusqueda.css";
 
-const CuadroBusqueda = () => {
+const Busqueda_insumos = () => {
     // Si el contexto fuera null, le damos valores por defecto para evitar errores
     const { filtros, setFiltros } = useContext(InsumoContext) || {
         filtros: { codigo: "", nombre: "", marca: "", categoria: "", lote: "" },
@@ -101,4 +101,4 @@ const CuadroBusqueda = () => {
     );
 };
 
-export default CuadroBusqueda;
+export default Busqueda_insumos;

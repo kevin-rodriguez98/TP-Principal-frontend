@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect } from "react";
-import "../styles/GestionStock.css";
+import "../../styles/GestionStock.css";
 import spinner from "/loading.gif";
-import SinResultados from "./SinResultados.tsx";
-import { RegistroContext, type Registro } from "../Context/RegistroContext.tsx";
+import SinResultados from "./../SinResultados.tsx";
+import { RegistroContext, type Registro } from "../../Context/RegistroContext.tsx";
 
 export interface Columna<T> {
     key: keyof T;
@@ -11,6 +11,7 @@ export interface Columna<T> {
 
 const columnasRegistro: Columna<Registro>[] = [
     { key: "codigo", label: "Código" },
+    { key: "tipo", label: "Tipo" },
     { key: "nombre", label: "Nombre" },
     { key: "categoria", label: "Categoría" },
     { key: "marca", label: "Marca" },
@@ -19,17 +20,18 @@ const columnasRegistro: Columna<Registro>[] = [
     { key: "lote", label: "Lote" },
     { key: "proveedor", label: "Proveedor" },
     { key: "destino", label: "Destino" },
+    // { key: "responsable", label: "Responsable" },
 ];
 
 function ListadoRegistro() {
-    const { registros, error } = useContext(RegistroContext)!;
+    const { registrosFiltrados, error } = useContext(RegistroContext)!;
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = registros.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(registros.length / itemsPerPage);
+    const currentItems = registrosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(registrosFiltrados.length / itemsPerPage);
 
     // Estados de carga
     const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +39,7 @@ function ListadoRegistro() {
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1000);
         return () => clearTimeout(timer);
-    }, [registros]);
+    }, [registrosFiltrados]);
 
 
     return (

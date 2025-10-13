@@ -7,7 +7,7 @@ export interface Insumo {
     marca: string;
     unidad: string;
     stock: number;
-    // lote: string;
+    lote: string;
     umbralMinimoStock: number;
 }
 
@@ -28,6 +28,8 @@ interface Filtro {
 interface InsumoContextType {
     insumos: Insumo[];
     setInsumos: React.Dispatch<React.SetStateAction<Insumo[]>>;
+    insumos_bajo_stock: Insumo[];
+    setInsumos_bajo_stock: React.Dispatch<React.SetStateAction<Insumo[]>>;
     nuevoInsumo: Insumo;
     setNuevoInsumo: React.Dispatch<React.SetStateAction<Insumo>>;
     insumoEditar: Insumo | null;
@@ -63,6 +65,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [insumos, setInsumos] = useState<Insumo[]>([]);
+    const [insumos_bajo_stock, setInsumos_bajo_stock] = useState<Insumo[]>([]);
     const [insumoEditar, setInsumoEditar] = useState<Insumo | null>(null);
     const [nuevoInsumo, setNuevoInsumo] = useState<Insumo>({
         codigo: "",
@@ -71,7 +74,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         marca: "",
         unidad: "",
         stock: 0,
-        // lote: "",
+        lote: "",
         umbralMinimoStock: 0
     });
     const [insumosFiltrados, setInsumosFiltrados] = useState<Insumo[]>([]);
@@ -130,6 +133,26 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         }
     };
 
+
+
+        const obtenerInsumosBajoStock = async () => {
+        try {
+            setError(null); // Limpia errores anteriores
+            const response = await fetch(`${URL}/obtener-bajo-stock`);
+            if (!response.ok) throw new Error("Error al obtener los insumos");
+
+            const data = await response.json();
+            setInsumos_bajo_stock(data);
+        } catch {
+            setError("❌ No se pudo conectar con el servidor.");
+            setModal({
+                tipo: "error",
+                mensaje: "El servidor no está disponible. Intenta más tarde.",
+            });
+            setInsumos_bajo_stock([]); // limpia listado
+        }
+    };
+
     const handleAddInsumo = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -139,7 +162,8 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             !nuevoInsumo.categoria.trim() ||
             !nuevoInsumo.marca.trim() ||
             !nuevoInsumo.unidad.trim() ||
-            nuevoInsumo.stock <= 0
+            nuevoInsumo.stock <= 0 ||
+            nuevoInsumo.umbralMinimoStock <=0
             // !nuevoInsumo.lote.trim()
         ) {
             setModal({
@@ -171,13 +195,13 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 marca: "",
                 unidad: "",
                 stock: 0,
-                // lote: "",
+                lote: "",
                 umbralMinimoStock: 0
             });
             setTipoModal(null);
             setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
         } catch {
-            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." });
+            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo."+ {error} });
         }
     };
 
@@ -202,29 +226,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         });
     };
 
-    // const handleUpdateInsumo = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     if (!insumoEditar) return;
-
-    //     try {
-    //         const response = await fetch(`${URL}/editar/${insumoEditar.codigo}`, {
-    //             method: "PUT",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify(insumoEditar),
-    //         });
-    //         if (!response.ok) throw new Error();
-
-    //         const actualizado = await response.json();
-    //         setInsumos(insumos.map((i) => (i.codigo === actualizado.codigo ? actualizado : i)));
-    //         setInsumoEditar(null);
-    //         setTipoModal(null);
-    //         setModal({ tipo: "success", mensaje: "Insumo actualizado con éxito" });
-    //     } catch {
-    //         setModal({ tipo: "error", mensaje: "Error al actualizar insumo" });
-    //     }
-    // };
-
-
 
 
 
@@ -238,14 +239,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 (i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
                     i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() && i.marca.toLowerCase() === insumoEditar.marca.toLowerCase() )
         );
-
-        // if (codigoExistente) {
-        //     setModal({
-        //         tipo: "error",
-        //         mensaje: "El código ya existe. No se puede editar con ese código.",
-        //     });
-        //     return;
-        // }
 
         if (nombreCategoriaExistente) {
             setModal({
@@ -298,7 +291,9 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 insumosFiltrados,
                 setInsumosFiltrados,
                 isLoading,
-                setIsLoading, filtrarInsumos
+                setIsLoading, 
+                filtrarInsumos,
+                insumos_bajo_stock,setInsumos_bajo_stock
 
             }}
         >

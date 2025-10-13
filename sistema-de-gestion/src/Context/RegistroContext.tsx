@@ -8,15 +8,31 @@ export interface Registro {
     unidad: string;
     stock: number;
     lote: string;
+    // umbralMinimoStock: number;
+    // impactado: boolean;
+    responsable: string;
     proveedor: string;
     tipo: string;
-    destino: string | "";
+    destino: string | "-";
 }
 
 interface ModalData {
     tipo: "confirm" | "success" | "error";
     mensaje: string;
     onConfirm?: () => void;
+}
+
+
+interface Filtro {
+    codigo: string;
+    nombre: string;
+    marca: string;
+    categoria: string;
+    lote: string;
+    tipo: string;
+    responsable: string;
+    proveedor: string;
+    destino: string;
 }
 
 interface RegistroContextType {
@@ -30,6 +46,15 @@ interface RegistroContextType {
     open: "movimiento" | null;
     setOpen: React.Dispatch<React.SetStateAction<"movimiento" | null>>;
     error: string | null;
+
+
+    filtrarRegistros: (filtro: Filtro) => void;
+    filtros: Filtro
+    setFiltros: React.Dispatch<React.SetStateAction<Filtro>>;
+    registrosFiltrados: Registro[];
+    setRegistrosFiltrados: React.Dispatch<React.SetStateAction<Registro[]>>;
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const RegistroContext = createContext<RegistroContextType | undefined>(undefined);
@@ -53,15 +78,37 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
         lote: "",
         tipo: "",
         proveedor: "",
-        destino: ""
+        destino: "",
+        // umbralMinimoStock: 0,
+        // impactado: false,
+        responsable: "",
     });
 
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [registrosFiltrados, setRegistrosFiltrados] = useState<Registro[]>([]);
+    const [filtros, setFiltros] = useState<Filtro>({
+        codigo: "",
+        nombre: "",
+        categoria: "",
+        marca: "",
+        lote: "",
+        tipo: "",
+        proveedor: "",
+        destino: "",
+        responsable: "",
+    });
+
 
     useEffect(() => {
         obtenerRegistros();
     }, []);
+
+
+    useEffect(() => {
+        filtrarRegistros(filtros);
+    }, [filtros, registros]);
 
 
     const obtenerRegistros = async () => {
@@ -82,6 +129,27 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
         }
     };
 
+    const filtrarRegistros = (filtros: Filtro) => {
+        if (!registros) return;
+        const resultado = registros.filter((item) =>
+            (filtros.codigo === "" || item.codigo.toLowerCase().startsWith(filtros.codigo.toLowerCase())) &&
+            (filtros.nombre === "" || item.nombre.toLowerCase().startsWith(filtros.nombre.toLowerCase())) &&
+            (filtros.marca === "" || item.marca.toLowerCase().startsWith(filtros.marca.toLowerCase())) &&
+            (filtros.categoria === "" || item.categoria.toLowerCase().startsWith(filtros.categoria.toLowerCase())) &&
+            (filtros.lote === "" || item.lote.toLowerCase().startsWith(filtros.lote.toLowerCase())) &&
+            (filtros.tipo === "" || item.tipo.toLowerCase().startsWith(filtros.tipo.toLowerCase())) &&
+            (filtros.proveedor === "" || item.proveedor.toLowerCase().startsWith(filtros.proveedor.toLowerCase())) &&
+            (filtros.destino === "" || item.destino.toLowerCase().startsWith(filtros.destino.toLowerCase()))
+            // (filtros.responsable === "" || item.responsable.toLowerCase().startsWith(filtros.responsable.toLowerCase())) &&
+        );
+
+        setIsLoading(true)
+        setRegistrosFiltrados(resultado);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1000 / 2);
+    };
+
     const handleAddRegistro = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -99,6 +167,9 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
             stock: Number(nuevoRegistro.stock),
             lote: String(nuevoRegistro.lote),
             tipo: String(nuevoRegistro.tipo),
+            proveedor: String(nuevoRegistro.proveedor),
+            destino: String(nuevoRegistro.destino),
+            responsable: String(nuevoRegistro.responsable),
         };
 
         try {
@@ -122,7 +193,10 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
                 lote: "",
                 tipo: "",
                 proveedor: "",
-                destino: ""
+                destino: "",
+                // umbralMinimoStock: 0,
+                // impactado: false,
+                responsable: "",
             });
             setModal({ tipo: "success", mensaje: "Registro agregado con éxito" });
         } catch (error) {
@@ -146,7 +220,14 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
                 handleAddRegistro,
                 open,
                 setOpen,
-                error
+                error,
+                filtros,
+                registrosFiltrados,
+                setFiltros,
+                setRegistrosFiltrados,
+                filtrarRegistros,
+                isLoading,
+                setIsLoading
             }}
         >
             {children}

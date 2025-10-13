@@ -4,9 +4,10 @@ import { RegistroContext } from "../Context/RegistroContext";
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import Modal from "../components/modal/Modal.tsx";
-import Form_Registro from "../components/Form_Registro.tsx";
+import Form_Registro from "../components/registros/Form_Registro.tsx";
 import "../styles/GestionStock.css";
-import ListadoRegistro from "../components/ListadoRegistro.tsx";
+import ListadoRegistro from "../components/registros/ListadoRegistro.tsx";
+import Busqueda from "../components/registros/Busqueda.tsx";
 
 const RegistroInsumos = () => {
     const navigate = useNavigate();
@@ -22,12 +23,13 @@ const RegistroInsumos = () => {
                 <h2 className="titulo">Registro de Insumos</h2>
 
                 <section className="card">
-                    <h3 className="tituloSeccion">Lista de Insumos</h3>
+                    <h3 className="tituloSeccion">Lista de Registros realizados</h3>
+                    <Busqueda/>
                     <div className="table-wrapper">
                         <ListadoRegistro />
                     </div>
                 </section>
-                
+
                 <div className="fab-container">
                     <button
                         className="fab fab-registro"
