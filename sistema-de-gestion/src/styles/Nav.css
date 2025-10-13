@@ -1,39 +1,40 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
-.nav {
-    padding: 2%;
-    background: linear-gradient(90deg, #a071fe, #b13c7e, #ff5757);
+/* 🔹 NAVBAR PRINCIPAL */
+.navbar {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    background: linear-gradient(90deg, #a071fe, #b13c7e, #ff5757);
+    border-bottom: 2px solid #080808;
+    font-family: 'Inter', sans-serif;
 }
 
-.nav .logo .title {
-    font-family: 'Roboto';
-    font-size: "26px";
-    font-weight:lighter;
+/* 🔹 LOGO / TÍTULO */
+.title {
+    font-size: 1.6rem;
+    font-weight: 500;
     color: white;
-    /* letter-spacing: 1px; */
-    animation: pulse 3s ease-in-out infinite;
     cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
+.title:hover {
+    transform: scale(1.05);
+    color: #fff8f8;
 }
 
-@media (max-width: 768px) {
-    .nav {
-        padding: 5%;
-    }
+/* 🔹 CONTENEDOR DERECHO (botones, iconos, etc.) */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
+
+
+

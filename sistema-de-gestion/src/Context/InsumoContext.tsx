@@ -58,8 +58,8 @@ interface InsumoProviderProps {
 }
 
 export function InsumoProvider({ children }: InsumoProviderProps) {
-    const URL = "http://localhost:8080/productos/insumos";
-    // const URL = "https://tp-principal-backend.onrender.com/productos/insumos";
+    // const URL = "http://localhost:8080/productos/insumos";
+    const URL = "https://tp-principal-backend.onrender.com/productos/insumos";
     const [isLoading, setIsLoading] = useState(true);
     const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "movimiento" | null>(null);
     const [modal, setModal] = useState<ModalData | null>(null);
@@ -95,6 +95,11 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     useEffect(() => {
         filtrarInsumos(filtros);
     }, [filtros, insumos]);
+
+
+    useEffect(() => {
+        obtenerInsumosBajoStock();
+    }, [insumos]);
 
 
     const filtrarInsumos = (filtros: Filtro) => {
@@ -135,7 +140,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
 
 
-        const obtenerInsumosBajoStock = async () => {
+    const obtenerInsumosBajoStock = async () => {
         try {
             setError(null); // Limpia errores anteriores
             const response = await fetch(`${URL}/obtener-bajo-stock`);
@@ -143,6 +148,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
             const data = await response.json();
             setInsumos_bajo_stock(data);
+            console.log(data)
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
@@ -163,7 +169,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             !nuevoInsumo.marca.trim() ||
             !nuevoInsumo.unidad.trim() ||
             nuevoInsumo.stock <= 0 ||
-            nuevoInsumo.umbralMinimoStock <=0
+            nuevoInsumo.umbralMinimoStock <= 0
             // !nuevoInsumo.lote.trim()
         ) {
             setModal({
@@ -201,7 +207,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             setTipoModal(null);
             setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
         } catch {
-            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo."+ {error} });
+            setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." + { error } });
         }
     };
 
@@ -236,8 +242,8 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         // Verificar si ya existe otro insumo con el mismo nombre y categoría
         const nombreCategoriaExistente = insumos.some(
             (i) =>
-                (i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
-                    i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() && i.marca.toLowerCase() === insumoEditar.marca.toLowerCase() )
+            (i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
+                i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() && i.marca.toLowerCase() === insumoEditar.marca.toLowerCase())
         );
 
         if (nombreCategoriaExistente) {
@@ -291,9 +297,10 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 insumosFiltrados,
                 setInsumosFiltrados,
                 isLoading,
-                setIsLoading, 
+                setIsLoading,
                 filtrarInsumos,
-                insumos_bajo_stock,setInsumos_bajo_stock
+                insumos_bajo_stock,
+                setInsumos_bajo_stock,
 
             }}
         >
