@@ -11,7 +11,6 @@ const Form_Registro = () => {
     const camposIncompletos = () => {
         return (
             nuevoRegistro.tipo.trim() == "" ||
-            nuevoRegistro.codigo.trim() == "" ||
             nuevoRegistro.nombre.trim() === "" ||
             nuevoRegistro.categoria.trim() === "" ||
             nuevoRegistro.marca.trim() === "" ||
@@ -53,17 +52,6 @@ const Form_Registro = () => {
                             <option value="Egreso">Egreso</option>
                         </select>
                     </div>
-
-                    {/* Código */}
-                    <input
-                        type="number"
-                        placeholder="Código"
-                        value={nuevoRegistro?.codigo || ""}
-                        onChange={(e) =>
-                            setNuevoRegistro({ ...nuevoRegistro, codigo: e.target.value.trim() })
-                        }
-                        required
-                    />
 
                     {/* Nombre */}
                     <input
