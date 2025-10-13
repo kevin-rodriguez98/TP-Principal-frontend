@@ -46,3 +46,13 @@ select {
     margin-left: 14px;
     margin-top: 14px;
 }
+
+
+.div-cantidad {
+    display: flex;
+    justify-content: center;
+}
+
+.div-cantidad input {
+width: 50%;
+}

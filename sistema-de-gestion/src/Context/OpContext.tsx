@@ -30,8 +30,8 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Gestión de Stock",
             icon: './stock.png',
             acciones: [
-                { label: "Gestionar insumos", onClick: () => navigate("/GestionStock") },
-                { label: "Registro insumos", onClick: () => navigate("/RegistroInsumos") }
+                { label: "Gestionar insumos", onClick: () => navigate("/gestion-stock") },
+                { label: "Registro insumos", onClick: () => navigate("/registro-insumos") }
             ]
         },
 
@@ -39,8 +39,7 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Planificación de Producción",
             icon: './produccion.png',
             acciones: [
-                { label: "", onClick: () => navigate("/") },
-                { label: "", onClick: () => navigate("/") }
+                { label: "Gestionar Ordenes", onClick: () => navigate("/ordenes-produccion") },
             ]
         },
 

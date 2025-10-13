@@ -19,26 +19,24 @@ const columnasInsumo: Columna<Insumo>[] = [
     { key: "marca", label: "Marca" },
     { key: "stock", label: "Cantidad" },
     { key: "unidad", label: "Unidad" },
-    { key: "lote", label: "Lote" },
 ];
 
 function ListadoInsumo() {
-    const { insumos, setInsumoEditar, handleDelete, setTipoModal, error } =
+    const { setInsumoEditar, insumosFiltrados, handleDelete, setTipoModal, error, isLoading, setIsLoading } =
         useContext(InsumoContext)!;
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    const currentItems = insumos.slice(
+    const currentItems = insumosFiltrados.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
-    const totalPages = Math.ceil(insumos.length / itemsPerPage);
-    const [isLoading, setIsLoading] = useState(true);
+    const totalPages = Math.ceil(insumosFiltrados.length / itemsPerPage);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1500);
         return () => clearTimeout(timer);
-    }, [insumos]);
+    }, [insumosFiltrados]);
 
     return (
         <div>

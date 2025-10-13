@@ -8,6 +8,7 @@ import Form_editar from "../components/Form_editar";
 import Modal from "../components/modal/Modal";
 import ListadoInsumo from "../components/ListadoInsumo";
 import "../styles/GestionStock.css";
+import CuadroBusq from "../components/CuadroBusq";
 
 
 
@@ -26,6 +27,7 @@ const GestionStock = () => {
 
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
+          <CuadroBusq />
           <div className="table-wrapper">
             <ListadoInsumo />
           </div>
