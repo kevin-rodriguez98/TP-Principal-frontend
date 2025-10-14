@@ -10,30 +10,34 @@
 
 /* --- Título --- */
 h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
-  margin: 1rem;
+  color: white;
 
 }
 
 .tituloSeccion {
-  font-size: 1rem;
-  color: brown;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: rgb(0, 0, 0);
+  /* font-weight: bold; */
 
 }
 
 
 .card {
-  border: 2px solid #080808;
   border-radius: 10px;
-  margin: 2%;
+  /* margin: 2%; */
   padding: 15px;
-  background-color: #fff0f6;
+  background-color: #cfcbcb;
   display: flex;
   flex-direction: column;
-  width: 90%;
+  width: 80%;
+  align-items: center;
+}
+
+
+.container-tabla-filtros{
+  display: flex;
 }
 
 
@@ -102,14 +106,23 @@ table th,
 table td {
   padding: 12px;
   text-align: left;
-  border: 1px solid #ddd;
+  border: 1px solid #323232;
 }
 
 table th {
-  background-color: #f4f4f4;
+  background-color: #f70d6e;
+  color: white;
 }
 
 @media (max-width: 768px) {
+
+  .card {
+    border-radius: 10px;
+    /* margin: 2%; */
+    padding: 0;
+    background-color: none;
+  }
+
   table thead {
     display: none;
   }
@@ -120,7 +133,7 @@ table th {
     border: 1px solid #ddd;
     border-radius: 8px;
     margin-bottom: 10px;
-    padding: 10px;
+    /* padding: 10px; */
     background-color: #fff0f6;
   }
 
@@ -159,28 +172,38 @@ table th {
 /* --- Botones dentro de la tabla --- */
 
 .actions {
-  display: flex;          /* coloca los botones en fila */
-  gap: 5px;               /* espacio entre botones */
-  justify-content: flex-start; /* opcional: alineación izquierda */
-  align-items: center;    /* centra verticalmente */
+  display: flex;
+  /* coloca los botones en fila */
+  gap: 5px;
+  /* espacio entre botones */
+  justify-content: flex-start;
+  /* opcional: alineación izquierda */
+  align-items: center;
+  /* centra verticalmente */
 }
 
 .actions button {
-  flex: 0 0 auto;         /* evita que los botones se estiren */
+  flex: 0 0 auto;
+  /* evita que los botones se estiren */
 }
 
 /* Botón editar */
 .btn-editar {
-  background-color: #4368fa; /* color de fondo */
-  color: white;              /* color del icono */
+  background-color: #4368fa;
+  /* color de fondo */
+  color: white;
+  /* color del icono */
   border: none;
   border-radius: 6px;
-  padding: 6px 10px;         /* tamaño del botón */
+  padding: 6px 10px;
+  /* tamaño del botón */
   cursor: pointer;
-  display: flex;             /* para centrar el icono */
+  display: flex;
+  /* para centrar el icono */
   align-items: center;
   justify-content: center;
-  font-size: 18px;           /* tamaño del icono */
+  font-size: 18px;
+  /* tamaño del icono */
   transition: background 0.3s;
 }
 
@@ -224,7 +247,7 @@ table th {
 
 .btn-volver,
 .btn-paginacion {
-  background-color: #ff99cc;
+  background-color: #b30059;
   color: white;
   font-weight: bold;
   font-size: 1rem;
@@ -245,7 +268,7 @@ table th {
 /* ===== BOTONES FLOTANTES ===== */
 .fab-container {
   position: fixed;
-  bottom: 105px;
+  bottom: 20px;
   right: 10px;
   display: flex;
   flex-direction: column;
@@ -309,6 +332,7 @@ table th {
   top: 2px;
   right: 10px;
   border: none;
+  border-radius: 10px;
   background: #ff5ca2;
   font-size: 24px;
   cursor: pointer;
@@ -354,11 +378,15 @@ table th {
 /* STOCK BAJO */
 
 .stock-bajo {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
 }
 
 
 .simbolo-warning {
   margin-left: 10%;
+}
+
+.div-busqueda {
+  width: 50%;
 }

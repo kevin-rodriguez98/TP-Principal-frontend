@@ -24,7 +24,9 @@ const RegistroInsumos = () => {
 
                 <section className="card">
                     <h3 className="tituloSeccion">Lista de Registros realizados</h3>
+                    <div className="div-busqueda">
                     <Busqueda/>
+                    </div>
                     <div className="table-wrapper">
                         <ListadoRegistro />
                     </div>
@@ -53,7 +55,7 @@ const RegistroInsumos = () => {
                         </div>
                     </div>
                 )}
-                <button onClick={() => navigate("/")} className="btn-guardar btn-volver">Volver</button>
+                <button onClick={() => navigate("/")} className="btn-volver">Volver</button>
             </main>
             <Footer />
             {modal && (

@@ -3,14 +3,14 @@
     flex-direction: column;
 }
 
-.tituloSeccion {
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
+
+.titulo-form-alta, .title-editar{
+    color: black;
+
 }
 
-.card-alta {
-    border: 2px solid #ff5ca2;
+.card-alta, .card-edicion {
+    /* border: 2px solid #ff5ca2; */
     border-radius: 10px;
     overflow: hidden;
     padding: 15px;

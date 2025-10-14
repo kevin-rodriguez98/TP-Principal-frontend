@@ -31,7 +31,8 @@ const Form_editar = () => {
 
     return (
         <div className="forms">
-            <section className="card">
+            <section className="card-edicion">
+                <h2 className='title-editar'>Editar Insumo</h2>
                 <form className="formulario" onSubmit={handleUpdateInsumo}>
                     <input
                         type="text"
@@ -126,7 +127,6 @@ const Form_editar = () => {
                     >
                         Actualizar
                     </button>
-
 
                 </form>
             </section>

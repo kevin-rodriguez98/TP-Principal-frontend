@@ -1,7 +1,7 @@
 .operacion {
   width: 140px; /* ancho base de la card */
   min-height: 140px; /* altura mínima */
-  background-color: gray;
+  background-color: rgb(73, 73, 73);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,6 @@
 }
 
 .operacion:hover {
-  background-color: #e0e0e0;
   transform: scale(1.05);
 }
 
@@ -39,7 +38,7 @@
 }
 
 .submenu-btn {
-  background: #c109ff;
+  background: #b30059;
   color: white;
   border: none;
   border-radius: 8px;
@@ -49,14 +48,14 @@
 }
 
 .submenu-btn:hover {
-  background: #7506f4;
+  background: #df0271;
 }
 
 /* Responsive para móviles */
 @media (max-width: 768px) {
   .operacion {
-    width: 150px;
-    min-height: 150px;
+    width: 100px;
+    min-height: 100px;
     padding: 8px;
   }
 

@@ -26,6 +26,7 @@ const camposIncompletos = () => {
     return (
         <div className="forms">
             <section className="card-alta">
+                <h2 className='titulo-form-alta'>Alta de Insumo</h2>
                 <form
                     className="formulario"
                     onSubmit={(e) => {

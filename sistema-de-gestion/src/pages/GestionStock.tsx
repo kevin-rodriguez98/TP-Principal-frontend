@@ -7,14 +7,12 @@ import Form_Alta from "../components/insumos/Form_Alta";
 import Form_editar from "../components/insumos/Form_editar";
 import Modal from "../components/modal/Modal";
 import ListadoInsumo from "../components/insumos/ListadoInsumo";
-import "../styles/GestionStock.css";
 import Busqueda_insumos from "../components/insumos/Busqueda_insumos";
-
+import "../styles/GestionStock.css";
 
 
 const GestionStock = () => {
   const navigate = useNavigate();
-
 
   const { modal, setModal, tipoModal, setTipoModal } =
     useContext(InsumoContext)!;
@@ -25,9 +23,9 @@ const GestionStock = () => {
       <main className="flex-1 p-6 gestion-stock">
         <h2 className="titulo">Gestión de Stock</h2>
 
+          <Busqueda_insumos />
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
-          <Busqueda_insumos />
           <div className="table-wrapper">
             <ListadoInsumo />
           </div>
@@ -48,13 +46,11 @@ const GestionStock = () => {
 
               {tipoModal === "alta" && (
                 <>
-                  <h2>Alta de Insumo</h2>
                   <Form_Alta />
                 </>
               )}
               {tipoModal === "editar" && (
                 <>
-                  <h2>Editar Insumo</h2>
                   <Form_editar />
                 </>
               )}
