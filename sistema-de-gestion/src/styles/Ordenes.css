@@ -11,7 +11,6 @@ body {
   max-width: 1100px;
   margin: 40px auto;
   background-color: #0000008a;
-  border: 8px solid #b13c7e;
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -457,5 +456,4 @@ background-color: #c94899;
   align-items: center;      /* centra contenido dentro del contenedor */
   justify-content: center;
   background-color: #0000008a;
-  border: 10px solid #5f469d;
 }
