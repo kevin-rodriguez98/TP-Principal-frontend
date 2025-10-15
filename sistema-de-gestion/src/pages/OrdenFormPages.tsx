@@ -195,10 +195,10 @@ const OrdenFormPage = () => {
                     <tbody>
                       {orden.insumos.map((insumo, index) => (
                         <tr key={index}>
-                          <td>{insumo.codigo}</td>
-                          <td>{insumo.nombre}</td>
-                          <td>{insumo.unidad}</td>
-                          <td>{insumo.cantidad}</td>
+                            <td data-label="Código">{insumo.codigo}</td>
+                            <td data-label="Nombre">{insumo.nombre}</td>
+                            <td data-label="Unidad">{insumo.unidad}</td>
+                            <td data-label="Cantidad">{insumo.cantidad}</td>
                           <td>
                             <button
                               type="button"
