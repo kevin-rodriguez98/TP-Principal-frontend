@@ -283,7 +283,7 @@ th {
   }
 }
 
-/* header, footer {
+/* header {
   text-align: center;
   padding: 10px;
   background-color: #ffb6c1;
@@ -429,4 +429,22 @@ th {
     flex-wrap: wrap;
     gap: 5px;
   }
+}
+
+/* Centrar todo el contenido principal */
+.ordenes-main {
+  display: flex;
+  justify-content: center;  /* centra horizontalmente */
+  align-items: center;      /* centra verticalmente */
+  flex-direction: column;   /* coloca los elementos uno debajo del otro */
+  text-align: center;
+}
+
+/* Ajuste para que la card no quede pegada a los bordes */
+.ordenes-listado {
+  margin: 0 auto;           /* centra horizontalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* centra contenido dentro del contenedor */
+  justify-content: center;
 }

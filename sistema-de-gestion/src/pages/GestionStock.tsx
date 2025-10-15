@@ -8,6 +8,7 @@ import Form_editar from "../components/insumos/Form_editar";
 import Modal from "../components/modal/Modal";
 import ListadoInsumo from "../components/insumos/ListadoInsumo";
 import Busqueda_insumos from "../components/insumos/Busqueda_insumos";
+
 import "../styles/GestionStock.css";
 
 
@@ -62,6 +63,7 @@ const GestionStock = () => {
           Volver
         </button>
       </main>
+
       <Footer />
 
       {modal && (

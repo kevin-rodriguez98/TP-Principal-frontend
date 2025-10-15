@@ -17,12 +17,13 @@ const OrdenProduccionPage = () => {
       <Header />
       <main className="flex-1 p-6 ordenes-main">
         <section className="card ordenes-listado">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col items-center gap-3 mb-4">
             <h2>Órdenes de producción</h2>
             <button className="btn-agregar" onClick={() => navigate("/ordenes/nueva")}>
               +Nueva orden
             </button>
           </div>
+
 
           <BusquedaOrdenes />
           <div className="table-wrapper">
