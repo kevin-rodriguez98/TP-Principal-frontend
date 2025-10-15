@@ -2,7 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-image: url('./diseño1.png');
+    background-image: url('/diseño1.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

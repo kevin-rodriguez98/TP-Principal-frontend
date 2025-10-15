@@ -24,9 +24,9 @@ const GestionStock = () => {
       <main className="flex-1 p-6 gestion-stock">
         <h2 className="titulo">Gestión de Stock</h2>
 
-          <Busqueda_insumos />
         <section className="card">
           <h3 className="tituloSeccion">Lista de Insumos</h3>
+          <Busqueda_insumos />
           <div className="table-wrapper">
             <ListadoInsumo />
           </div>
