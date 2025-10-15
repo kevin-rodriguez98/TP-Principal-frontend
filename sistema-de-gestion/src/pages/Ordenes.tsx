@@ -19,7 +19,7 @@ const OrdenProduccionPage = () => {
         <section className="card ordenes-listado">
           <div className="flex flex-col items-center gap-3 mb-4">
             <h2>Órdenes de producción</h2>
-            <button className="btn-agregar" onClick={() => navigate("/ordenes/nueva")}>
+            <button className="btn-agregar" onClick={() => navigate("/ordenes-produccion/nueva")}>
               +Nueva orden
             </button>
           </div>

@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { OrdenProduccionContext } from "../../Context/OrdenesContext";
+import { OrdenProduccionContext, type OrdenProduccion } from "../../Context/OrdenesContext";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import "../../styles/GestionStock.css";
@@ -11,7 +11,7 @@ export interface Columna<T> {
   label: string;
 }
 
-const columnasOrden: Columna<any>[] = [
+const columnasOrden: Columna<OrdenProduccion>[] = [
   { key: "codigo", label: "Código" },
   { key: "producto", label: "Producto" },
   { key: "responsable", label: "Responsable" },
@@ -48,7 +48,7 @@ function ListadoOrden() {
         <thead>
           <tr>
             {columnasOrden.map((col) => (
-              <th key={col.key as string}>{col.label}</th>
+              <th key={String(col.key)}>{col.label}</th>
             ))}
             <th>Acciones</th>
           </tr>
@@ -77,7 +77,9 @@ function ListadoOrden() {
             currentItems.map((item) => (
               <tr key={item.codigo}>
                 {columnasOrden.map((col) => (
-                  <td key={String(col.key)}>{String(item[col.key])}</td>
+                  <td key={String(col.key)}>
+                    {String(item[col.key as keyof OrdenProduccion])}
+                  </td>
                 ))}
                 <td className="actions">
                   <button
@@ -93,14 +95,14 @@ function ListadoOrden() {
                     className="btn-editar"
                     onClick={() => {
                       setOrdenSeleccionada(item);
-                      setTipoModal("editar"); 
+                      setTipoModal("editar");
                     }}
                   >
                     <FaEdit />
                   </button>
                   <button
                     className="btn-eliminar"
-                    onClick={() => setTipoModal("eliminar")} 
+                    onClick={() => handleDeleteOrden(item.codigo)}
                   >
                     <MdDelete />
                   </button>

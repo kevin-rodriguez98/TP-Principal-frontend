@@ -1,7 +1,13 @@
 import { useState } from "react";
 import "../../styles/Ordenes.css";
+import type { Insumo } from "../../Context/OrdenesContext";
 
-const ModalAgregarInsumo = ({ onClose, onSave }) => {
+interface ModalAgregarInsumoProps {
+  onClose: () => void;
+  onSave: (insumo: Insumo) => void;
+}
+
+const ModalAgregarInsumo: React.FC<ModalAgregarInsumoProps> = ({ onClose, onSave }) => {
   const [codigo, setCodigo] = useState("");
   const [nombre, setNombre] = useState("");
   const [unidad, setUnidad] = useState("");

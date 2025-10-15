@@ -4,7 +4,7 @@ export interface Insumo {
   codigo: string;
   nombre: string;
   unidad: string;
-  cantidad: number;
+  cantidad: string;
 }
 
 export interface OrdenProduccion {
@@ -48,8 +48,8 @@ interface OrdenContextType {
   handleDeleteOrden: (codigo: string) => void;
   obtenerOrdenes: () => Promise<void>;
   obtenerOrdenPorCodigo: (codigo: string) => Promise<void>;
-  tipoModal: "alta" | "editar" | "detalles" | null;
-  setTipoModal: React.Dispatch<React.SetStateAction<"alta" | "editar" | "detalles" | null>>;
+  tipoModal: "alta" | "editar" | "detalles" |  "eliminar" | null;
+  setTipoModal: React.Dispatch<React.SetStateAction<"alta" | "editar" | "detalles" | "eliminar" | null>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   error: string | null;
@@ -75,7 +75,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     responsable: "",
   });
   const [modal, setModal] = useState<ModalData | null>(null);
-  const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "detalles" | null>(null);
+  const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "detalles" | "eliminar" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

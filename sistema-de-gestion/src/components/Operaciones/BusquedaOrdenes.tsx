@@ -6,12 +6,13 @@ import "../../styles/cuadroBusqueda.css";
 const BusquedaOrdenes = () => {
   const { filtros, setFiltros } = useContext(OrdenProduccionContext)!;
 
-  useEffect(() => {
-    setFiltros({
-      codigo: "",
-      estado: "TODOS",
-    });
-  }, []);
+useEffect(() => {
+  setFiltros((prev) => ({
+    ...prev,
+    codigo: "",
+    estado: "TODOS",
+  }));
+}, [setFiltros]);
 
   const handleFilter = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -23,13 +24,16 @@ const BusquedaOrdenes = () => {
     }));
   };
 
-  const handleReset = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setFiltros({
-      codigo: "",
-      estado: "TODOS",
-    });
-  };
+const handleReset = (e?: React.FormEvent) => {
+  e?.preventDefault();
+  setFiltros((prev) => ({
+    ...prev,
+    codigo: "",
+    estado: "TODOS",
+    producto: "",
+    responsable: "",
+  }));
+};
 
   return (
     <form

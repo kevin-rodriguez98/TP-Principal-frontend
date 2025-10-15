@@ -4,28 +4,30 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ModalAgregarInsumo from "../components/modal/ModalAgregarInsumo";
 import Modal from "../components/modal/Modal";
-import { OrdenProduccionContext, type Insumo } from "../Context/OrdenesContext";
+import {
+  OrdenProduccionContext,
+  type Insumo,
+  type OrdenProduccion,
+} from "../Context/OrdenesContext";
 import "../styles/Ordenes.css";
 
 const OrdenFormPage = () => {
   const navigate = useNavigate();
   const { codigo } = useParams();
-
   const {
     obtenerOrdenPorCodigo,
     ordenSeleccionada,
     setOrdenSeleccionada,
     handleAddOrden,
-    setTipoModal,
     tipoModal,
+    setTipoModal,
     setFiltros,
-    isLoading,
     setIsLoading,
     modal,
-    setModal
+    setModal,
   } = useContext(OrdenProduccionContext)!;
 
-  const [orden, setOrden] = useState(ordenSeleccionada || {
+  const [orden, setOrden] = useState<OrdenProduccion>({
     codigo: "",
     producto: "",
     unidad: "",
@@ -36,7 +38,7 @@ const OrdenFormPage = () => {
     fechaInicio: "",
     fechaFin: "",
     fechaCreacion: "",
-    insumos: [] as Insumo[],
+    insumos: [],
   });
 
   const [showModalAgregar, setShowModalAgregar] = useState(false);
@@ -55,8 +57,15 @@ const OrdenFormPage = () => {
     if (ordenSeleccionada) setOrden(ordenSeleccionada);
   }, [ordenSeleccionada]);
 
-  const handleChange = (key: string, value: any) => {
-    setOrden({ ...orden, [key]: value });
+  const handleChange = (key: keyof OrdenProduccion, value: any) => {
+    setOrden((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleEliminarInsumo = (index: number) => {
+    const nuevosInsumos = orden.insumos.filter((_, i) => i !== index);
+    setOrden({ ...orden, insumos: nuevosInsumos });
+    if (setOrdenSeleccionada)
+      setOrdenSeleccionada({ ...orden, insumos: nuevosInsumos });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +77,7 @@ const OrdenFormPage = () => {
       await handleAddOrden(orden);
       setModal({ tipo: "success", mensaje: "Orden guardada con éxito" });
 
-      const ordenInicial = {
+      const ordenInicial: OrdenProduccion = {
         codigo: "",
         producto: "",
         unidad: "",
@@ -79,10 +88,11 @@ const OrdenFormPage = () => {
         fechaInicio: "",
         fechaFin: "",
         fechaCreacion: "",
-        insumos: [] as Insumo[],
+        insumos: [],
       };
+
       setOrden(ordenInicial);
-      if (setOrdenSeleccionada) setOrdenSeleccionada(ordenInicial);
+      setOrdenSeleccionada(ordenInicial);
       setFiltros({ estado: "TODOS", codigo: "", producto: "", responsable: "" });
     } catch {
       setModal({ tipo: "error", mensaje: "Error al guardar la orden" });
@@ -112,19 +122,46 @@ const OrdenFormPage = () => {
                 { label: "Unidad", key: "unidad", editable: !isDetalles },
                 { label: "Responsable", key: "responsable", editable: !isDetalles },
                 { label: "Estado", key: "estado", editable: !isDetalles },
-                { label: "Cantidad planeada", key: "cantidadPlaneada", type: "number", editable: !isDetalles },
-                { label: "Cantidad final", key: "cantidadFinal", type: "number", editable: !isDetalles },
-                { label: "Fecha inicio", key: "fechaInicio", type: "date", editable: !isDetalles },
-                { label: "Fecha fin", key: "fechaFin", type: "date", editable: !isDetalles },
-                { label: "Fecha creación", key: "fechaCreacion", type: "date", editable: false },
+                {
+                  label: "Cantidad planeada",
+                  key: "cantidadPlaneada",
+                  type: "number",
+                  editable: !isDetalles,
+                },
+                {
+                  label: "Cantidad final",
+                  key: "cantidadFinal",
+                  type: "number",
+                  editable: !isDetalles,
+                },
+                {
+                  label: "Fecha inicio",
+                  key: "fechaInicio",
+                  type: "date",
+                  editable: !isDetalles,
+                },
+                {
+                  label: "Fecha fin",
+                  key: "fechaFin",
+                  type: "date",
+                  editable: !isDetalles,
+                },
+                {
+                  label: "Fecha creación",
+                  key: "fechaCreacion",
+                  type: "date",
+                  editable: false,
+                },
               ].map((field) => (
                 <React.Fragment key={field.key}>
                   <label>{field.label}:</label>
                   <input
                     type={field.type || "text"}
-                    value={orden[field.key as keyof typeof orden]}
+                    value={orden[field.key as keyof OrdenProduccion] as string | number}
                     disabled={!field.editable}
-                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    onChange={(e) =>
+                      handleChange(field.key as keyof OrdenProduccion, e.target.value)
+                    }
                   />
                 </React.Fragment>
               ))}
@@ -134,7 +171,11 @@ const OrdenFormPage = () => {
               <div className="insumos-section">
                 <h3>Insumos asignados:</h3>
 
-                <button className="btn-agregar" onClick={() => setShowModalAgregar(true)}>
+                <button
+                  type="button"
+                  className="btn-agregar"
+                  onClick={() => setShowModalAgregar(true)}
+                >
                   + Agregar insumo
                 </button>
 
@@ -148,6 +189,7 @@ const OrdenFormPage = () => {
                         <th>Nombre</th>
                         <th>Unidad</th>
                         <th>Cantidad</th>
+                        <th>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -157,6 +199,15 @@ const OrdenFormPage = () => {
                           <td>{insumo.nombre}</td>
                           <td>{insumo.unidad}</td>
                           <td>{insumo.cantidad}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn-eliminar"
+                              onClick={() => handleEliminarInsumo(index)}
+                            >
+                              ❌
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -175,30 +226,26 @@ const OrdenFormPage = () => {
                     Guardar
                   </button>
                 </div>
-
-                {showModalAgregar && (
-                  <ModalAgregarInsumo
-                    onClose={() => setShowModalAgregar(false)}
-                    onSave={(nuevoInsumo) => {
-                      setOrden({
-                        ...orden,
-                        insumos: [...orden.insumos, nuevoInsumo],
-                      });
-                      if (setOrdenSeleccionada)
-                        setOrdenSeleccionada({
-                          ...orden,
-                          insumos: [...orden.insumos, nuevoInsumo],
-                        });
-                      setShowModalAgregar(false);
-                    }}
-                  />
-                )}
               </div>
             )}
           </form>
         </section>
       </main>
+
       <Footer />
+
+      {showModalAgregar && (
+        <ModalAgregarInsumo
+          onClose={() => setShowModalAgregar(false)}
+          onSave={(nuevoInsumo: Insumo) => {
+            setOrden({
+              ...orden,
+              insumos: [...orden.insumos, nuevoInsumo],
+            });
+            setShowModalAgregar(false);
+          }}
+        />
+      )}
 
       {modal && (
         <Modal
