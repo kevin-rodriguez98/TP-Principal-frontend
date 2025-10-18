@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { RiResetRightFill } from "react-icons/ri";
 import { OrdenProduccionContext } from "../../Context/OrdenesContext";
-import "../../styles/cuadroBusqueda.css";
 
 const BusquedaOrdenes = () => {
   const { filtros, setFiltros } = useContext(OrdenProduccionContext)!;

@@ -9,8 +9,12 @@
 .btn-notify svg {
     width: 28px;
     height: 28px;
-    color: #000; /* campana negra */
+    color: #060606;
     fill: #ffd700;
+    background: white;
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    padding: 30%;
     transition: transform 0.2s ease;
 }
 
@@ -23,8 +27,10 @@
     position: absolute;
     top: -5px;
     right: -5px;
-    background: #ff0000; /* amarillo */
-    color: #ffffff; /* número negro */
+    background: #ff0000;
+    /* amarillo */
+    color: #ffffff;
+    /* número negro */
     font-size: 11px;
     font-weight: bold;
     border-radius: 50%;
@@ -42,7 +48,7 @@
     background: #fff0f6;
     border: 2px solid #080808;
     border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     transition: transform 0.3s ease, opacity 0.3s ease;
     transform: translateY(-10px);
     opacity: 0;
@@ -84,7 +90,25 @@
 }
 
 .noti-fecha {
-    font-size: 0.7rem; /* más pequeña */
-    color: #999;       /* gris claro */
+    font-size: 0.7rem;
+    /* más pequeña */
+    color: #999;
+    /* gris claro */
     margin-top: 4px;
+}
+
+
+@media (max-width: 768px) {
+
+    .btn-notify svg {
+        color: #060606;
+        fill: #ffd700;
+        background: white;
+        border: 2px solid #ffd700;
+        border-radius: 50%;
+        padding: 30%;
+
+
+    }
+
 }

@@ -1,0 +1,26 @@
+.div-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 2%;
+
+    color: white;
+    text-align: center;
+    padding: 20px;
+
+}
+
+
+.div-titulo {
+    display: flex;
+    justify-content: center;
+}
+
+.div-OP {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 2%;
+    gap: 20px;
+    /* espacio entre cards */
+}

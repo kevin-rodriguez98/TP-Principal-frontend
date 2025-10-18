@@ -1,64 +1,38 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { RegistroContext } from "../Context/RegistroContext";
+import { ThemeProvider } from "@emotion/react";
+import { createTheme } from "@mui/material";
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import TablaRegistro from "../components/registros/TablaRegistro.tsx";
+import "../styles/tabla.css";
 import Modal from "../components/modal/Modal.tsx";
-import Form_Registro from "../components/registros/Form_Registro.tsx";
-import "../styles/GestionStock.css";
-import ListadoRegistro from "../components/registros/ListadoRegistro.tsx";
-import Busqueda from "../components/registros/Busqueda.tsx";
 
 const RegistroInsumos = () => {
-    const navigate = useNavigate();
+    const { modal, isLoading, setModal } = useContext(RegistroContext)!;
 
-    const { modal, setModal, open, setOpen } = useContext(RegistroContext)!;
-
-
+    const darkTheme = createTheme({
+        palette: {
+            mode: 'dark'
+        }
+    })
 
     return (
         <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-1 p-6 gestion-stock">
-                <h2 className="titulo">Registro de Insumos</h2>
-
+            <main className="flex-1 p-6 registros-main">
+                {/* <h2 className="titulo">Registro de Insumos</h2> */}
                 <section className="card">
-                    <h3 className="tituloSeccion">Lista de Registros realizados</h3>
-                    <div className="div-busqueda">
-                    <Busqueda/>
-                    </div>
-                    <div className="table-wrapper">
-                        <ListadoRegistro />
+                    <div className="table-wrapper ">
+                        <ThemeProvider theme={darkTheme}>
+                            <TablaRegistro />
+                        </ThemeProvider>
                     </div>
                 </section>
-
-                <div className="fab-container">
-                    <button
-                        className="fab fab-registro"
-                        onClick={() => setOpen("movimiento")}
-                    >
-                        ⇄
-                    </button>
-                </div>
-                {open && (
-                    <div className="overlay">
-                        <div className="modal">
-                            <button className="close-btn" onClick={() => setOpen(null)}>
-                                X
-                            </button>
-                            {open === "movimiento" && (
-                                <>
-                                    <h2>Registro de Movimiento</h2>
-                                    <Form_Registro />
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
-                <button onClick={() => navigate("/")} className="btn-volver">Volver</button>
             </main>
             <Footer />
-            {modal && (
+
+            {modal && !isLoading && (
                 <Modal
                     tipo={modal.tipo}
                     mensaje={modal.mensaje}
@@ -66,8 +40,9 @@ const RegistroInsumos = () => {
                     onClose={() => setModal(null)}
                 />
             )}
-
         </div>
+
+
     )
 }
 

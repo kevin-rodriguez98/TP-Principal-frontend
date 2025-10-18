@@ -5,19 +5,10 @@ import Notificaciones from './Notificaciones';
 const Header = () => {
     const navigate = useNavigate();
     return (
-        <div>
-            <nav className="navbar">
-                <div className="navbar-left" onClick={() => navigate("/")} >
-                    <img className='title'  src='./logo-blanco.png'/>
-                </div>
-            <div className="navbar-right">
-                <Notificaciones />
-            </div>
-            </nav>
-        </div>
-
-
-
+        <nav className="navbar">
+            <img className='title' src='./logo-blanco.png' onClick={() => navigate("/")} />
+            <Notificaciones />
+        </nav>
     )
 }
 

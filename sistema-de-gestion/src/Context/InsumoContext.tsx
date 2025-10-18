@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 export interface Insumo {
     codigo: string;
@@ -6,23 +7,14 @@ export interface Insumo {
     categoria: string;
     marca: string;
     unidad: string;
-    stock: number;
     lote: string;
+    stock: number;
     umbralMinimoStock: number;
 }
-
 interface ModalData {
     tipo: "confirm" | "success" | "error";
     mensaje: string;
     onConfirm?: () => void;
-}
-
-interface Filtro {
-    codigo: string;
-    nombre: string;
-    marca: string;
-    categoria: string;
-    // lote: string;
 }
 
 interface InsumoContextType {
@@ -30,27 +22,15 @@ interface InsumoContextType {
     setInsumos: React.Dispatch<React.SetStateAction<Insumo[]>>;
     insumos_bajo_stock: Insumo[];
     setInsumos_bajo_stock: React.Dispatch<React.SetStateAction<Insumo[]>>;
-    nuevoInsumo: Insumo;
-    setNuevoInsumo: React.Dispatch<React.SetStateAction<Insumo>>;
-    insumoEditar: Insumo | null;
-    setInsumoEditar: React.Dispatch<React.SetStateAction<Insumo | null>>;
     modal: ModalData | null;
     setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
-    handleAddInsumo: (e: React.FormEvent) => void;
+    handleAddInsumo: (insumo: Insumo) => void;
     handleDelete: (codigo: string) => void;
-    filtrarInsumos: (filtro: Filtro) => void;
-    handleUpdateInsumo: (e: React.FormEvent) => void;
-    tipoModal: "alta" | "editar" | "movimiento" | null;
-    setTipoModal: React.Dispatch<React.SetStateAction<"alta" | "editar" | "movimiento" | null>>;
+    handleUpdateInsumo: (insumo: Insumo) => void;
     error: string | null;
-    filtros: Filtro
-    setFiltros: React.Dispatch<React.SetStateAction<Filtro>>;
-    insumosFiltrados: Insumo[];
-    setInsumosFiltrados: React.Dispatch<React.SetStateAction<Insumo[]>>;
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 export const InsumoContext = createContext<InsumoContextType | undefined>(undefined);
 
 interface InsumoProviderProps {
@@ -61,84 +41,38 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     // const URL = "http://localhost:8080/productos/insumos";
     const URL = "https://tp-principal-backend.onrender.com/productos/insumos";
     const [isLoading, setIsLoading] = useState(true);
-    const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "movimiento" | null>(null);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [insumos, setInsumos] = useState<Insumo[]>([]);
     const [insumos_bajo_stock, setInsumos_bajo_stock] = useState<Insumo[]>([]);
-    const [insumoEditar, setInsumoEditar] = useState<Insumo | null>(null);
-    const [nuevoInsumo, setNuevoInsumo] = useState<Insumo>({
-        codigo: "",
-        nombre: "",
-        categoria: "",
-        marca: "",
-        unidad: "",
-        stock: 0,
-        lote: "",
-        umbralMinimoStock: 0
-    });
-    const [insumosFiltrados, setInsumosFiltrados] = useState<Insumo[]>([]);
-    const [filtros, setFiltros] = useState<Filtro>({
-        codigo: "",
-        nombre: "",
-        marca: "",
-        categoria: "",
-        // lote: "",
-    });
-
 
     useEffect(() => {
         obtenerInsumos();
     }, []);
 
-
-    useEffect(() => {
-        filtrarInsumos(filtros);
-    }, [filtros, insumos]);
-
-
     useEffect(() => {
         obtenerInsumosBajoStock();
     }, [insumos]);
-
-
-    const filtrarInsumos = (filtros: Filtro) => {
-        if (!insumos) return;
-        const resultado = insumos.filter((item) =>
-            (filtros.codigo === "" || item.codigo.toLowerCase().startsWith(filtros.codigo.toLowerCase())) &&
-            (filtros.nombre === "" || item.nombre.toLowerCase().startsWith(filtros.nombre.toLowerCase())) &&
-            (filtros.marca === "" || item.marca.toLowerCase().startsWith(filtros.marca.toLowerCase())) &&
-            (filtros.categoria === "" || item.categoria.toLowerCase().startsWith(filtros.categoria.toLowerCase()))
-            // (filtros.lote === "" || item.lote.toLowerCase().startsWith(filtros.lote.toLowerCase()))
-        );
-
-        setIsLoading(true)
-        setInsumosFiltrados(resultado);
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1000 / 2);
-    };
-
 
     const obtenerInsumos = async () => {
         try {
             setError(null); // Limpia errores anteriores
             const response = await fetch(`${URL}/obtener`);
             if (!response.ok) throw new Error("Error al obtener los insumos");
-
             const data = await response.json();
             setInsumos(data);
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
                 tipo: "error",
-                mensaje: "El servidor no está disponible. Intenta más tarde.",
+                mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
             setInsumos([]); // limpia listado
         }
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 2000);
     };
-
-
 
     const obtenerInsumosBajoStock = async () => {
         try {
@@ -153,63 +87,86 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
                 tipo: "error",
-                mensaje: "El servidor no está disponible. Intenta más tarde.",
+                mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
             setInsumos_bajo_stock([]); // limpia listado
         }
     };
 
-    const handleAddInsumo = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const validarInsumo = (insumo: Insumo, esEdicion: boolean) => {
+        const errores: Record<string, string> = {};
 
+        const codigoNormalizado = insumo.codigo.trim().toLowerCase();
+        const nombreNormalizado = insumo.nombre.trim().toLowerCase();
+        const categoriaNormalizada = insumo.categoria.trim().toLowerCase();
+        const marcaNormalizada = insumo.marca.trim().toLowerCase();
 
-        if (insumos.some((i) => i.codigo === nuevoInsumo.codigo)) {
-            setModal({ tipo: "error", mensaje: "Ya existe un insumo con ese código" });
-            return;
+        // Código repetido
+        if (!esEdicion && insumos.some(i => i.codigo.trim().toLowerCase() === codigoNormalizado)) {
+            errores.codigo = "El código ya existe";
         }
 
-        const nombreCategoriaExistente = insumos.some(
-            (i) =>
-            (i.nombre.toLowerCase() === nuevoInsumo.nombre.toLowerCase() &&
-                i.categoria.toLowerCase() === nuevoInsumo.categoria.toLowerCase() && i.marca.toLowerCase() === nuevoInsumo.marca.toLowerCase())
+        // Conjunto repetido: nombre + marca + categoría
+        const repetido = insumos.some(i =>
+            i.codigo.trim().toLowerCase() !== codigoNormalizado &&
+            i.nombre.trim().toLowerCase() === nombreNormalizado &&
+            i.categoria.trim().toLowerCase() === categoriaNormalizada &&
+            i.marca.trim().toLowerCase() === marcaNormalizada
         );
+        if (repetido) errores.nombre = "Ya existe un insumo con el mismo nombre, categoría y marca";
 
-        if (nombreCategoriaExistente) {
-            setModal({
-                tipo: "error",
-                mensaje: "Ya existe un insumo con el mismo nombre, categoría y marca.",
-            });
+        return errores;
+    };
+
+    const handleAddInsumo = async (insumo: Insumo) => {
+        console.log("Nuevo insumo:", insumo);
+        console.log("Lista actual de insumos:", insumos.map(i => i.codigo));
+        const errores = validarInsumo(insumo, false);
+        if (Object.keys(errores).length > 0) {
+            setModal({ tipo: "error", mensaje: Object.values(errores).join("\n") });
             return;
         }
-
         try {
             const response = await fetch(`${URL}/agregar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(nuevoInsumo),
+                body: JSON.stringify(insumo),
             });
             if (!response.ok) throw new Error();
-
             const nuevo = await response.json();
             setInsumos([...insumos, nuevo]);
-            setNuevoInsumo({
-                codigo: "",
-                nombre: "",
-                categoria: "",
-                marca: "",
-                unidad: "",
-                stock: 0,
-                lote: "",
-                umbralMinimoStock: 0
-            });
-            setTipoModal(null);
-            setModal({ tipo: "success", mensaje: "Insumo agregado con éxito" });
+            toast.success(`¡Se agregó ${insumo.nombre}!`);
         } catch {
             setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." });
+            toast.error("Algo salió mal...");
+        }
+        //   toast.info("Información importante");
+        //   toast.warning("Cuidado con esto");
+    };
+
+    const handleUpdateInsumo = async (insumo: Insumo) => {
+        const errores = validarInsumo(insumo, true);
+        if (Object.keys(errores).length > 0) {
+            setModal({ tipo: "error", mensaje: Object.values(errores).join("\n") });
+            return;
+        }
+        try {
+            const response = await fetch(`${URL}/editar/${insumo.codigo}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(insumo),
+            });
+            if (!response.ok) throw new Error();
+            const actualizado = await response.json();
+            setInsumos(insumos.map(i => (i.codigo === actualizado.codigo ? actualizado : i)));
+            toast.success(`¡${insumo.nombre} ha sido editado!`);
+        } catch {
+            setModal({ tipo: "error", mensaje: "Error al actualizar insumo" });
+            toast.error("Algo salió mal...");
         }
     };
 
-    const handleDelete = (codigo: string) => {
+    const handleDelete = async (codigo: string) => {
         setModal({
             tipo: "confirm",
             mensaje: "¿Seguro que deseas eliminar este insumo?",
@@ -221,87 +178,31 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                     if (!response.ok) throw new Error();
 
                     setInsumos(insumos.filter((i) => i.codigo !== codigo));
-                    if (insumoEditar?.codigo === codigo) setInsumoEditar(null);
-                    setModal({ tipo: "success", mensaje: "Insumo eliminado con éxito" });
+                    setModal(null);
+                    toast.success(` Ha sido eliminado!`);
                 } catch {
                     setModal({ tipo: "error", mensaje: "Error al eliminar insumo" });
+                    toast.error("Algo salió mal...");
                 }
             },
         });
     };
-
-
-
-
-    const handleUpdateInsumo = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!insumoEditar) return;
-
-        // Verificar si ya existe otro insumo con el mismo nombre y categoría
-        const nombreCategoriaExistente = insumos.some(
-            (i) =>
-                i.codigo !== insumoEditar.codigo && // <-- Excluimos el insumo que estamos editando
-                i.nombre.toLowerCase() === insumoEditar.nombre.toLowerCase() &&
-                i.categoria.toLowerCase() === insumoEditar.categoria.toLowerCase() &&
-                i.marca.toLowerCase() === insumoEditar.marca.toLowerCase()
-        );
-
-        if (nombreCategoriaExistente) {
-            setModal({
-                tipo: "error",
-                mensaje: "Ya existe otro insumo con el mismo nombre, categoría y marca.",
-            });
-            return;
-        }
-
-        // Si pasa las validaciones, enviamos al backend
-        try {
-            const response = await fetch(`${URL}/editar/${insumoEditar.codigo}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(insumoEditar),
-            });
-
-            if (!response.ok) throw new Error();
-
-            const actualizado = await response.json();
-            setInsumos(insumos.map((i) => (i.codigo === actualizado.codigo ? actualizado : i)));
-            setInsumoEditar(null);
-            setTipoModal(null);
-            setModal({ tipo: "success", mensaje: "Insumo actualizado con éxito" });
-        } catch {
-            setModal({ tipo: "error", mensaje: "Error al actualizar insumo" });
-        }
-    };
-
 
     return (
         <InsumoContext.Provider
             value={{
                 insumos,
                 setInsumos,
-                nuevoInsumo,
-                setNuevoInsumo,
-                insumoEditar,
-                setInsumoEditar,
                 modal,
                 setModal,
                 handleAddInsumo,
                 handleDelete,
                 handleUpdateInsumo,
-                tipoModal,
-                setTipoModal,
                 error,
-                filtros,
-                setFiltros,
-                insumosFiltrados,
-                setInsumosFiltrados,
                 isLoading,
                 setIsLoading,
-                filtrarInsumos,
                 insumos_bajo_stock,
                 setInsumos_bajo_stock,
-
             }}
         >
             {children}

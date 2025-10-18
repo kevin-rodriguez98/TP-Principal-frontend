@@ -4,6 +4,7 @@ import GestionStock from './pages/GestionStock.tsx';
 import RegistroInsumos from "./pages/RegistroInsumos.tsx";
 import OrdenProduccionPage from './pages/Ordenes.tsx';
 import OrdenFormPage from './pages/OrdenFormPages.tsx';
+import './app.css';
 
 function App() {
 
@@ -15,7 +16,7 @@ function App() {
         <Route path="/gestion-stock" element={<GestionStock />} />
         <Route path="/registro-insumos" element={<RegistroInsumos />} />
         <Route path="/Ordenes-produccion" element={<OrdenProduccionPage />} />
-         <Route path="/Ordenes-produccion/nueva" element={<OrdenFormPage />} />
+        <Route path="/Ordenes-produccion/nueva" element={<OrdenFormPage />} />
       </Routes>
     </>
   )

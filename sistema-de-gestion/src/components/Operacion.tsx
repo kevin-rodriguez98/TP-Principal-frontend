@@ -13,7 +13,7 @@ const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {
             onMouseEnter={() => setMostrarSubmenu(true)}
             onMouseLeave={() => setMostrarSubmenu(false)}
         >
-            <img src={modulo.icon} alt={modulo.label} className='operacion-icon' />
+            <img src={modulo.icon} className='operacion-icon' />
             <label className='label' >{modulo.label}</label>
 
             <AnimatePresence>

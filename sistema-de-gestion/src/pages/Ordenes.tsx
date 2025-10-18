@@ -2,38 +2,38 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import ListadoOrden from "../components/Operaciones/ListadoOperaciones";
-import BusquedaOrdenes from "../components/Operaciones/BusquedaOrdenes";
-import "../styles/Ordenes.css";
+import "../styles/tabla.css";
 import { OrdenProduccionContext } from "../Context/OrdenesContext";
 import Modal from "../components/modal/Modal";
+import { createTheme, ThemeProvider } from "@mui/material";
+import TablaOrden from "../components/TablaOrden";
 
 const OrdenProduccionPage = () => {
   const navigate = useNavigate();
   const { modal, tipoModal, setTipoModal } = useContext(OrdenProduccionContext)!;
 
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark'
+    }
+  })
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 p-6 ordenes-main">
-        <section className="card ordenes-listado">
-          <div className="flex flex-col items-center gap-3 mb-4">
-            <h2>Órdenes de producción</h2>
-            <button className="btn-agregar" onClick={() => navigate("/ordenes-produccion/nueva")}>
-              +Nueva orden
-            </button>
-          </div>
+        <section className="card ">
 
-
-          <BusquedaOrdenes />
           <div className="table-wrapper">
-            <ListadoOrden />
+            <ThemeProvider theme={darkTheme}>
+              <TablaOrden />
+            </ThemeProvider>
           </div>
         </section>
       </main>
       <Footer />
 
-      {tipoModal && modal && (
+      {tipoModal && modal &&  (
         <Modal
           tipo={modal.tipo}
           mensaje={modal.mensaje}

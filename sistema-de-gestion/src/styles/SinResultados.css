@@ -6,13 +6,13 @@
     margin: 40px auto;
     padding: 20px;
     text-align: center;
-    color: #0a0a0a;
+    color: #ffffff;
     animation: fadeIn 0.5s ease-in-out;
 }
 
 .icono-triste {
     font-size: 4rem;
-    color: #f90b0b;
+    color: #f86565;
     margin-bottom: 10px;
 }
 

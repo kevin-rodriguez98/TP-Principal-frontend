@@ -29,6 +29,7 @@
   gap: 0.5rem;
   font-size: 1.1rem;
   margin: 0;
+  white-space: pre-line;
 }
 
 .modal-confirm { border-top: 5px solid #914ef082; }

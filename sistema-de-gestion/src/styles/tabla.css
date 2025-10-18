@@ -1,0 +1,95 @@
+/* --- Contenedor principal --- */
+.ordenes-main, .insumos-main, .registros-main {
+  margin: 2%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* --- Título --- */
+h2 {
+  font-size: 1rem;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+}
+
+.card {
+  width: 100%;
+  margin: 0 15%;
+  min-width: 80%;
+}
+
+.tabla-container{
+  width: 80%;
+  min-height: 40%;
+  height: auto;
+}
+
+.btn-volver {
+  background-color: #b30059;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  padding: 9px;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+  margin: 10px;
+}
+
+/* Botones */
+.boton-agregar-insumo {
+  color: rgb(0, 0, 0) !important;
+  font-weight: 100;
+}
+
+
+.icono-boton {
+  display: none;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .tabla-container {
+    width: 95%;
+    /* se adapta al ancho del móvil */
+    height: auto;
+    /* alto flexible */
+  }
+
+  .tabla-head-cell {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  .tabla-body-cell {
+    font-size: 0.7rem;
+    padding: 4px 6px;
+  }
+
+  .tabla-paper {
+    border-radius: 8px;
+  }
+
+  .titulo-lista-insumos {
+    display: none;
+  }
+
+  .boton-agregar-insumo {
+    font-size: 0.5rem;
+    padding: 2px 4px;
+    color: black;
+  }
+
+  .texto-boton {
+    display: none;
+  }
+
+  .icono-boton {
+    display: initial;
+  }
+}

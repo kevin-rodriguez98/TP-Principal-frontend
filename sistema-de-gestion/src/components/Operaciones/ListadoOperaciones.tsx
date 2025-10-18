@@ -38,7 +38,7 @@ function ListadoOrden() {
   const totalPages = Math.ceil(ordenFiltradas.length / itemsPerPage);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
+    const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
   }, [ordenFiltradas]);
 

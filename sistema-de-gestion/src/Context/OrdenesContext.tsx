@@ -8,7 +8,7 @@ export interface Insumo {
 }
 
 export interface OrdenProduccion {
-  unidad: ReactNode;
+  unidad: string;
   codigo: string;
   producto: string;
   responsable: string;
@@ -36,6 +36,7 @@ interface Filtro {
 
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
+  setOrdenes:React.Dispatch<React.SetStateAction< OrdenProduccion []>>;
   ordenFiltradas: OrdenProduccion[];
   ordenSeleccionada: OrdenProduccion | null;
   setOrdenSeleccionada: React.Dispatch<React.SetStateAction<OrdenProduccion | null>>;
@@ -48,7 +49,7 @@ interface OrdenContextType {
   handleDeleteOrden: (codigo: string) => void;
   obtenerOrdenes: () => Promise<void>;
   obtenerOrdenPorCodigo: (codigo: string) => Promise<void>;
-  tipoModal: "alta" | "editar" | "detalles" |  "eliminar" | null;
+  tipoModal: "alta" | "editar" | "detalles" | "eliminar" | null;
   setTipoModal: React.Dispatch<React.SetStateAction<"alta" | "editar" | "detalles" | "eliminar" | null>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -79,86 +80,86 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
- const obtenerOrdenes = async () => {
-  setIsLoading(true); // inicio carga
-  try {
-    setError(null);
-    const response = await fetch(`${URL}/obtener`);
-    if (!response.ok) throw new Error("Error al obtener las órdenes");
-    const data = await response.json();
-    setOrdenes(data);
-    setOrdenFiltradas(data);
-  } catch {
-    setError("❌ No se pudo conectar con el servidor de órdenes.");
-    setOrdenes([]);
-    setOrdenFiltradas([]);
-    setModal({ tipo: "error", mensaje: "El servidor no está disponible. Intenta más tarde." });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-const obtenerOrdenPorCodigo = async (codigo: string) => {
-  setIsLoading(true);
-  try {
-    setError(null);
-    const response = await fetch(`${URL}/obtener/${codigo}`);
-    if (!response.ok) throw new Error("Orden no encontrada");
-    const data = await response.json();
-    setOrdenSeleccionada(data);
-  } catch {
-    setError("❌ No se pudo obtener la orden solicitada.");
-    setModal({ tipo: "error", mensaje: "No se pudo obtener la orden solicitada." });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
-  setIsLoading(true);
-  setError(null);
-  try {
-    const response = await fetch(`${URL}/crear`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orden),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.mensaje || "Error al crear la orden");
+  const obtenerOrdenes = async () => {
+    setIsLoading(true); // inicio carga
+    try {
+      setError(null);
+      const response = await fetch(`${URL}/obtener`);
+      if (!response.ok) throw new Error("Error al obtener las órdenes");
+      const data = await response.json();
+      setOrdenes(data);
+      setOrdenFiltradas(data);
+    } catch {
+      setError("❌ No se pudo conectar con el servidor de órdenes.");
+      setOrdenes([]);
+      setOrdenFiltradas([]);
+      setModal({ tipo: "error", mensaje: "El servidor no está disponible. Intenta más tarde." });
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const nuevaOrden = await response.json();
-    setOrdenes(prev => [...prev, nuevaOrden]);
-  } catch (err: any) {
-    setError(err.message || "❌ Error al crear la orden.");
-    throw err;
-    setIsLoading(false);
-  }
-};
+  const obtenerOrdenPorCodigo = async (codigo: string) => {
+    setIsLoading(true);
+    try {
+      setError(null);
+      const response = await fetch(`${URL}/obtener/${codigo}`);
+      if (!response.ok) throw new Error("Orden no encontrada");
+      const data = await response.json();
+      setOrdenSeleccionada(data);
+    } catch {
+      setError("❌ No se pudo obtener la orden solicitada.");
+      setModal({ tipo: "error", mensaje: "No se pudo obtener la orden solicitada." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-const handleDeleteOrden = (codigo: string) => {
-  setModal({
-    tipo: "confirm",
-    mensaje: "¿Estás seguro que deseas eliminar esta orden?",
-    onConfirm: async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${URL}/eliminarorden/${codigo}`, { method: "DELETE" });
-        if (!response.ok) throw new Error();
-        setOrdenes((prev) => prev.filter((o) => o.codigo !== codigo));
-        setOrdenFiltradas((prev) => prev.filter((o) => o.codigo !== codigo));
-        setModal({ tipo: "success", mensaje: "Orden eliminada con éxito" });
-      } catch {
-        setError("❌ Error al eliminar la orden.");
-        setModal({ tipo: "error", mensaje: "Error al eliminar la orden" });
-      } finally {
-        setIsLoading(false);
+  const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${URL}/crear`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orden),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.mensaje || "Error al crear la orden");
       }
-    },
-  });
-};
+
+      const nuevaOrden = await response.json();
+      setOrdenes(prev => [...prev, nuevaOrden]);
+    } catch (err: any) {
+      setError(err.message || "❌ Error al crear la orden.");
+      throw err;
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteOrden = (codigo: string) => {
+    setModal({
+      tipo: "confirm",
+      mensaje: "¿Estás seguro que deseas eliminar esta orden?",
+      onConfirm: async () => {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`${URL}/eliminarorden/${codigo}`, { method: "DELETE" });
+          if (!response.ok) throw new Error();
+          setOrdenes((prev) => prev.filter((o) => o.codigo !== codigo));
+          setOrdenFiltradas((prev) => prev.filter((o) => o.codigo !== codigo));
+          setModal({ tipo: "success", mensaje: "Orden eliminada con éxito" });
+        } catch {
+          setError("❌ Error al eliminar la orden.");
+          setModal({ tipo: "error", mensaje: "Error al eliminar la orden" });
+        } finally {
+          setIsLoading(false);
+        }
+      },
+    });
+  };
 
   const filtrarOrdenes = (filtros: Filtro) => {
     let filtradas = [...ordenes];
@@ -166,10 +167,10 @@ const handleDeleteOrden = (codigo: string) => {
     if (filtros.codigo) filtradas = filtradas.filter((o) => o.codigo.toLowerCase().includes(filtros.codigo.toLowerCase()));
     if (filtros.producto) filtradas = filtradas.filter((o) => o.producto.toLowerCase().includes(filtros.producto.toLowerCase()));
     if (filtros.responsable) filtradas = filtradas.filter((o) => o.responsable.toLowerCase().includes(filtros.responsable.toLowerCase()));
-   setIsLoading(true);
+    setIsLoading(true);
     setTimeout(() => {
-        setOrdenFiltradas(filtradas);
-        setIsLoading(false); 
+      setOrdenFiltradas(filtradas);
+      setIsLoading(false);
     }, 500);
   };
 
@@ -185,6 +186,7 @@ const handleDeleteOrden = (codigo: string) => {
     <OrdenProduccionContext.Provider
       value={{
         ordenes,
+        setOrdenes,
         ordenFiltradas,
         ordenSeleccionada,
         setOrdenSeleccionada,
