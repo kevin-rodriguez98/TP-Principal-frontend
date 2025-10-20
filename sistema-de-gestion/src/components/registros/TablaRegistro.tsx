@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography, } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { RegistroContext, type Registro } from "../../Context/RegistroContext";
 import SinResultados from "../SinResultados";
 import { useNavigate } from "react-router-dom";
@@ -11,35 +11,6 @@ const TablaRegistro: React.FC = () => {
     const { registros, handleAddRegistro, isLoading, error } = useContext(RegistroContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
-
-    // const dataEjemplo = useMemo<Registro[]>(() => [
-    //     {
-    //         unidad: "Kg",
-    //         codigo: "123",
-    //         nombre: "aldana",
-    //         categoria: "categoria",
-    //         marca: "marca",
-    //         tipo: "INGRESO",
-    //         stock: 0,
-    //         lote: "2020",
-    //         responsable: "JO",
-    //         proveedor: "SDGVS",
-    //         destino: "SDVS  "
-    //     },
-    //     {
-    //         unidad: "Kg",
-    //         codigo: "123",
-    //         nombre: "aldana",
-    //         categoria: "categoria",
-    //         marca: "marca",
-    //         tipo: "EGRESO",
-    //         stock: 0,
-    //         lote: "2020",
-    //         responsable: "JO",
-    //         proveedor: "SDGVS",
-    //         destino: "SDVS  "
-    //     }
-    // ], []);
 
     const columns = useMemo<MRT_ColumnDef<Registro>[]>(
         () => [
@@ -92,7 +63,7 @@ const TablaRegistro: React.FC = () => {
                     const color =
                         estado === "INGRESO"
                             ? "#33ff00ff"
-                            : "#ffee00ff";
+                            : "#ffaa00ff";
 
                     return (
                         <span style={{ color, fontWeight: "bold" }}>
@@ -131,27 +102,99 @@ const TablaRegistro: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
                 },
             },
+            {
+                accessorKey: "unidad",
+                header: "Unidad",
+                editVariant: "select",
+                editSelectOptions: ["unidad", "miligramos", "gramos", "litros", "kilogramos", "toneladas"],
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.unidad,
+                    helperText: validationErrors.unidad ? (
+                        <span style={{ color: "red" }}>{validationErrors.unidad}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
+                },
+            },
+
+            {
+                accessorKey: "stock",
+                header: "Stock",
+                muiEditTextFieldProps: {
+                    type: "number",
+                    required: true,
+                    error: !!validationErrors.stock,
+                    helperText: validationErrors.stock ? (
+                        <span style={{ color: "red" }}>{validationErrors.stock}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
+                },
+            },
+            {
+                accessorKey: "lote",
+                header: "Lote",
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.lote,
+                    helperText: validationErrors.lote ? (
+                        <span style={{ color: "red" }}>{validationErrors.lote}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
+                },
+            },
+            {
+                accessorKey: "responsable",
+                header: "Responsable",
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.responsable,
+                    helperText: validationErrors.responsable ? (
+                        <span style={{ color: "red" }}>{validationErrors.responsable}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, responsable: undefined }),
+                },
+            },
+            {
+                accessorKey: "proveedor",
+                header: "Proveedor", muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.proveedor,
+                    helperText: validationErrors.proveedor ? (
+                        <span style={{ color: "red" }}>{validationErrors.proveedor}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, proveedor: undefined }),
+                },
+            },
+            {
+                accessorKey: "destino",
+                header: "Destino", muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.destino,
+                    helperText: validationErrors.destino ? (
+                        <span style={{ color: "red" }}>{validationErrors.destino}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, destino: undefined }),
+                },
+            },
         ],
         [validationErrors]
     );
 
     const validarCamposRegistro = (registro: Partial<Registro>) => {
         const errores: Record<string, string> = {};
-
-        // Código solo obligatorio al crear
         if (!registro.codigo?.trim()) errores.codigo = "Código requerido";
         if (!registro.nombre?.trim()) errores.nombre = "Nombre requerido";
         if (!registro.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!registro.marca?.trim()) errores.marca = "Marca requerida";
-        if (!registro.unidad?.trim()) errores.unidad = "Unidad requerida";
-        if (!registro.lote?.trim()) errores.lote = "Unidad requerida";
-        if (!registro.proveedor?.trim()) errores.proveedor = "Unidad requerida";
-        if (!registro.destino?.trim()) errores.destino = "Unidad requerida";
+        if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
+        if (!registro.lote?.trim()) errores.lote = "Lote requerido";
+        if (!registro.proveedor?.trim()) errores.proveedor = "Proveedor requerido";
+        if (!registro.destino?.trim()) errores.destino = "Destino requerido";
         if (!registro.responsable?.trim()) errores.responsable = "Unidad requerida";
-        if (!registro.tipo?.trim()) errores.tipo = "Unidad requerida";
+        if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
         const stockNumber = Number(registro.stock);
         if (registro.stock === undefined || registro.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-            errores.stock = "Stock debe ser un número válido mayor o igual a 0";
+            errores.stock = "Stock debe ser un número válido mayor a 0";
         }
         return errores;
     };
@@ -179,25 +222,48 @@ const TablaRegistro: React.FC = () => {
             grow: 1,
             enableResizing: true,
         },
-        positionExpandColumn: 'last',
-
-        // ✅ (opcional) muestra ícono personalizado
-        muiExpandButtonProps: ({ row, table }) => ({
-            onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),
-            sx: {
-                transform: row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(-90deg)',
-                transition: 'transform 0.2s',
+        displayColumnDefOptions: {
+            'mrt-row-expand': {
+                size: 0,
+                header: '',
+                Cell: () => null,
             },
-        }),
-
-        // ✅ Define el contenido expandido
+        },
+        positionExpandColumn: 'last',
+        enableRowActions: true,
+        positionActionsColumn: 'last',
+        enableGlobalFilter: true,
+        editDisplayMode: "modal",
+        enableExpandAll: false,
+        // enableColumnOrdering: true,
+        initialState: {
+            pagination: {
+                pageSize: 10,
+                pageIndex: 0
+            },
+            density: 'compact',
+            columnVisibility: {
+                unidad: false,
+                stock: false,
+                lote: false,
+                responsable: false,
+                proveedor: false,
+                destino: false,
+            },
+        },
+        // muiExpandButtonProps: ({ row, table }) => ({
+        //     onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),
+        //     sx: {
+        //         transform: row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(-90deg)',
+        //         transition: 'transform 0.2s',
+        //     },
+        // }),
+        // Define el contenido expandido
         renderDetailPanel: ({ row }) => (
             <Box
                 sx={{
                     display: "flex",
-                    // gridTemplateColumns: "repeat(6, 1fr)",
-                    // 
-                    gap: 10,
+                    gap: 25,
                     padding: 2,
                     backgroundColor: "#2b2b2bff",
                     borderRadius: "10px",
@@ -210,14 +276,13 @@ const TablaRegistro: React.FC = () => {
                     </Typography>
                     <Typography>{row.original.unidad}</Typography>
                 </Box>
-
                 <Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Stock
-                        </Typography>
-                        <Typography>{row.original.stock}</Typography>
-                    </Box>
+                    <Typography variant="subtitle2" color="primary">
+                        Stock
+                    </Typography>
+                    <Typography>{row.original.stock}</Typography>
+                </Box>
+                <Box>
                     <Typography variant="subtitle2" color="primary">
                         Proveedor
                     </Typography>
@@ -230,36 +295,14 @@ const TablaRegistro: React.FC = () => {
                     </Typography>
                     <Typography>{row.original.destino}</Typography>
                 </Box>
-
-
                 <Box>
                     <Typography variant="subtitle2" color="primary">
                         Responsable
                     </Typography>
                     <Typography>{row.original.responsable}</Typography>
                 </Box>
-
-                <Box sx={{ gridColumn: "span 4" }}>
-                    <Typography variant="subtitle2" color="primary">
-                        Registros
-                    </Typography>
-                </Box>
             </Box >
         ),
-        enableRowActions: true,
-        positionActionsColumn: 'last',
-
-
-        enableGlobalFilter: true,
-        editDisplayMode: "modal",
-        // enableColumnOrdering: true,
-        initialState: {
-            pagination: {
-                pageSize: 10,
-                pageIndex: 0
-            },
-            density: 'compact',
-        },
         muiTableContainerProps: {
             className: "tabla-container",
         },
@@ -281,16 +324,6 @@ const TablaRegistro: React.FC = () => {
         onCreatingRowSave: handleCreateRegistro,
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: "flex", gap: "0.5rem" }}>
-                {/* <Tooltip title="Editar">
-                    <IconButton onClick={() => table.setEditingRow(row)}>
-                        <EditIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Eliminar">
-                    <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip> */}
                 <Tooltip title="Detalles">
                     <IconButton
                         color="info"
@@ -302,7 +335,6 @@ const TablaRegistro: React.FC = () => {
             </Box>
         ),
 
-
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
                 <DialogTitle
@@ -311,7 +343,6 @@ const TablaRegistro: React.FC = () => {
                 >
                     Nuevo Registro
                 </DialogTitle>
-
                 <DialogContent
                     sx={{
                         display: "grid",
@@ -320,95 +351,10 @@ const TablaRegistro: React.FC = () => {
                         padding: 2,
                     }}
                 >
-                    {/* Campos visibles del CRUD */}
                     {internalEditComponents}
-
-
-
-                    {/* Campos adicionales */}
-                    <TextField
-                        label="Unidad"
-                        variant="outlined"
-                        size="small"
-                        type='string'
-                        value={row._valuesCache.unidad ?? ""}
-                        onChange={(e) => (row._valuesCache.unidad = e.target.value)}
-                        error={!!validationErrors.unidad}
-                        helperText={validationErrors.unidad}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Stock"
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                        value={row._valuesCache.stock ?? ""}
-                        onChange={(e) => (row._valuesCache.stock = e.target.value)}
-                        error={!!validationErrors.stock}
-                        helperText={validationErrors.stock}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Lote"
-                        variant="outlined"
-                        size="small"
-                        type="string"
-                        value={row._valuesCache.lote ?? ""}
-                        onChange={(e) => (row._valuesCache.lote = e.target.value)}
-                        error={!!validationErrors.lote}
-                        helperText={validationErrors.lote}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Responsable"
-                        variant="outlined"
-                        size="small"
-                        type="string"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.responsable ?? ""}
-                        onChange={(e) => (row._valuesCache.responsable = e.target.value)}
-                        error={!!validationErrors.responsable}
-                        helperText={validationErrors.responsable}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Proveedor"
-                        variant="outlined"
-                        size="small"
-                        type="string"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.proveedor ?? ""}
-                        onChange={(e) => (row._valuesCache.proveedor = e.target.value)}
-                        error={!!validationErrors.proveedor}
-                        helperText={validationErrors.proveedor}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Destino"
-                        variant="outlined"
-                        size="small"
-                        type="string"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.destino ?? ""}
-                        onChange={(e) => (row._valuesCache.destino = e.target.value)}
-                        error={!!validationErrors.destino}
-                        helperText={validationErrors.destino}
-                        fullWidth
-                    />
                 </DialogContent>
-
                 <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-                    <MRT_EditActionButtons
-                        table={table}
-                        row={row}
-                        // variant="contained"
-                        color="primary"
-                    />
+                    <MRT_EditActionButtons table={table} row={row} color="primary" />
                 </DialogActions>
             </>
         ),

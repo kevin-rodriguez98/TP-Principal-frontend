@@ -57,6 +57,7 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
 
             const data = await response.json();
             setRegistros(data);
+            
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({

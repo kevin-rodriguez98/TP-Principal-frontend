@@ -14,7 +14,6 @@ const TablaInsumos: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
-
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
         () => [
             {
@@ -155,7 +154,7 @@ const TablaInsumos: React.FC = () => {
         if (!insumo.nombre?.trim()) errores.nombre = "Nombre requerido";
         if (!insumo.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!insumo.marca?.trim()) errores.marca = "Marca requerida";
-        if (!insumo.unidad?.trim()) errores.unidad = "Unidad requerida";
+        if (!insumo.unidad?.trim()) errores.unidad = "Medida requerida";
 
         // Validación de stock
         const stockNumber = Number(insumo.stock);

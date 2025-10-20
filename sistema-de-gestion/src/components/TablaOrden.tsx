@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_Row, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography, } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { OrdenProduccionContext, type OrdenProduccion } from "../Context/OrdenesContext";
@@ -12,79 +12,6 @@ const TablaInsumos: React.FC = () => {
     const { ordenes, isLoading, error, handleAddOrden, handleDeleteOrden } = useContext(OrdenProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
-
-    // const dataEjemplo = useMemo<OrdenProduccion[]>(() => [
-    //     {
-    //         unidad: "Kg",
-    //         codigo: "OP001",
-    //         producto: "Pastel de Chocolate",
-    //         responsable: "Aldana",
-    //         estado: "EN PROGRESO",
-    //         cantidadPlaneada: 100,
-    //         cantidadFinal: 80,
-    //         fechaInicio: "2025-10-15",
-    //         fechaFin: "2025-10-18",
-    //         fechaCreacion: "2025-10-10",
-    //         insumos: [
-    //             {
-    //                 codigo: "I001", nombre: "Harina",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //             {
-    //                 codigo: "I002", nombre: "Cacao",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //         ],
-    //     }, {
-    //         unidad: "Kg",
-    //         codigo: "OP001",
-    //         producto: "Pastel de Chocolate",
-    //         responsable: "Aldana",
-    //         estado: "FINALIZADO",
-    //         cantidadPlaneada: 100,
-    //         cantidadFinal: 80,
-    //         fechaInicio: "2025-10-15",
-    //         fechaFin: "2025-10-18",
-    //         fechaCreacion: "2025-10-10",
-    //         insumos: [
-    //             {
-    //                 codigo: "I001", nombre: "Harina",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //             {
-    //                 codigo: "I002", nombre: "Cacao",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //         ],
-    //     }, {
-    //         unidad: "Kg",
-    //         codigo: "OP001",
-    //         producto: "Pastel de Chocolate",
-    //         responsable: "Aldana",
-    //         estado: "PENDIENTE",
-    //         cantidadPlaneada: 100,
-    //         cantidadFinal: 80,
-    //         fechaInicio: "2025-10-15",
-    //         fechaFin: "2025-10-18",
-    //         fechaCreacion: "2025-10-10",
-    //         insumos: [
-    //             {
-    //                 codigo: "I001", nombre: "Harina",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //             {
-    //                 codigo: "I002", nombre: "Cacao",
-    //                 unidad: "",
-    //                 cantidad: ""
-    //             },
-    //         ],
-    //     },
-    // ], []);
 
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
@@ -131,6 +58,8 @@ const TablaInsumos: React.FC = () => {
             {
                 header: "Estado",
                 accessorKey: "estado",
+                editVariant: "select",
+                editSelectOptions: ["EN PROGRESO", "PENDIENTE", "FINALIZADO"],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     required: true,
@@ -156,6 +85,84 @@ const TablaInsumos: React.FC = () => {
                     );
                 },
             },
+
+            {
+                accessorKey: "cantidadPlaneada",
+                header: "Cantidad Planeada",
+                muiEditTextFieldProps: {
+                    type: "number",
+                    required: true,
+                    error: !!validationErrors.cantidadPlaneada,
+                    helperText: validationErrors.cantidadPlaneada ? (
+                        <span style={{ color: "red" }}>{validationErrors.cantidadPlaneada}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, cantidadPlaneada: undefined }),
+                },
+            },
+
+            {
+                accessorKey: "cantidadFinal",
+                header: "Cantidad Final",
+                muiEditTextFieldProps: {
+                    type: "number",
+                    required: true,
+                    error: !!validationErrors.cantidadFinal,
+                    helperText: validationErrors.cantidadFinal ? (
+                        <span style={{ color: "red" }}>{validationErrors.cantidadFinal}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, cantidadFinal: undefined }),
+                },
+            },
+            {
+                accessorKey: "fechaInicio",
+                header: "Fecha de Inicio",
+                muiEditTextFieldProps: {
+                    required: true,
+                    type: "date",
+                    error: !!validationErrors.fechaInicio,
+                    helperText: validationErrors.fechaInicio ? (
+                        <span style={{ color: "red" }}>{validationErrors.fechaInicio}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, fechaInicio: undefined }),
+                },
+            },
+            {
+                accessorKey: "fechaFin",
+                header: "Fecha de Fin",
+                muiEditTextFieldProps: {
+                    required: true,
+                    type: "date",
+                    error: !!validationErrors.fechaFin,
+                    helperText: validationErrors.fechaFin ? (
+                        <span style={{ color: "red" }}>{validationErrors.fechaFin}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, fechaFin: undefined }),
+                },
+            },
+            {
+                accessorKey: "fechaCreacion",
+                header: "Fecha de creación",
+                muiEditTextFieldProps: {
+                    required: true,
+                    type: "date",
+                    error: !!validationErrors.fechaCreacion,
+                    helperText: validationErrors.fechaCreacion ? (
+                        <span style={{ color: "red" }}>{validationErrors.fechaCreacion}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, fechaCreacion: undefined }),
+                },
+            },
+            // {
+            //     accessorKey: "insumos",
+            //     header: "Destino", muiEditTextFieldProps: {
+            //         required: true,
+            //         error: !!validationErrors.insumos,
+            //         helperText: validationErrors.insumos ? (
+            //             <span style={{ color: "red" }}>{validationErrors.insumos}</span>
+            //         ) : null,
+            //         onFocus: () => setValidationErrors({ ...validationErrors, insumos: undefined }),
+            //     },
+            // },
         ],
         [validationErrors]
     );
@@ -164,34 +171,31 @@ const TablaInsumos: React.FC = () => {
     const validarCamposInsumo = (orden: Partial<OrdenProduccion>) => {
         const errores: Record<string, string> = {};
 
-        if (!orden.codigo?.trim()) errores.codigo = "El código es obligatorio";
-        if (!orden.producto?.trim()) errores.producto = "El producto es obligatorio";
-        if (!orden.responsable?.trim()) errores.responsable = "El responsable es obligatorio";
-        if (!orden.estado?.trim()) errores.estado = "El estado es obligatorio";
-        if (!orden.unidad?.trim()) errores.unidad = "La unidad es obligatoria";
-
+        if (!orden.codigo?.trim()) errores.codigo = "El código es requerido";
+        if (!orden.producto?.trim()) errores.producto = "El producto es requerido";
+        if (!orden.responsable?.trim()) errores.responsable = "El responsable es requerido";
+        if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
         if (!orden.cantidadPlaneada && orden.cantidadPlaneada !== 0)
-            errores.cantidadPlaneada = "La cantidad planeada es obligatoria";
+            errores.cantidadPlaneada = "La cantidad planeada es requerida";
 
         if (!orden.cantidadFinal && orden.cantidadFinal !== 0)
-            errores.cantidadFinal = "La cantidad final es obligatoria";
+            errores.cantidadFinal = "La cantidad final es requerida";
 
         if (!orden.fechaInicio?.trim())
-            errores.fechaInicio = "La fecha de inicio es obligatoria";
+            errores.fechaInicio = "La fecha de inicio es requerida";
 
         if (!orden.fechaFin?.trim())
-            errores.fechaFin = "La fecha de fin es obligatoria";
+            errores.fechaFin = "La fecha de fin es requerida";
 
         if (!orden.fechaCreacion?.trim())
-            errores.fechaCreacion = "La fecha de creación es obligatoria";
+            errores.fechaCreacion = "La fecha de creación es requerida";
 
         return errores;
     };
 
 
-
-    // Crear insumo
     const handleCrearOrden: MRT_TableOptions<OrdenProduccion>["onCreatingRowSave"] = async ({ values, table }) => {
+
         const errores = validarCamposInsumo(values);
 
         if (Object.keys(errores).length > 0) {
@@ -214,8 +218,10 @@ const TablaInsumos: React.FC = () => {
             return;
         }
 
+
+
         setValidationErrors({});
-        await handleAddOrden(values);
+        // await handleAddOrden(values);
         exitEditingMode();
     };
 
@@ -230,12 +236,32 @@ const TablaInsumos: React.FC = () => {
         enableColumnResizing: true,
         columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
+        enableRowActions: true,
+        positionActionsColumn: 'last',
+        enableGlobalFilter: true,
+        editDisplayMode: "modal",
+        enableEditing: true,
         defaultColumn: {
             minSize: 80, //allow columns to get smaller than default
             maxSize: 900, //allow columns to get larger than default
             size: 110, //make columns wider by default
             grow: 1,
             enableResizing: true,
+        },
+        initialState: {
+            pagination: {
+                pageSize: 10,
+                pageIndex: 0
+            },
+            density: 'compact',
+            columnVisibility: {
+                cantidadPlaneada: false,
+                cantidadFinal: false,
+                fechaInicio: false,
+                fechaFin: false,
+                fechaCreacion: false,
+                // insumos: false,
+            },
         },
         enableExpandAll: false,
         positionExpandColumn: 'last',
@@ -288,18 +314,18 @@ const TablaInsumos: React.FC = () => {
                     <Typography>{row.original.fechaCreacion}</Typography>
                 </Box>
 
-                <Box sx={{ gridColumn: "span 4" }}>
+                {/* <Box sx={{ gridColumn: "span 4" }}>
                     <Typography variant="subtitle2" color="primary">
                         Insumos
                     </Typography>
                     <ul style={{ margin: 0, paddingLeft: "20px" }}>
                         {row.original.insumos.map((insumo, index) => (
                             <li key={index}>
-                                {insumo.nombre} ({insumo.codigo})
+                                {insumo.nombre} {insumo.codigo} {insumo.cantidad} {insumo.unidad}
                             </li>
                         ))}
                     </ul>
-                </Box>
+                </Box> */}
             </Box>
         ),
 
@@ -311,18 +337,6 @@ const TablaInsumos: React.FC = () => {
             },
         },
 
-        enableRowActions: true,
-        positionActionsColumn: 'last',
-        enableGlobalFilter: true,
-        editDisplayMode: "modal",
-        enableEditing: true,
-        initialState: {
-            pagination: {
-                pageSize: 10,
-                pageIndex: 0
-            },
-            density: 'compact',
-        },
         muiTableContainerProps: {
             className: "tabla-container",
         },
@@ -351,9 +365,8 @@ const TablaInsumos: React.FC = () => {
                     variant="h5"
                     sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
                 >
-                    Nueva Orden de Producción
+                    Nuevo Orden
                 </DialogTitle>
-
                 <DialogContent
                     sx={{
                         display: "grid",
@@ -362,96 +375,13 @@ const TablaInsumos: React.FC = () => {
                         padding: 2,
                     }}
                 >
-                    {/* Campos visibles del CRUD */}
                     {internalEditComponents}
-
-                    {/* Campos adicionales */}
-                    <TextField
-                        label="Unidad"
-                        variant="outlined"
-                        size="small"
-                        value={row._valuesCache.unidad ?? ""}
-                        onChange={(e) => (row._valuesCache.unidad = e.target.value)}
-                        error={!!validationErrors.unidad}
-                        helperText={validationErrors.unidad}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Cantidad Planeada"
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                        value={row._valuesCache.cantidadPlaneada ?? ""}
-                        onChange={(e) => (row._valuesCache.cantidadPlaneada = e.target.value)}
-                        error={!!validationErrors.cantidadPlaneada}
-                        helperText={validationErrors.cantidadPlaneada}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Cantidad Final"
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                        value={row._valuesCache.cantidadFinal ?? ""}
-                        onChange={(e) => (row._valuesCache.cantidadFinal = e.target.value)}
-                        error={!!validationErrors.cantidadFinal}
-                        helperText={validationErrors.cantidadFinal}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Fecha Inicio"
-                        variant="outlined"
-                        size="small"
-                        type="date"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.fechaInicio ?? ""}
-                        onChange={(e) => (row._valuesCache.fechaInicio = e.target.value)}
-                        error={!!validationErrors.fechaInicio}
-                        helperText={validationErrors.fechaInicio}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Fecha Fin"
-                        variant="outlined"
-                        size="small"
-                        type="date"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.fechaFin ?? ""}
-                        onChange={(e) => (row._valuesCache.fechaFin = e.target.value)}
-                        error={!!validationErrors.fechaFin}
-                        helperText={validationErrors.fechaFin}
-                        fullWidth
-                    />
-
-                    <TextField
-                        label="Fecha Creación"
-                        variant="outlined"
-                        size="small"
-                        type="date"
-                        InputLabelProps={{ shrink: true }}
-                        value={row._valuesCache.fechaCreacion ?? ""}
-                        onChange={(e) => (row._valuesCache.fechaCreacion = e.target.value)}
-                        error={!!validationErrors.fechaCreacion}
-                        helperText={validationErrors.fechaCreacion}
-                        fullWidth
-                    />
                 </DialogContent>
-
                 <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-                    <MRT_EditActionButtons
-                        table={table}
-                        row={row}
-                        // variant="contained"
-                        color="primary"
-                    />
+                    <MRT_EditActionButtons table={table} row={row} color="primary" />
                 </DialogActions>
             </>
         ),
-
 
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
@@ -534,12 +464,14 @@ const TablaInsumos: React.FC = () => {
                 </Box>
             </Box>
         ),
+
         renderEmptyRowsFallback: () => {
             if (error) {
                 return <SinResultados mensaje="El servidor no está disponible. Intenta más tarde." />;
             }
             return <SinResultados mensaje="No hay insumos disponibles para mostrar." />;
         },
+
         state: {
             isLoading,
         },

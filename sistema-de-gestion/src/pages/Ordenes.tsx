@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/tabla.css";
@@ -9,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import TablaOrden from "../components/TablaOrden";
 
 const OrdenProduccionPage = () => {
-  const navigate = useNavigate();
+
   const { modal, tipoModal, setTipoModal } = useContext(OrdenProduccionContext)!;
 
   const darkTheme = createTheme({

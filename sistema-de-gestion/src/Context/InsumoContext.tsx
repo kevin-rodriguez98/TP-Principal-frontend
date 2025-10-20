@@ -82,7 +82,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
             const data = await response.json();
             setInsumos_bajo_stock(data);
-            console.log(data)
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
@@ -181,7 +180,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                     setModal(null);
                     toast.success(` Ha sido eliminado!`);
                 } catch {
-                    setModal({ tipo: "error", mensaje: "Error al eliminar insumo" });
+                    setModal(null);
                     toast.error("Algo salió mal...");
                 }
             },

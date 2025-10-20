@@ -64,8 +64,8 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
+    // const URL = "http://localhost:8080/productos/ordenes";
   const URL = "https://tp-principal-backend.onrender.com/productos/ordenes";
-
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [ordenFiltradas, setOrdenFiltradas] = useState<OrdenProduccion[]>([]);
   const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrdenProduccion | null>(null);
