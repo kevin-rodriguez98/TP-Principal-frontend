@@ -12,6 +12,49 @@ const TablaRegistro: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
+
+    // const ejemplo = useMemo<Registro[]>(() => [
+    //     {
+    //         codigo: "R001",
+    //         nombre: "Leche Entera",
+    //         tipo: "INGRESO",
+    //         categoria: "Lácteos",
+    //         marca: "La Serenísima",
+    //         unidad: "litros",
+    //         stock: 250,
+    //         lote: "L001",
+    //         creationUsername: "Juan Pérez",
+    //         proveedor: "Distribuidora Central",
+    //         destino: "Depósito A",
+    //     },
+    //     {
+    //         codigo: "R002",
+    //         nombre: "Yogur Natural",
+    //         tipo: "EGRESO",
+    //         categoria: "Postres",
+    //         marca: "Milkaut",
+    //         unidad: "kilogramos",
+    //         stock: 75,
+    //         lote: "L002",
+    //         creationUsername: "María López",
+    //         proveedor: "Fábrica Sur",
+    //         destino: "Planta B",
+    //     },
+    //     {
+    //         codigo: "R003",
+    //         nombre: "Queso Cremoso",
+    //         tipo: "INGRESO",
+    //         categoria: "Quesos",
+    //         marca: "Ilolay",
+    //         unidad: "kilogramos",
+    //         stock: 180,
+    //         lote: "L003",
+    //         creationUsername: "Carlos Díaz",
+    //         proveedor: "Distribuidora Norte",
+    //         destino: "Depósito B",
+    //     },
+    // ], []); 
+
     const columns = useMemo<MRT_ColumnDef<Registro>[]>(
         () => [
             {
@@ -156,7 +199,8 @@ const TablaRegistro: React.FC = () => {
             },
             {
                 accessorKey: "proveedor",
-                header: "Proveedor", muiEditTextFieldProps: {
+                header: "Proveedor",
+                muiEditTextFieldProps: {
                     required: true,
                     error: !!validationErrors.proveedor,
                     helperText: validationErrors.proveedor ? (
@@ -167,7 +211,9 @@ const TablaRegistro: React.FC = () => {
             },
             {
                 accessorKey: "destino",
-                header: "Destino", muiEditTextFieldProps: {
+                header: "Destino",
+                // enableEditing: (row) => row.original.tipo === "EGRESO",
+                muiEditTextFieldProps: {
                     required: true,
                     error: !!validationErrors.destino,
                     helperText: validationErrors.destino ? (
@@ -190,7 +236,7 @@ const TablaRegistro: React.FC = () => {
         if (!registro.lote?.trim()) errores.lote = "Lote requerido";
         if (!registro.proveedor?.trim()) errores.proveedor = "Proveedor requerido";
         if (!registro.destino?.trim()) errores.destino = "Destino requerido";
-        if (!registro.responsable?.trim()) errores.responsable = "Unidad requerida";
+        if (!registro.creationUsername?.trim()) errores.creationUsername = "Unidad requerida";
         if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
         const stockNumber = Number(registro.stock);
         if (registro.stock === undefined || registro.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
@@ -251,13 +297,14 @@ const TablaRegistro: React.FC = () => {
                 destino: false,
             },
         },
-        // muiExpandButtonProps: ({ row, table }) => ({
-        //     onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),
-        //     sx: {
-        //         transform: row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(-90deg)',
-        //         transition: 'transform 0.2s',
-        //     },
-        // }),
+        muiExpandButtonProps: ({ row, table }) => ({
+            onClick: () => table.setExpanded({ [row.id]: !row.getIsExpanded() }),
+            sx: {
+                transform: row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(-90deg)',
+                transition: 'transform 0.2s',
+            },
+        }),
+
         // Define el contenido expandido
         renderDetailPanel: ({ row }) => (
             <Box
@@ -299,7 +346,7 @@ const TablaRegistro: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Responsable
                     </Typography>
-                    <Typography>{row.original.responsable}</Typography>
+                    <Typography>{row.original.creationUsername}</Typography>
                 </Box>
             </Box >
         ),

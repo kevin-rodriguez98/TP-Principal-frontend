@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../styles/tabla.css";
+import "../styles/tablas.css";
 import { OrdenProduccionContext } from "../Context/OrdenesContext";
 import Modal from "../components/modal/Modal";
 import { createTheme, ThemeProvider } from "@mui/material";
@@ -21,8 +21,8 @@ const OrdenProduccionPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 p-6 ordenes-main">
+        <h2 className="titulo">Órdenes de Producción</h2>
         <section className="card ">
-
           <div className="table-wrapper">
             <ThemeProvider theme={darkTheme}>
               <TablaOrden />

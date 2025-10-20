@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { toast } from 'react-toastify';
 
 export interface Registro {
     codigo: string;
@@ -9,7 +10,7 @@ export interface Registro {
     unidad: string;
     stock: number;
     lote: string;
-    responsable: string;
+    creationUsername: string;
     proveedor: string;
     destino: string;
 }
@@ -57,7 +58,7 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
 
             const data = await response.json();
             setRegistros(data);
-            
+
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
@@ -87,13 +88,10 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
 
             const nuevo = await response.json();
             setRegistros([...registros, nuevo]);
-            setModal({ tipo: "success", mensaje: "Registro agregado con éxito" });
+            toast.success(`¡Se agregó ${registro.nombre}!`);
         } catch (error) {
             console.error("⚠️ Error al agregar registro:", error);
-            setModal({
-                tipo: "error",
-                mensaje: "No se pudo agregar el registro.\nEl servidor podría no estar disponible.",
-            });
+            toast.error("Algo salió mal...");
         }
     };
 

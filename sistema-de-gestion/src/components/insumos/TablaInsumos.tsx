@@ -159,7 +159,7 @@ const TablaInsumos: React.FC = () => {
         // Validación de stock
         const stockNumber = Number(insumo.stock);
         if (insumo.stock === undefined || insumo.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-            errores.stock = "Stock debe ser un número válido mayor o igual a 0";
+            errores.stock = "Stock debe ser un número válido mayor a 0";
         }
 
         // Validación de umbral mínimo
@@ -170,7 +170,6 @@ const TablaInsumos: React.FC = () => {
 
         return errores;
     };
-
 
     // Crear insumo
     const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
@@ -286,12 +285,30 @@ const TablaInsumos: React.FC = () => {
         ),
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
-                <DialogTitle variant="h3">Editar Insumo</DialogTitle>
-                <DialogContent sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <DialogTitle
+                    variant="h5"
+                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                >
+                    Editar Insumo
+                </DialogTitle>
+
+                <DialogContent
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                        padding: 2,
+                    }}
+                >
                     {internalEditComponents}
                 </DialogContent>
-                <DialogActions>
-                    <MRT_EditActionButtons table={table} row={row} variant="text" />
+                <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+                    <MRT_EditActionButtons
+                        table={table}
+                        row={row}
+                        // variant="contained"
+                        color="primary"
+                    />
                 </DialogActions>
             </>
         ),

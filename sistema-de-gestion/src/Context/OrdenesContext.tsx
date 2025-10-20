@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
+import { toast } from 'react-toastify';
 
 export interface Insumo {
   codigo: string;
@@ -11,10 +12,10 @@ export interface OrdenProduccion {
   unidad: string;
   codigo: string;
   producto: string;
-  responsable: string;
+  creationUsername: string;
   estado: "PENDIENTE" | "EN PROGRESO" | "FINALIZADO";
-  cantidadPlaneada: number;
-  cantidadFinal: number;
+  stock_requerido: number;
+  stock_real: number;
   fechaInicio: string;
   fechaFin: string;
   fechaCreacion: string;
@@ -27,22 +28,12 @@ interface ModalData {
   onConfirm?: () => void;
 }
 
-interface Filtro {
-  estado: string;
-  codigo: string;
-  producto: string;
-  responsable: string;
-}
-
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
-  setOrdenes:React.Dispatch<React.SetStateAction< OrdenProduccion []>>;
+  setOrdenes: React.Dispatch<React.SetStateAction<OrdenProduccion[]>>;
   ordenFiltradas: OrdenProduccion[];
   ordenSeleccionada: OrdenProduccion | null;
   setOrdenSeleccionada: React.Dispatch<React.SetStateAction<OrdenProduccion | null>>;
-  filtros: Filtro;
-  setFiltros: React.Dispatch<React.SetStateAction<Filtro>>;
-  filtrarOrdenes: (filtro: Filtro) => void;
   modal: ModalData | null;
   setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
   handleAddOrden: (orden: OrdenProduccion) => Promise<void>;
@@ -64,21 +55,18 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-    // const URL = "http://localhost:8080/productos/ordenes";
-  const URL = "https://tp-principal-backend.onrender.com/productos/ordenes";
+  // const URL = "http://localhost:8080/productos/ordenes";
+  const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [ordenFiltradas, setOrdenFiltradas] = useState<OrdenProduccion[]>([]);
   const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrdenProduccion | null>(null);
-  const [filtros, setFiltros] = useState<Filtro>({
-    estado: "TODOS",
-    codigo: "",
-    producto: "",
-    responsable: "",
-  });
   const [modal, setModal] = useState<ModalData | null>(null);
   const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "detalles" | "eliminar" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    obtenerOrdenes();
+  }, []);
 
   const obtenerOrdenes = async () => {
     setIsLoading(true); // inicio carga
@@ -100,7 +88,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   };
 
   const obtenerOrdenPorCodigo = async (codigo: string) => {
-    setIsLoading(true);
     try {
       setError(null);
       const response = await fetch(`${URL}/obtener/${codigo}`);
@@ -111,15 +98,13 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       setError("❌ No se pudo obtener la orden solicitada.");
       setModal({ tipo: "error", mensaje: "No se pudo obtener la orden solicitada." });
     } finally {
-      setIsLoading(false);
     }
   };
 
   const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
-    setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${URL}/crear`, {
+      const response = await fetch(`${URL}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orden),
@@ -132,10 +117,11 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
 
       const nuevaOrden = await response.json();
       setOrdenes(prev => [...prev, nuevaOrden]);
+      toast.success(`¡Se ha creado la orden para ${orden.producto}!`);
     } catch (err: any) {
       setError(err.message || "❌ Error al crear la orden.");
+      toast.error("Algo salió mal...");
       throw err;
-      setIsLoading(false);
     }
   };
 
@@ -144,43 +130,22 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       tipo: "confirm",
       mensaje: "¿Estás seguro que deseas eliminar esta orden?",
       onConfirm: async () => {
-        setIsLoading(true);
         try {
           const response = await fetch(`${URL}/eliminarorden/${codigo}`, { method: "DELETE" });
           if (!response.ok) throw new Error();
           setOrdenes((prev) => prev.filter((o) => o.codigo !== codigo));
-          setOrdenFiltradas((prev) => prev.filter((o) => o.codigo !== codigo));
-          setModal({ tipo: "success", mensaje: "Orden eliminada con éxito" });
+          toast.success(`¡Se ha eliminado la orden!`);
         } catch {
           setError("❌ Error al eliminar la orden.");
-          setModal({ tipo: "error", mensaje: "Error al eliminar la orden" });
-        } finally {
-          setIsLoading(false);
-        }
+          toast.error("Algo salió mal...");
+          // setModal({ tipo: "error", mensaje: "Error al eliminar la orden" });
+        } 
       },
     });
   };
 
-  const filtrarOrdenes = (filtros: Filtro) => {
-    let filtradas = [...ordenes];
-    if (filtros.estado !== "TODOS") filtradas = filtradas.filter((o) => o.estado === filtros.estado);
-    if (filtros.codigo) filtradas = filtradas.filter((o) => o.codigo.toLowerCase().includes(filtros.codigo.toLowerCase()));
-    if (filtros.producto) filtradas = filtradas.filter((o) => o.producto.toLowerCase().includes(filtros.producto.toLowerCase()));
-    if (filtros.responsable) filtradas = filtradas.filter((o) => o.responsable.toLowerCase().includes(filtros.responsable.toLowerCase()));
-    setIsLoading(true);
-    setTimeout(() => {
-      setOrdenFiltradas(filtradas);
-      setIsLoading(false);
-    }, 500);
-  };
 
-  useEffect(() => {
-    obtenerOrdenes();
-  }, []);
 
-  useEffect(() => {
-    filtrarOrdenes(filtros);
-  }, [filtros, ordenes]);
 
   return (
     <OrdenProduccionContext.Provider
@@ -190,9 +155,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ordenFiltradas,
         ordenSeleccionada,
         setOrdenSeleccionada,
-        filtros,
-        setFiltros,
-        filtrarOrdenes,
         modal,
         setModal,
         handleAddOrden,

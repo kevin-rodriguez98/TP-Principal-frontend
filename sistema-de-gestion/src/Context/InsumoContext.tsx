@@ -178,7 +178,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
                     setInsumos(insumos.filter((i) => i.codigo !== codigo));
                     setModal(null);
-                    toast.success(` Ha sido eliminado!`);
+                    toast.success(`Se ha eliminado!`);
                 } catch {
                     setModal(null);
                     toast.error("Algo salió mal...");

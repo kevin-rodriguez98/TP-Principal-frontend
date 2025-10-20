@@ -9,10 +9,11 @@
 }
 
 /* --- Título --- */
-h2 {
+.titulo {
   font-size: 1rem;
   font-weight: bold;
   color: rgb(255, 255, 255);
+  display: none;
 }
 
 .card {
@@ -91,5 +92,8 @@ h2 {
 
   .icono-boton {
     display: initial;
+  }
+  .titulo{
+    display:initial
   }
 }

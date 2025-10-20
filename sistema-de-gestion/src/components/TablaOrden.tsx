@@ -13,11 +13,81 @@ const TablaInsumos: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
+
+    // const ejemplo = useMemo<OrdenProduccion[]>(() => [
+    //     {
+    //         codigo: "OP001",
+    //         producto: "Yogur Natural 1L",
+    //         stock_requerido: 500,
+    //         stock_real: 480,
+    //         unidad: "unidad",
+    //         fechaInicio: "2025-10-01",
+    //         fechaFin: "2025-10-02",
+    //         fechaCreacion: "2025-09-30",
+    //         estado: "FINALIZADO",
+    //         creationUsername: "Juan Pérez",
+    //         insumos: []
+    //     },
+    //     {
+    //         codigo: "OP002",
+    //         producto: "Queso Cremoso 250g",
+    //         stock_requerido: 800,
+    //         stock_real: 790,
+    //         unidad: "kilogramos",
+    //         fechaInicio: "2025-10-05",
+    //         fechaFin: "2025-10-06",
+    //         fechaCreacion: "2025-10-04",
+    //         estado: "FINALIZADO",
+    //         creationUsername: "María López",
+    //         insumos: []
+    //     },
+    //     {
+    //         codigo: "OP003",
+    //         producto: "Leche Entera 1L",
+    //         stock_requerido: 1000,
+    //         stock_real: 0,
+    //         unidad: "litros",
+    //         fechaInicio: "2025-10-15",
+    //         fechaFin: "",
+    //         fechaCreacion: "2025-10-10",
+    //         estado: "EN PROGRESO",
+    //         creationUsername: "Carlos Díaz",
+    //         insumos: []
+    //     },
+    //     {
+    //         codigo: "OP004",
+    //         producto: "Dulce de Leche 500g",
+    //         stock_requerido: 600,
+    //         stock_real: 0,
+    //         unidad: "gramos",
+    //         fechaInicio: "2025-10-18",
+    //         fechaFin: "",
+    //         fechaCreacion: "2025-10-17",
+    //         estado: "PENDIENTE",
+    //         creationUsername: "Lucía Fernández",
+    //         insumos: []
+    //     },
+    //     {
+    //         codigo: "OP005",
+    //         producto: "Crema de Leche 200cc",
+    //         stock_requerido: 700,
+    //         stock_real: 680,
+    //         unidad: "litros",
+    //         fechaInicio: "2025-10-08",
+    //         fechaFin: "2025-10-09",
+    //         fechaCreacion: "2025-10-07",
+    //         estado: "FINALIZADO",
+    //         creationUsername: "Pedro Gómez",
+    //         insumos: []
+    //     },
+    // ], []); 
+
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
             {
                 header: "Código",
                 accessorKey: "codigo",
+                enableEditing: (row) => row.original.codigo === "",
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     required: true,
@@ -173,58 +243,42 @@ const TablaInsumos: React.FC = () => {
 
         if (!orden.codigo?.trim()) errores.codigo = "El código es requerido";
         if (!orden.producto?.trim()) errores.producto = "El producto es requerido";
-        if (!orden.responsable?.trim()) errores.responsable = "El responsable es requerido";
+        if (!orden.creationUsername?.trim()) errores.creationUsername = "El responsable es requerido";
         if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
-        if (!orden.cantidadPlaneada && orden.cantidadPlaneada !== 0)
+        if (!orden.stock_requerido && orden.stock_requerido !== 0)
             errores.cantidadPlaneada = "La cantidad planeada es requerida";
-
-        if (!orden.cantidadFinal && orden.cantidadFinal !== 0)
+        if (!orden.stock_real && orden.stock_real !== 0)
             errores.cantidadFinal = "La cantidad final es requerida";
-
         if (!orden.fechaInicio?.trim())
             errores.fechaInicio = "La fecha de inicio es requerida";
-
         if (!orden.fechaFin?.trim())
             errores.fechaFin = "La fecha de fin es requerida";
-
         if (!orden.fechaCreacion?.trim())
             errores.fechaCreacion = "La fecha de creación es requerida";
-
         return errores;
     };
 
-
     const handleCrearOrden: MRT_TableOptions<OrdenProduccion>["onCreatingRowSave"] = async ({ values, table }) => {
-
         const errores = validarCamposInsumo(values);
-
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
-
         setValidationErrors({});
         await handleAddOrden(values);
-
         table.setCreatingRow(null);
     };
 
-    // Editar insumo
     const handleSaveInsumo: MRT_TableOptions<OrdenProduccion>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
         const errores = validarCamposInsumo(values);
-
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
-
-
-
         setValidationErrors({});
         // await handleAddOrden(values);
         exitEditingMode();
     };
-
 
     const openDeleteConfirmModal = (row: MRT_Row<OrdenProduccion>) => {
         handleDeleteOrden(row.original.codigo);
@@ -283,14 +337,14 @@ const TablaInsumos: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Cant. Planeada
                     </Typography>
-                    <Typography>{row.original.cantidadPlaneada}</Typography>
+                    <Typography>{row.original.stock_requerido}</Typography>
                 </Box>
 
                 <Box>
                     <Typography variant="subtitle2" color="primary">
                         Cant. Final
                     </Typography>
-                    <Typography>{row.original.cantidadFinal}</Typography>
+                    <Typography>{row.original.stock_real}</Typography>
                 </Box>
 
                 <Box>
@@ -314,7 +368,7 @@ const TablaInsumos: React.FC = () => {
                     <Typography>{row.original.fechaCreacion}</Typography>
                 </Box>
 
-                {/* <Box sx={{ gridColumn: "span 4" }}>
+                <Box sx={{ gridColumn: "span 4" }}>
                     <Typography variant="subtitle2" color="primary">
                         Insumos
                     </Typography>
@@ -325,7 +379,7 @@ const TablaInsumos: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                </Box> */}
+                </Box>
             </Box>
         ),
 
@@ -385,12 +439,30 @@ const TablaInsumos: React.FC = () => {
 
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
-                <DialogTitle variant="h3">Editar Insumo</DialogTitle>
-                <DialogContent sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <DialogTitle
+                    variant="h5"
+                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                >
+                    Editar Orden
+                </DialogTitle>
+
+                <DialogContent
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 2,
+                        padding: 2,
+                    }}
+                >
                     {internalEditComponents}
                 </DialogContent>
-                <DialogActions>
-                    <MRT_EditActionButtons table={table} row={row} variant="text" />
+                <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+                    <MRT_EditActionButtons
+                        table={table}
+                        row={row}
+                        // variant="contained"
+                        color="primary"
+                    />
                 </DialogActions>
             </>
         ),

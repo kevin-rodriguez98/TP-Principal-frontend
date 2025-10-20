@@ -5,7 +5,7 @@ import { createTheme } from "@mui/material";
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import TablaRegistro from "../components/registros/TablaRegistro.tsx";
-import "../styles/tabla.css";
+import "../styles/tablas.css";
 import Modal from "../components/modal/Modal.tsx";
 
 const RegistroInsumos = () => {
@@ -21,7 +21,7 @@ const RegistroInsumos = () => {
         <div className="min-h-screen flex flex-col">
             <Header />
             <main className="flex-1 p-6 registros-main">
-                {/* <h2 className="titulo">Registro de Insumos</h2> */}
+                <h2 className="titulo">Registro de Insumos</h2>
                 <section className="card">
                     <div className="table-wrapper ">
                         <ThemeProvider theme={darkTheme}>
