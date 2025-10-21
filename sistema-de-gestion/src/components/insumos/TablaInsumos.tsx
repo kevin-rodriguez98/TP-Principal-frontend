@@ -141,10 +141,6 @@ const TablaInsumos: React.FC = () => {
         [validationErrors]
     );
 
-
-
-
-    // Función de validación común para crear o editar insumos
     const validarCamposInsumo = (insumo: Partial<Insumo>, esEdicion: boolean = false) => {
         const errores: Record<string, string> = {};
 
@@ -155,23 +151,17 @@ const TablaInsumos: React.FC = () => {
         if (!insumo.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!insumo.marca?.trim()) errores.marca = "Marca requerida";
         if (!insumo.unidad?.trim()) errores.unidad = "Medida requerida";
-
-        // Validación de stock
         const stockNumber = Number(insumo.stock);
         if (insumo.stock === undefined || insumo.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
             errores.stock = "Stock debe ser un número válido mayor a 0";
         }
-
-        // Validación de umbral mínimo
         const umbralNumber = Number(insumo.umbralMinimoStock);
         if (insumo.umbralMinimoStock === undefined || insumo.umbralMinimoStock === null || isNaN(umbralNumber) || umbralNumber <= 0) {
             errores.umbralMinimoStock = "Umbral mínimo debe ser un número válido mayor a 0";
         }
-
         return errores;
     };
 
-    // Crear insumo
     const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
         const errores = validarCamposInsumo(values, false);
 
@@ -187,7 +177,6 @@ const TablaInsumos: React.FC = () => {
         table.setCreatingRow(null);
     };
 
-    // Editar insumo
     const handleSaveInsumo: MRT_TableOptions<Insumo>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
         const errores = validarCamposInsumo(values, true);
 
@@ -200,7 +189,6 @@ const TablaInsumos: React.FC = () => {
         await handleUpdateInsumo(values);
         exitEditingMode();
     };
-
 
     const openDeleteConfirmModal = (row: MRT_Row<Insumo>) => {
         handleDelete(row.original.codigo);
@@ -283,6 +271,7 @@ const TablaInsumos: React.FC = () => {
                 </DialogActions>
             </>
         ),
+
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
                 <DialogTitle
@@ -370,6 +359,7 @@ const TablaInsumos: React.FC = () => {
                     <Typography variant="h5" color="primary" className="titulo-lista-insumos">
                         Insumos
                     </Typography>
+
                 </Box>
             </Box>
         ),

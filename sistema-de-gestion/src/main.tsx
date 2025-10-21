@@ -5,7 +5,8 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { ToastContainer } from "react-toastify";
 import { OpProvider } from './Context/OpContext'
 import { InsumoProvider } from './Context/InsumoContext'
-import { RegistroProvider } from './Context/RegistroContext'
+import { Movimiento_insumo_contextProvider } from './Context/Movimiento_insumo_context'
+import { Movimiento_producto_contextProvider } from './Context/Movimiento_producto_context'
 import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
 
@@ -15,23 +16,26 @@ createRoot(document.getElementById('root')!).render(
       <OpProvider>
         <InsumoProvider>
           <PanelProvider>
-            <RegistroProvider>
-              <OrdenProduccionProvider>
-                <App />
-                <ToastContainer
-                  position="bottom-right"
-                  autoClose={2000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick
-                  rtl={false}
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                  theme="dark"
-                />
-              </OrdenProduccionProvider>
-            </RegistroProvider>
+            <Movimiento_insumo_contextProvider>
+              <Movimiento_producto_contextProvider>
+
+                <OrdenProduccionProvider>
+                  <App />
+                  <ToastContainer
+                    position="bottom-right"
+                    autoClose={2000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="dark"
+                  />
+                </OrdenProduccionProvider>
+              </Movimiento_producto_contextProvider>
+            </Movimiento_insumo_contextProvider>
           </PanelProvider>
         </InsumoProvider>
       </OpProvider>

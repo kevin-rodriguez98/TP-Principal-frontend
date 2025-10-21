@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 
-export interface Registro {
+export interface movimiento_insumo {
     codigo: string;
     nombre: string;
     categoria: string;
@@ -10,54 +10,57 @@ export interface Registro {
     unidad: string;
     stock: number;
     lote: string;
-    creationUsername: string;
     proveedor: string;
-    destino: string;
+
+    // creationUsername: string;
 }
+
 interface ModalData {
     tipo: "confirm" | "success" | "error";
     mensaje: string;
     onConfirm?: () => void;
 }
 
-interface RegistroContextType {
+interface Movimiento_insumo_contextType {
     modal: ModalData | null;
     setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
-    handleAddRegistro: (registro: Registro) => void;
-    registros: Registro[];
-    setRegistros: React.Dispatch<React.SetStateAction<Registro[]>>;
+
+    movimiento_insumos: movimiento_insumo[];
+    setMovimiento_insumos: React.Dispatch<React.SetStateAction<movimiento_insumo[]>>;
+
+    handleAdd_Movimiento_insumo: (mov: movimiento_insumo) => void;
     error: string | null;
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const RegistroContext = createContext<RegistroContextType | undefined>(undefined);
+export const Movimiento_insumo_context = createContext<Movimiento_insumo_contextType | undefined>(undefined);
 
-interface RegistroProviderProps {
+interface Movimiento_insumoProviderProps {
     children: React.ReactNode;
 }
 
-export function RegistroProvider({ children }: RegistroProviderProps) {
-    // const URL = "http://localhost:8080/movimiento-insumo";
-    const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
-    const [registros, setRegistros] = useState<Registro[]>([]);
+export function Movimiento_insumo_contextProvider({ children }: Movimiento_insumoProviderProps) {
+    const URL = "http://localhost:8080/movimiento-insumo";
+    // const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
+    const [movimiento_insumos, setMovimiento_insumos] = useState<movimiento_insumo[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
-        obtenerRegistros();
+        obtenermovimientos_insumo();
     }, []);
 
-    const obtenerRegistros = async () => {
+    const obtenermovimientos_insumo = async () => {
         try {
             setError(null); // Limpia errores anteriores
-            const response = await fetch(`${URL}/obtener`);
+            const response = await fetch(`${URL}/obtener-ingreso`);
             if (!response.ok) throw new Error("Error al obtener los insumos");
 
             const data = await response.json();
-            setRegistros(data);
+            setMovimiento_insumos(data);
 
         } catch {
             setError("❌ No se pudo conectar con el servidor.");
@@ -65,15 +68,14 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
                 tipo: "error",
                 mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
-            setRegistros([]); // limpia listado
+            setMovimiento_insumos([]); // limpia listado
         }
     };
 
+    const handleAdd_Movimiento_insumo = async (mov: movimiento_insumo) => {
 
-    const handleAddRegistro = async (registro: Registro) => {
-
-        if (registros.some((i) => i.codigo === registro.codigo)) {
-            setModal({ tipo: "error", mensaje: "Ya existe un registro con ese código" });
+        if (movimiento_insumos.some((i) => i.codigo === mov.codigo)) {
+            setModal({ tipo: "error", mensaje: "Ya existe un registro de insumo con ese código" });
             return;
         }
 
@@ -81,34 +83,34 @@ export function RegistroProvider({ children }: RegistroProviderProps) {
             const response = await fetch(`${URL}/agregar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(registro),
+                body: JSON.stringify(mov),
             });
 
-            if (!response.ok) throw new Error("Error al agregar registro");
+            if (!response.ok) throw new Error("Error al agregar insumo");
 
             const nuevo = await response.json();
-            setRegistros([...registros, nuevo]);
-            toast.success(`¡Se agregó ${registro.nombre}!`);
+            setMovimiento_insumos([...movimiento_insumos, nuevo]);
+            toast.success(`¡Se agregó ${mov.nombre}!`);
         } catch (error) {
-            console.error("⚠️ Error al agregar registro:", error);
+            console.error("⚠️ Error al agregar insumo:", error);
             toast.error("Algo salió mal...");
         }
     };
 
     return (
-        <RegistroContext.Provider
+        <Movimiento_insumo_context.Provider
             value={{
-                setRegistros,
-                registros,
+                setMovimiento_insumos,
+                movimiento_insumos,
                 modal,
                 setModal,
-                handleAddRegistro,
+                handleAdd_Movimiento_insumo,
                 error,
                 isLoading,
                 setIsLoading
             }}
         >
             {children}
-        </RegistroContext.Provider>
+        </Movimiento_insumo_context.Provider>
     );
 }

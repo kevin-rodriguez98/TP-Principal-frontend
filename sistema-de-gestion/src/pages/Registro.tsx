@@ -1,15 +1,15 @@
 import { useContext } from "react";
-import { RegistroContext } from "../Context/RegistroContext";
+import { Movimiento_insumo_context } from "../Context/Movimiento_insumo_context.tsx";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
-import Footer from '../components/Footer'
-import Header from '../components/Header'
+import Footer from '../components/Footer.tsx'
+import Header from '../components/Header.tsx'
 import TablaRegistro from "../components/registros/TablaRegistro.tsx";
 import "../styles/tablas.css";
 import Modal from "../components/modal/Modal.tsx";
 
 const RegistroInsumos = () => {
-    const { modal, isLoading, setModal } = useContext(RegistroContext)!;
+    const { modal, isLoading, setModal } = useContext(Movimiento_insumo_context)!;
 
     const darkTheme = createTheme({
         palette: {
