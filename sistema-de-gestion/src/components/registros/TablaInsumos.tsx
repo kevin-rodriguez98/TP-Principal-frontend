@@ -152,7 +152,6 @@ export const TablaInsumos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
                 },
             },
-
             {
                 accessorKey: "stock",
                 header: "Stock",

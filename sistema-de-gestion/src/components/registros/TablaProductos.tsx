@@ -71,22 +71,22 @@ const TablaProductos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
                 },
             },
-            // {
-            //     accessorKey: "nombre",
-            //     header: "Producto",
-            //     size: 100,
-            //     muiTableHeadCellProps: {
-            //         style: { color: "#15a017ff" },
-            //     },
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.nombre,
-            //         helperText: validationErrors.nombre ? (
-            //             <span style={{ color: "red" }}>{validationErrors.nombre}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
-            //     },
-            // },
+            {
+                accessorKey: "nombre",
+                header: "Producto",
+                size: 100,
+                muiTableHeadCellProps: {
+                    style: { color: "#15a017ff" },
+                },
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.nombre,
+                    helperText: validationErrors.nombre ? (
+                        <span style={{ color: "red" }}>{validationErrors.nombre}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
+                },
+            },
             {
                 accessorKey: "tipo",
                 header: "Tipo",
@@ -111,41 +111,40 @@ const TablaProductos: React.FC = () => {
                     );
                 },
             },
-            // {
-            //     accessorKey: "categoria",
-            //     header: "Categoría",
-            //     editVariant: "select",
-            //     editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
-            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.categoria,
-            //         helperText: validationErrors.categoria ? (
-            //             <span style={{ color: "red" }}>{validationErrors.categoria}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
-            //     },
-            // },
-            // {
-            //     accessorKey: "marca",
-            //     header: "Marca",
-            //     editVariant: "select",
-            //     editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
-            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.marca,
-            //         helperText: validationErrors.marca ? (
-            //             <span style={{ color: "red" }}>{validationErrors.marca}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-            //     },
-            // },
+            {
+                accessorKey: "categoria",
+                header: "Categoría",
+                editVariant: "select",
+                editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.categoria,
+                    helperText: validationErrors.categoria ? (
+                        <span style={{ color: "red" }}>{validationErrors.categoria}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
+                },
+            },
+            {
+                accessorKey: "marca",
+                header: "Marca",
+                editVariant: "select",
+                editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.marca,
+                    helperText: validationErrors.marca ? (
+                        <span style={{ color: "red" }}>{validationErrors.marca}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
+                },
+            },
 
             {
                 accessorKey: "cantidad",
                 header: "Cantidad",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     type: "number",
                     required: true,
@@ -156,32 +155,32 @@ const TablaProductos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, cantidad: undefined }),
                 },
             },
-            // {
-            //     accessorKey: "unidad",
-            //     header: "Unidad",
-            //     editVariant: "select",
-            //     editSelectOptions: ["unidad", "miligramos", "gramos", "litros", "kilogramos", "toneladas"],
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.unidad,
-            //         helperText: validationErrors.unidad ? (
-            //             <span style={{ color: "red" }}>{validationErrors.unidad}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-            //     },
-            // },
-            // {
-            //     accessorKey: "lote",
-            //     header: "Lote",
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.lote,
-            //         helperText: validationErrors.lote ? (
-            //             <span style={{ color: "red" }}>{validationErrors.lote}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
-            //     },
-            // },
+            {
+                accessorKey: "unidad",
+                header: "Unidad",
+                editVariant: "select",
+                editSelectOptions: ["unidad", "gramos", "litros", "kilogramos", "toneladas"],
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.unidad,
+                    helperText: validationErrors.unidad ? (
+                        <span style={{ color: "red" }}>{validationErrors.unidad}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
+                },
+            },
+            {
+                accessorKey: "lote",
+                header: "Lote",
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.lote,
+                    helperText: validationErrors.lote ? (
+                        <span style={{ color: "red" }}>{validationErrors.lote}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
+                },
+            },
             {
                 accessorKey: "destino",
                 header: "Destino",
@@ -202,18 +201,17 @@ const TablaProductos: React.FC = () => {
     const validarCamposRegistro = (registro: Partial<movimiento_producto>) => {
         const errores: Record<string, string> = {};
         if (!registro.codigoProducto?.trim()) errores.codigoProducto = "Código requerido";
-        // if (!registro.nombre?.trim()) errores.nombre = "Nombre requerido";
-        // if (!registro.categoria?.trim()) errores.categoria = "Categoria requerida";
-        // if (!registro.marca?.trim()) errores.marca = "Marca requerida";
-        // if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
-        // if (!registro.lote?.trim()) errores.lote = "Lote requerido";
-        if (!registro.destino?.trim()) errores.destino = "Proveedor requerido";
+        if (!registro.nombre?.trim()) errores.nombre = "Nombre requerido";
+        if (!registro.categoria?.trim()) errores.categoria = "Categoria requerida";
+        if (!registro.marca?.trim()) errores.marca = "Marca requerida";
+        if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
+        if (!registro.lote?.trim()) errores.lote = "Lote requerido";
+        if (!registro.destino?.trim()) errores.destino = "Destino requerido";
         if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
         const cantidad = Number(registro.cantidad);
         if (registro.cantidad === undefined || registro.cantidad === null || isNaN(cantidad) || cantidad <= 0) {
-            errores.stock = "Stock debe ser un número válido mayor a 0";
+            errores.cantidad = "Cantidad debe ser un número válido mayor a 0";
         }
-        // if (!registro.creationUsername?.trim()) errores.creationUsername = "Unidad requerida";
         return errores;
     };
 
@@ -223,11 +221,13 @@ const TablaProductos: React.FC = () => {
             setValidationErrors(errores);
             return;
         }
+
         setValidationErrors({});
         await handleAdd_Movimiento_producto(values);
         table.setCreatingRow(null);
     }
 
+    
     const tabla_movimiento_egreso = useMaterialReactTable({
         columns: columns,
         data: movimiento_productos,
@@ -288,7 +288,7 @@ const TablaProductos: React.FC = () => {
                     </Typography>
                     <Typography>{row.original.cantidad}</Typography>
                 </Box>
-                {/* <Box>
+                <Box>
                     <Typography variant="subtitle2" color="primary">
                         Unidad
                     </Typography>
@@ -299,7 +299,7 @@ const TablaProductos: React.FC = () => {
                         Lote
                     </Typography>
                     <Typography>{row.original.lote}</Typography>
-                </Box> */}
+                </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">
                         Destino
