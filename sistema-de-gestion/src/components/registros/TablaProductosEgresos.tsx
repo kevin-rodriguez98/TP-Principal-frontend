@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 
 
-const TablaProductos: React.FC = () => {
+const TablaProductosEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
@@ -458,7 +458,7 @@ const TablaProductos: React.FC = () => {
     return <MaterialReactTable table={tabla_movimiento_egreso} />;
 };
 
-export default TablaProductos;
+export default TablaProductosEgreso;
 
 
 

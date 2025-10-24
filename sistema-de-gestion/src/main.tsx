@@ -9,6 +9,7 @@ import { Movimiento_insumo_contextProvider } from './Context/Movimiento_insumo_c
 import { Movimiento_producto_contextProvider } from './Context/Movimiento_producto_context'
 import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
+import { ProductosProvider } from './Context/ProductosContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +21,8 @@ createRoot(document.getElementById('root')!).render(
               <Movimiento_producto_contextProvider>
 
                 <OrdenProduccionProvider>
+                  <ProductosProvider>
+
                   <App />
                   <ToastContainer
                     position="bottom-right"
@@ -33,6 +36,7 @@ createRoot(document.getElementById('root')!).render(
                     pauseOnHover
                     theme="dark"
                   />
+                  </ProductosProvider>
                 </OrdenProduccionProvider>
               </Movimiento_producto_contextProvider>
             </Movimiento_insumo_contextProvider>

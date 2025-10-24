@@ -39,7 +39,9 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Planificación de Producción",
             icon: './produccion.png',
             acciones: [
-                { label: "Gestionar Ordenes", onClick: () => navigate("/ordenes-produccion") },
+                { label: "Gestionar Ordenes", onClick: () => navigate("/ordenes") },
+                { label: "Gestionar Productos", onClick: () => navigate("/produccion") },
+
             ]
         },
 

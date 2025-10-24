@@ -5,6 +5,7 @@ import Registro from "./pages/Registro.tsx";
 import OrdenProduccionPage from './pages/Ordenes.tsx';
 
 import './app.css';
+import ProduccionPage from './pages/Productos.tsx';
 
 function App() {
 
@@ -15,7 +16,8 @@ function App() {
         <Route path="/" element={<Menu />} />
         <Route path="/gestion-stock" element={<GestionStock />} />
         <Route path="/registro" element={<Registro />} />
-        <Route path="/ordenes-produccion" element={<OrdenProduccionPage />} />
+        <Route path="/ordenes" element={<OrdenProduccionPage />} />
+        <Route path="/produccion" element={<ProduccionPage />} />
       </Routes>
     </>
   )
