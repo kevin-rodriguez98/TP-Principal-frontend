@@ -32,7 +32,7 @@ interface ProductoContextType {
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   obtenerProductos: () => Promise<void>;
   handleAddProducto: (producto: Producto) => Promise<void>;
-  handleEditProducto: (codigo: string, data: Partial<Producto>) => Promise<void>;
+  handleEditProducto: (producto: Producto) => Promise<void>;
   handleDeleteProducto: (codigo: string) => void;
 }
 
@@ -98,13 +98,13 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     }
   };
 
-  const handleEditProducto = async (codigo: string, data: Partial<Producto>): Promise<void> => {
+  const handleEditProducto = async (producto: Producto): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`${URL}/editar/${codigo}`, {
+      const response = await fetch(`${URL}/editar/${producto.codigo}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(producto),
       });
 
       if (!response.ok) {
@@ -113,28 +113,35 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       }
 
       const productoActualizado = await response.json();
-      setProductos(prev => prev.map(p => (p.codigo === codigo ? productoActualizado : p)));
-      toast.success(`¡Producto ${codigo} actualizado correctamente!`);
+      setProductos(prev => prev.map(p => (p.codigo === producto.codigo ? productoActualizado : p)));
+      toast.success(`¡Producto ${producto.nombre} actualizado correctamente!`);
     } catch (err: any) {
       setError(err.message || "❌ Error al editar el producto.");
       toast.error("Algo salió mal...");
     }
   };
-
-  const handleDeleteProducto = (codigo: string) => {
+  const handleDeleteProducto = async (codigo: string) => {
     setModal({
       tipo: "confirm",
-      mensaje: "¿Estás seguro que deseas eliminar este producto?",
+      mensaje: "¿Seguro que deseas eliminar este insumo?",
       onConfirm: async () => {
         try {
-          const response = await fetch(`${URL}/eliminar/${codigo}`, { method: "DELETE" });
+          const response = await fetch(`${URL}/eliminar/${codigo}`, {
+            method: "DELETE",
+          });
           if (!response.ok) throw new Error();
-          setProductos(prev => prev.filter(p => p.codigo !== codigo));
-          toast.success("¡Producto eliminado correctamente!");
+
+          setProductos(productos.filter((i) => i.codigo !== codigo));
+          setModal(null);
+          toast.success(`Se ha eliminado!`);
         } catch {
-          setError("❌ Error al eliminar el producto.");
+          setModal(null);
           toast.error("Algo salió mal...");
         }
+        finally {
+          setModal(null);
+        }
+
       },
     });
   };

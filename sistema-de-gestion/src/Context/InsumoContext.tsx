@@ -100,22 +100,26 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         const categoriaNormalizada = insumo.categoria.trim().toLowerCase();
         const marcaNormalizada = insumo.marca.trim().toLowerCase();
 
-        // Código repetido
+        // 🚫 Código repetido solo si NO es edición
         if (!esEdicion && insumos.some(i => i.codigo.trim().toLowerCase() === codigoNormalizado)) {
             errores.codigo = "El código ya existe";
         }
 
-        // Conjunto repetido: nombre + marca + categoría
+        // ✅ Conjunto repetido: nombre + marca + categoría
         const repetido = insumos.some(i =>
-            i.codigo.trim().toLowerCase() !== codigoNormalizado &&
+            i.codigo.trim().toLowerCase() !== codigoNormalizado && // distinto código
             i.nombre.trim().toLowerCase() === nombreNormalizado &&
             i.categoria.trim().toLowerCase() === categoriaNormalizada &&
             i.marca.trim().toLowerCase() === marcaNormalizada
         );
-        if (repetido) errores.nombre = "Ya existe un insumo con el mismo nombre, categoría y marca";
+
+        if (repetido) {
+            errores.nombre = "Ya existe un insumo con el mismo nombre, categoría y marca";
+        }
 
         return errores;
     };
+
 
     const handleAddInsumo = async (insumo: Insumo) => {
         console.log("Nuevo insumo:", insumo);
@@ -145,17 +149,23 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
 
     const handleUpdateInsumo = async (insumo: Insumo) => {
         const errores = validarInsumo(insumo, true);
+
         if (Object.keys(errores).length > 0) {
             setModal({ tipo: "error", mensaje: Object.values(errores).join("\n") });
-            return;
+            toast.error("Algo salió mal...");
+            setInsumos([...insumos]);
+            return; // ✅ esto detiene correctamente la ejecución
         }
+
         try {
             const response = await fetch(`${URL}/editar/${insumo.codigo}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(insumo),
             });
-            if (!response.ok) throw new Error();
+
+            if (!response.ok) throw new Error("Error al actualizar insumo");
+
             const actualizado = await response.json();
             setInsumos(insumos.map(i => (i.codigo === actualizado.codigo ? actualizado : i)));
             toast.success(`¡${insumo.nombre} ha sido editado!`);
@@ -164,6 +174,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             toast.error("Algo salió mal...");
         }
     };
+
 
     const handleDelete = async (codigo: string) => {
         setModal({

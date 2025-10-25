@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
-import TablaInsumos from "./TablaInsumos";
-import TablaProductosEgreso from "./TablaProductosEgresos";
+import TablaInsumos from "./TablaIngreso";
+import TablaProductosEgreso from "./TablaEgreso";
 
 const TablaRegistro: React.FC = () => {
     const [tabActiva, setTabActiva] = useState(0);

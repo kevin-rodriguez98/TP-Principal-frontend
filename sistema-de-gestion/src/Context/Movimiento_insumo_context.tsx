@@ -11,8 +11,6 @@ export interface movimiento_insumo {
     stock: number;
     lote: string;
     proveedor: string;
-
-    // creationUsername: string;
 }
 
 interface ModalData {

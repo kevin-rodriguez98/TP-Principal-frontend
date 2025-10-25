@@ -10,6 +10,7 @@ import { Movimiento_producto_contextProvider } from './Context/Movimiento_produc
 import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
 import { ProductosProvider } from './Context/ProductosContext';
+import { RecetaProvider } from "./Context/RecetaContext"
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,23 +20,23 @@ createRoot(document.getElementById('root')!).render(
           <PanelProvider>
             <Movimiento_insumo_contextProvider>
               <Movimiento_producto_contextProvider>
-
                 <OrdenProduccionProvider>
                   <ProductosProvider>
-
-                  <App />
-                  <ToastContainer
-                    position="bottom-right"
-                    autoClose={2000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme="dark"
-                  />
+                    <RecetaProvider>
+                      <App />
+                      <ToastContainer
+                        position="bottom-right"
+                        autoClose={2000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="dark"
+                      />
+                    </RecetaProvider>
                   </ProductosProvider>
                 </OrdenProduccionProvider>
               </Movimiento_producto_contextProvider>

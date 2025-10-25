@@ -80,7 +80,7 @@ const TablaInsumos: React.FC = () => {
                 accessorKey: "unidad",
                 header: "Unidad",
                 editVariant: "select",
-                editSelectOptions: ["Unidad", "ml.", "g.", "kg.", "ton."],
+                editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     required: true,
@@ -164,7 +164,6 @@ const TablaInsumos: React.FC = () => {
 
     const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
         const errores = validarCamposInsumo(values, false);
-
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
@@ -179,7 +178,6 @@ const TablaInsumos: React.FC = () => {
 
     const handleSaveInsumo: MRT_TableOptions<Insumo>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
         const errores = validarCamposInsumo(values, true);
-
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
