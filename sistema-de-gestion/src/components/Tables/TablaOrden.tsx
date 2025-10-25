@@ -316,7 +316,7 @@ const TablaInsumos: React.FC = () => {
                     <Tooltip title="En Producción">
                         <IconButton
                             color="warning"
-                            onClick={() => marcarEnProduccion(Number(row.original.id), "3123")}
+                            onClick={() => marcarEnProduccion(Number(row.original.id), row.original.codigoProducto)}
                         >
                             ⚙️
                         </IconButton>
@@ -325,7 +325,7 @@ const TablaInsumos: React.FC = () => {
                     <Tooltip title="Finalizar Orden">
                         <IconButton
                             color="success"
-                            onClick={() => finalizarOrden(2, 89 , "Depósito Central")}
+                            onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Depósito Central")}
                         >
                             ✅
                         </IconButton>

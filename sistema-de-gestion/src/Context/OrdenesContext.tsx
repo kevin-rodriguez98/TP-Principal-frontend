@@ -16,6 +16,7 @@ export interface OrdenProduccion {
   marca: string;
   estado: "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA" |"EVALUACION";
   stockRequerido: number;
+  stockProducidoReal: number;
   fechaEntrega: string;
   lote: string;
 }

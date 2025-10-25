@@ -64,6 +64,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       const response = await fetch(`${URL}/obtener`);
       if (!response.ok) throw new Error("Error al obtener los productos");
       const data = await response.json();
+      console.log(data)
       setProductos(data);
     } catch {
       setError("❌ No se pudo conectar con el servidor de productos.");
