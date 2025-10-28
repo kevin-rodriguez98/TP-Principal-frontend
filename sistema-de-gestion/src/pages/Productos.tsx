@@ -5,7 +5,7 @@ import "../styles/tablas.css";
 import { ProductosContext } from "../Context/ProductosContext";
 import Modal from "../components/modal/Modal";
 import { createTheme, ThemeProvider } from "@mui/material";
-import TablaProductos from "../components/Tables/TablaProductos";
+import TablaProductos from "../components/Tables/ordenes/TablaProductos";
 
 const ProduccionPage = () => {
 

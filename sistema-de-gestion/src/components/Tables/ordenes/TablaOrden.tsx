@@ -5,6 +5,7 @@ import { OrdenProduccionContext, type OrdenProduccion } from "../../../Context/O
 import SinResultados from "../../SinResultados";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 const TablaInsumos: React.FC = () => {
     const { ordenes, isLoading, error, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden} = useContext(OrdenProduccionContext)!;
@@ -128,7 +129,15 @@ const TablaInsumos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, fechaEntrega: undefined }),
                 },
             },
-
+            {
+            accessorKey: "tiempoEstimadoHoras",
+            header: "Tiempo Estimado (hrs)",
+            enableEditing: false,
+            Cell: ({ cell }) => {
+                const value = cell.getValue<number>();
+                return value !== undefined ? value.toFixed(1) : "-";
+            },
+            },
         ],
         [validationErrors]
     );
@@ -310,6 +319,10 @@ const TablaInsumos: React.FC = () => {
 
         renderRowActions: ({ row }) => {
 
+            function calcularTiempoEstimado(codigoProducto: string, stockRequerido: number) {
+                throw new Error("Function not implemented.");
+            }
+
             return (
                 <Box sx={{ display: "flex", gap: "0.5rem" }}>
 
@@ -321,7 +334,24 @@ const TablaInsumos: React.FC = () => {
                             ⚙️
                         </IconButton>
                     </Tooltip>
-
+            <Tooltip title="Calcular tiempo estimado">
+                <IconButton
+                    color="info"
+                    onClick={async () => {
+                        try {
+                            const res = await calcularTiempoEstimado(
+                                row.original.codigoProducto,
+                                row.original.stockRequerido
+                            );
+                            toast.info(`⏱️ Tiempo estimado: ${res} horas`);
+                        } catch {
+                            toast.error("Error al calcular el tiempo estimado");
+                        }
+                    }}
+                >
+                    ⏱️
+                </IconButton>
+            </Tooltip>
                     <Tooltip title="Finalizar Orden">
                         <IconButton
                             color="success"

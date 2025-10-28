@@ -10,6 +10,7 @@ export interface Insumo {
 }
 
 export interface OrdenProduccion {
+  tiempoEstimadoHoras: undefined;
   id: number,
   codigoProducto: string;
   productoRequerido: string;
@@ -19,6 +20,7 @@ export interface OrdenProduccion {
   stockProducidoReal: number;
   fechaEntrega: string;
   lote: string;
+  tiempoEstimado?: number;
 }
 
 interface ModalData {
@@ -44,6 +46,7 @@ interface OrdenContextType {
   marcarEnProduccion: (id: number, codigoProducto: string) => Promise<void>;
   finalizarOrden: (id: number, stockProducidoReal?: number, destino?: string) => Promise<void>;
   cancelarOrden: (id: number) => Promise<void>;
+
 
 
 }
