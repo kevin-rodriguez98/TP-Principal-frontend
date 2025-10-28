@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
-import TablaInsumos from "./TablaInsumos";
-import TablaProductosEgreso from "./TablaProductosEgresos";
+import InsumosBajoStock from "./InsumosBajoStock";
+import ListaInsumos from "./ListaInsumos";
 
-const TablaRegistro: React.FC = () => {
+const Tabla: React.FC = () => {
     const [tabActiva, setTabActiva] = useState(0);
 
     return (
@@ -39,7 +39,7 @@ const TablaRegistro: React.FC = () => {
                         letterSpacing: "1px",
                     }}
                 >
-                    Gestión de Registros
+                    Gestión de Insumos
                 </Typography>
             </Box>
 
@@ -73,8 +73,8 @@ const TablaRegistro: React.FC = () => {
                     },
                 }}
             >
-                <Tab label="Ingreso" />
-                <Tab label="Egreso" />
+                <Tab label="Lista Insumos" />
+                <Tab label="Insumos bajo Stock" />
             </Tabs>
 
             {/* Contenido */}
@@ -88,11 +88,11 @@ const TablaRegistro: React.FC = () => {
                     borderRadius: "0 0 16px 16px",
                 }}
             >
-                {tabActiva === 0 && <TablaInsumos />}
-                {tabActiva === 1 && <TablaProductosEgreso />}
+                {tabActiva === 0 && <ListaInsumos />}
+                {tabActiva === 1 && <InsumosBajoStock />}
             </Box>
         </Paper>
     );
 };
 
-export default TablaRegistro;
+export default Tabla;

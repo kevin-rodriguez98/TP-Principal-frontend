@@ -9,7 +9,7 @@ import TablaProductos from "../components/Tables/TablaProductos";
 
 const ProduccionPage = () => {
 
-  const { modal, tipoModal, setTipoModal } = useContext(ProductosContext)!;
+  const { modal, isLoading, setModal } = useContext(ProductosContext)!;
 
   const darkTheme = createTheme({
     palette: {
@@ -20,7 +20,7 @@ const ProduccionPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 p-6 ordenes-main">
+      <main className="flex-1 p-6 productos-main">
         <h2 className="titulo">Órdenes de Producción</h2>
         <section className="card ">
           <div className="table-wrapper">
@@ -32,12 +32,12 @@ const ProduccionPage = () => {
       </main>
       <Footer />
 
-      {tipoModal && modal &&  (
+      {modal && !isLoading  && (
         <Modal
           tipo={modal.tipo}
           mensaje={modal.mensaje}
           onConfirm={modal.onConfirm}
-          onClose={() => setTipoModal(null)}
+          onClose={() => setModal(null)}
         />
       )}
     </div>

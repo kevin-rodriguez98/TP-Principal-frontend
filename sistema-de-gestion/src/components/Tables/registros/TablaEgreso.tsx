@@ -1,80 +1,83 @@
 import React, { useMemo, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
-import { Movimiento_insumo_context, type movimiento_insumo } from "../../Context/Movimiento_insumo_context";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
+import SinResultados from "../../SinResultados";
+import { useNavigate } from "react-router-dom";
 // import { DeleteIcon, EditIcon } from "lucide-react";
-import SinResultados from "../SinResultados";
+import { IoArrowBackCircleSharp } from "react-icons/io5";
 
-export const TablaInsumos: React.FC = () => {
-    const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
-    const navigate = useNavigate();
+
+const TablaProductosEgreso: React.FC = () => {
+    const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+    const navigate = useNavigate();
 
 
-    // const data: movimiento_insumo[] = useMemo(
+    // const data: movimiento_producto[] = useMemo(
     //     () => [
     //         {
-    //             codigo: "P001",
+    //             codigoProducto: "P001",
     //             nombre: "Yogur Natural",
-    //             tipo: "INGRESO",
+    //             tipo: "EGRESO",
     //             categoria: "Lácteos",
     //             marca: "La Serenísima",
-    //             stock: 120,
+    //             cantidad: 120,
     //             unidad: "unidad",
     //             lote: "L001",
-    //             proveedor: "Sucursal Centro",
+    //             destino: "Sucursal Centro",
     //         },
     //         {
-    //             codigo: "P002",
+    //             codigoProducto: "P002",
     //             nombre: "Queso Cremoso",
-    //             tipo: "INGRESO",
+    //             tipo: "EGRESO",
     //             categoria: "Quesos",
     //             marca: "Milkaut",
-    //             stock: 80,
+    //             cantidad: 80,
     //             unidad: "kilogramos",
     //             lote: "L002",
-    //             proveedor: "Sucursal Norte",
+    //             destino: "Sucursal Norte",
     //         },
     //         {
-    //             codigo: "P003",
+    //             codigoProducto: "P003",
     //             nombre: "Postre de Vainilla",
-    //             tipo: "INGRESO",
+    //             tipo: "EGRESO",
     //             categoria: "Postres",
     //             marca: "Yogurísimo",
-    //             stock: 50,
+    //             cantidad: 50,
     //             unidad: "unidad",
     //             lote: "L003",
-    //             proveedor: "Sucursal Sur",
+    //             destino: "Sucursal Sur",
     //         },
     //     ],
     //     []
     // );
 
-    const columns = useMemo<MRT_ColumnDef<movimiento_insumo>[]>(
+    const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
         () => [
             {
-                accessorKey: "codigo",
-                header: "Código",
+                accessorKey: "codigoProducto",
+                header: "Codigo",
                 size: 100,
-                enableEditing: (row) => row.original.codigo === "",
                 muiTableHeadCellProps: {
                     style: { color: "#15a017ff" },
                 },
                 muiEditTextFieldProps: {
                     required: true,
-                    error: !!validationErrors.codigo,
-                    helperText: validationErrors.codigo ? (
-                        <span style={{ color: "red" }}>{validationErrors.codigo}</span>
+                    error: !!validationErrors.codigoProducto,
+                    helperText: validationErrors.codigoProducto ? (
+                        <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
                     ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, codigo: undefined }),
+                    onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
                 },
             },
             {
                 accessorKey: "nombre",
-                header: "Nombre",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                header: "Producto",
+                size: 100,
+                muiTableHeadCellProps: {
+                    style: { color: "#15a017ff" },
+                },
                 muiEditTextFieldProps: {
                     required: true,
                     error: !!validationErrors.nombre,
@@ -88,7 +91,7 @@ export const TablaInsumos: React.FC = () => {
                 accessorKey: "tipo",
                 header: "Tipo",
                 editVariant: "select",
-                editSelectOptions: ["INGRESO"],
+                editSelectOptions: ["EGRESO"],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     required: true,
@@ -99,8 +102,8 @@ export const TablaInsumos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, tipo: undefined }),
                 },
                 Cell: ({ cell }) => {
-                    const estado = cell.getValue<movimiento_insumo["tipo"]>();
-                    const color = "#ffff00ff"
+                    const estado = cell.getValue<movimiento_producto["tipo"]>();
+                    const color = "#00d0ffff";
                     return (
                         <span style={{ color, fontWeight: "bold" }}>
                             {estado}
@@ -138,11 +141,25 @@ export const TablaInsumos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
                 },
             },
+
+            {
+                accessorKey: "cantidad",
+                header: "Cantidad",
+                muiEditTextFieldProps: {
+                    type: "number",
+                    required: true,
+                    error: !!validationErrors.cantidad,
+                    helperText: validationErrors.cantidad ? (
+                        <span style={{ color: "red" }}>{validationErrors.cantidad}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, cantidad: undefined }),
+                },
+            },
             {
                 accessorKey: "unidad",
                 header: "Unidad",
                 editVariant: "select",
-                editSelectOptions: ["unidad", "miligramos", "gramos", "litros", "kilogramos", "toneladas"],
+                editSelectOptions: ["unidad", "gramos", "litros", "kilogramos", "toneladas"],
                 muiEditTextFieldProps: {
                     required: true,
                     error: !!validationErrors.unidad,
@@ -150,19 +167,6 @@ export const TablaInsumos: React.FC = () => {
                         <span style={{ color: "red" }}>{validationErrors.unidad}</span>
                     ) : null,
                     onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-                },
-            },
-            {
-                accessorKey: "stock",
-                header: "Stock",
-                muiEditTextFieldProps: {
-                    type: "number",
-                    required: true,
-                    error: !!validationErrors.stock,
-                    helperText: validationErrors.stock ? (
-                        <span style={{ color: "red" }}>{validationErrors.stock}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
                 },
             },
             {
@@ -178,58 +182,68 @@ export const TablaInsumos: React.FC = () => {
                 },
             },
             {
-                accessorKey: "proveedor",
-                header: "Proveedor",
+                accessorKey: "destino",
+                header: "Destino",
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     required: true,
-                    error: !!validationErrors.proveedor,
-                    helperText: validationErrors.proveedor ? (
-                        <span style={{ color: "red" }}>{validationErrors.proveedor}</span>
+                    error: !!validationErrors.destino,
+                    helperText: validationErrors.destino ? (
+                        <span style={{ color: "red" }}>{validationErrors.destino}</span>
                     ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, proveedor: undefined }),
+                    onFocus: () => setValidationErrors({ ...validationErrors, destino: undefined }),
                 },
             },
         ],
         [validationErrors]
     );
 
-    const validarCamposRegistro = (registro: Partial<movimiento_insumo>) => {
+    const validarCamposRegistro = (registro: Partial<movimiento_producto>) => {
         const errores: Record<string, string> = {};
-        if (!registro.codigo?.trim()) errores.codigo = "Código requerido";
+        if (!registro.codigoProducto?.trim()) errores.codigoProducto = "Código requerido";
         if (!registro.nombre?.trim()) errores.nombre = "Nombre requerido";
-        if (!registro.categoria?.trim()) errores.categoria = "Categoría requerida";
+        if (!registro.categoria?.trim()) errores.categoria = "Categoria requerida";
         if (!registro.marca?.trim()) errores.marca = "Marca requerida";
         if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
         if (!registro.lote?.trim()) errores.lote = "Lote requerido";
-        if (!registro.proveedor?.trim()) errores.proveedor = "Proveedor requerido";
+        if (!registro.destino?.trim()) errores.destino = "Destino requerido";
         if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
-        const stockNumber = Number(registro.stock);
-        if (registro.stock === undefined || registro.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-            errores.stock = "Stock debe ser un número válido mayor a 0";
+        const cantidad = Number(registro.cantidad);
+        if (registro.cantidad === undefined || registro.cantidad === null || isNaN(cantidad) || cantidad <= 0) {
+            errores.cantidad = "Cantidad debe ser un número válido mayor a 0";
         }
         return errores;
     };
 
-    const handleCreateRegistro: MRT_TableOptions<movimiento_insumo>["onCreatingRowSave"] = async ({ values, table }) => {
+    const handleAdd: MRT_TableOptions<movimiento_producto>["onCreatingRowSave"] = async ({ values, table }) => {
         const errores = validarCamposRegistro(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
-        setValidationErrors({});
-        await handleAdd_Movimiento_insumo(values);
-        table.setCreatingRow(null);
-    };
 
-    const tabla_movimiento_ingreso = useMaterialReactTable({
+        setValidationErrors({});
+        await handleAdd_Movimiento_producto(values);
+        table.setCreatingRow(null);
+    }
+
+    
+    const tabla_movimiento_egreso = useMaterialReactTable({
         columns: columns,
-        data: movimiento_insumos,
+        data: movimiento_productos,
         enableColumnResizing: true,
         columnResizeMode: 'onEnd',
+        positionExpandColumn: 'last',
+        enableRowActions: true,
+        positionActionsColumn: 'last',
+        enableGlobalFilter: true,
+        editDisplayMode: "modal",
+        enableExpandAll: false,
+        // enableColumnOrdering: true,
         defaultColumn: {
-            minSize: 80, //allow columns to get smaller than default
-            maxSize: 900, //allow columns to get larger than default
-            size: 150, //make columns wider by default
+            minSize: 80,
+            maxSize: 900,
+            size: 150,
             grow: 1,
             enableResizing: true,
         },
@@ -248,24 +262,15 @@ export const TablaInsumos: React.FC = () => {
             density: 'compact',
             columnVisibility: {
                 unidad: false,
-                stock: false,
+                cantidad: false,
                 lote: false,
                 // responsable: false,
-                proveedor: false,
+                destino: false,
             },
         },
-        positionExpandColumn: 'last',
-        enableRowActions: true,
-        positionActionsColumn: 'last',
-        enableGlobalFilter: true,
-        editDisplayMode: "modal",
-        enableExpandAll: false,
-        // enableColumnOrdering: true,
-
-        getRowId: (row) => row.codigo,
+        getRowId: (row) => row.codigoProducto,
         onCreatingRowCancel: () => setValidationErrors({}),
-        onCreatingRowSave: handleCreateRegistro,
-
+        onCreatingRowSave: handleAdd,
         renderDetailPanel: ({ row }) => (
             <Box
                 sx={{
@@ -281,7 +286,7 @@ export const TablaInsumos: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Stock
                     </Typography>
-                    <Typography>{row.original.stock}</Typography>
+                    <Typography>{row.original.cantidad}</Typography>
                 </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">
@@ -297,9 +302,9 @@ export const TablaInsumos: React.FC = () => {
                 </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">
-                        Proveedor
+                        Destino
                     </Typography>
-                    <Typography>{row.original.proveedor}</Typography>
+                    <Typography>{row.original.destino}</Typography>
                 </Box>
                 {/* <Box>
                     <Typography variant="subtitle2" color="primary">
@@ -310,26 +315,13 @@ export const TablaInsumos: React.FC = () => {
             </Box >
         ),
 
-        renderRowActions: ({ row, table }) => (
-            <Box sx={{ display: "flex", gap: "0.5rem" }}>
-                <Tooltip title="Detalles">
-                    <IconButton
-                        color="info"
-                        onClick={() => table.setExpanded({ [row.id]: !row.getIsExpanded() })}
-                    >
-                        ℹ️
-                    </IconButton>
-                </Tooltip>
-            </Box>
-        ),
-
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
                 <DialogTitle
                     variant="h5"
                     sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
                 >
-                    Nuevo ingreso
+                    Nuevo egreso
                 </DialogTitle>
                 <DialogContent
                     sx={{
@@ -396,14 +388,27 @@ export const TablaInsumos: React.FC = () => {
                     onClick={() => table.setCreatingRow(true)}
                     className="boton-agregar-insumo"
                 >
-                    <span className="texto-boton">Nuevo ingreso</span>
+                    <span className="texto-boton">Nuevo Egreso</span>
                     <span className="icono-boton">➕</span>
                 </Button>
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
                     <Typography variant="h5" color="primary" className="titulo-lista-insumos">
-                        Ingreso de Insumos
+                        Egreso de Productos
                     </Typography>
                 </Box>
+            </Box>
+        ),
+
+        renderRowActions: ({ row, table }) => (
+            <Box sx={{ display: "flex", gap: "0.5rem" }}>
+                <Tooltip title="Detalles">
+                    <IconButton
+                        color="info"
+                        onClick={() => table.setExpanded({ [row.id]: !row.getIsExpanded() })}
+                    >
+                        ℹ️
+                    </IconButton>
+                </Tooltip>
             </Box>
         ),
 
@@ -421,7 +426,6 @@ export const TablaInsumos: React.FC = () => {
                 transition: 'transform 0.2s',
             },
         }),
-
         muiTableContainerProps: {
             className: "tabla-container",
         },
@@ -443,8 +447,6 @@ export const TablaInsumos: React.FC = () => {
     },
     );
 
-
-
     if (isLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
@@ -453,8 +455,28 @@ export const TablaInsumos: React.FC = () => {
         );
     }
 
-    return <MaterialReactTable table={tabla_movimiento_ingreso} />;
-
+    return <MaterialReactTable table={tabla_movimiento_egreso} />;
 };
 
-export default TablaInsumos;
+export default TablaProductosEgreso;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

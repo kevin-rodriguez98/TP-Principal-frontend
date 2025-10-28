@@ -11,6 +11,7 @@ import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
 import { ProductosProvider } from './Context/ProductosContext';
 import { FaceAuthProvider } from './Context/FaceAuthContext';
+import { RecetaProvider } from './Context/RecetaContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,24 +21,25 @@ createRoot(document.getElementById('root')!).render(
           <PanelProvider>
             <Movimiento_insumo_contextProvider>
               <Movimiento_producto_contextProvider>
-
                 <OrdenProduccionProvider>
                   <ProductosProvider>
                     <FaceAuthProvider>
+                      <RecetaProvider>
 
-                  <App />
-                  <ToastContainer
-                    position="bottom-right"
-                    autoClose={2000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme="dark"
-                  />
+                      <App />
+                      <ToastContainer
+                        position="bottom-right"
+                        autoClose={2000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="dark"
+                      />
+                    </RecetaProvider>
                     </FaceAuthProvider>
                   </ProductosProvider>
                 </OrdenProduccionProvider>

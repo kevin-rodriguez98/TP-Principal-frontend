@@ -4,8 +4,10 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Modal from "../components/modal/Modal";
-import TablaInsumos from "../components/insumos/TablaInsumos";
+import TablaInsumos from "../components/Tables/insumos/TablaInsumos";
 import "../styles/tablas.css";
+
+
 
 
 const GestionStock = () => {

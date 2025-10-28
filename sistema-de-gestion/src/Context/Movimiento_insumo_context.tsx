@@ -11,8 +11,6 @@ export interface movimiento_insumo {
     stock: number;
     lote: string;
     proveedor: string;
-
-    // creationUsername: string;
 }
 
 interface ModalData {
@@ -41,8 +39,8 @@ interface Movimiento_insumoProviderProps {
 }
 
 export function Movimiento_insumo_contextProvider({ children }: Movimiento_insumoProviderProps) {
-    // const URL = "http://localhost:8080/movimiento-insumo";
-    const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
+    const URL = "http://localhost:8080/movimiento-insumo";
+    // const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
     const [movimiento_insumos, setMovimiento_insumos] = useState<movimiento_insumo[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);

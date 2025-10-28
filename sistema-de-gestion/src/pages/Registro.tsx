@@ -4,7 +4,7 @@ import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import Footer from '../components/Footer.tsx'
 import Header from '../components/Header.tsx'
-import TablaRegistro from "../components/registros/TablaRegistro.tsx";
+import TablaRegistro from "../components/Tables/registros/TablaRegistro.tsx";
 import "../styles/tablas.css";
 import Modal from "../components/modal/Modal.tsx";
 
