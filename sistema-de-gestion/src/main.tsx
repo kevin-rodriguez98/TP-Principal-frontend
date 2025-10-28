@@ -10,6 +10,7 @@ import { Movimiento_producto_contextProvider } from './Context/Movimiento_produc
 import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
 import { ProductosProvider } from './Context/ProductosContext';
+import { FaceAuthProvider } from './Context/FaceAuthContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
 
                 <OrdenProduccionProvider>
                   <ProductosProvider>
+                    <FaceAuthProvider>
 
                   <App />
                   <ToastContainer
@@ -36,6 +38,7 @@ createRoot(document.getElementById('root')!).render(
                     pauseOnHover
                     theme="dark"
                   />
+                    </FaceAuthProvider>
                   </ProductosProvider>
                 </OrdenProduccionProvider>
               </Movimiento_producto_contextProvider>
