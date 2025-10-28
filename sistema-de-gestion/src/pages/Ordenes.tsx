@@ -5,7 +5,7 @@ import "../styles/tablas.css";
 import { OrdenProduccionContext } from "../Context/OrdenesContext";
 import Modal from "../components/modal/Modal";
 import { createTheme, ThemeProvider } from "@mui/material";
-import TablaOrden from "../components/Tables/TablaOrden";
+import TablaOrden from "../components/Tables/ordenes/TablaOrden";
 
 const OrdenProduccionPage = () => {
 

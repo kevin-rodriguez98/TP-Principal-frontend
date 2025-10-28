@@ -31,8 +31,8 @@ interface RecetaContextType {
 export const RecetaContext = createContext<RecetaContextType | undefined>(undefined);
 
 export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
-    // const URL = "http://localhost:8080/recetas";
-    const URL = "https://tp-principal-backend.onrender.com/recetas";
+    const URL = "http://localhost:8080/recetas";
+    // const URL = "https://tp-principal-backend.onrender.com/recetas";
     const [recetas, setRecetas] = useState<Receta[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
             if (!response.ok) throw new Error("Error al obtener insumos");
             const data = await response.json();
             setRecetas(data);
+            console.log(recetas)
             toast.success("Receta obtenida correctamente");
         } catch (error) {
             setError("No se pudo obtener la receta");

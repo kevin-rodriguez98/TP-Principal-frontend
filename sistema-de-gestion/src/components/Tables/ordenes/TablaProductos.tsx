@@ -5,9 +5,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { ProductosContext, type Producto } from "../../Context/ProductosContext";
-import SinResultados from "../SinResultados";
-import { RecetaContext } from "../../Context/RecetaContext";
+import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
+import SinResultados from "../../SinResultados";
+import { RecetaContext } from "../../../Context/RecetaContext";
 
 
 const TablaProductos: React.FC = () => {

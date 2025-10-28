@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
-import { OrdenProduccionContext, type OrdenProduccion } from "../../Context/OrdenesContext";
-import SinResultados from "../SinResultados";
+import { OrdenProduccionContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
+import SinResultados from "../../SinResultados";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 

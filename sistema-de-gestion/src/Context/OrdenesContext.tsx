@@ -55,8 +55,8 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-  // const URL = "http://localhost:8080/orden-produccion";
-  const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
+  const URL = "http://localhost:8080/orden-produccion";
+  // const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [modal, setModal] = useState<ModalData | null>(null);
   const [tipoModal, setTipoModal] = useState<"alta" | "editar" | "detalles" | "eliminar" | null>(null);

@@ -43,8 +43,8 @@ interface ProductosProviderProps {
 }
 
 export function ProductosProvider({ children }: ProductosProviderProps) {
-  // const URL = "http://localhost:8080/productos";
-  const URL = "https://tp-principal-backend.onrender.com/productos";
+  const URL = "http://localhost:8080/productos";
+  // const URL = "https://tp-principal-backend.onrender.com/productos";
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
