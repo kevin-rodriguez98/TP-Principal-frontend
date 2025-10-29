@@ -6,6 +6,7 @@ import OrdenProduccionPage from './pages/Ordenes.tsx';
 
 import './app.css';
 import ProduccionPage from './pages/Productos.tsx';
+import FaceLogin from './login/FaceLogin.tsx';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/ordenes" element={<OrdenProduccionPage />} />
         <Route path="/produccion" element={<ProduccionPage />} />
+        <Route path="/login" element={<FaceLogin />} />
       </Routes>
     </>
   )
