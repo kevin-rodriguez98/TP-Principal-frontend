@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
-import { OrdenProduccionContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
+import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
 import SinResultados from "../../SinResultados";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 
 const TablaInsumos: React.FC = () => {
-    const { ordenes, isLoading, error, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden} = useContext(OrdenProduccionContext)!;
+    const { ordenes, isLoading, error, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden } = useContext(OrdenesContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
@@ -20,7 +20,6 @@ const TablaInsumos: React.FC = () => {
                 enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
-                    required: true,
                     error: !!validationErrors.id,
                     helperText: validationErrors.id ? (
                         <span style={{ color: "red" }}>{validationErrors.id}</span>
@@ -34,7 +33,7 @@ const TablaInsumos: React.FC = () => {
                 enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
-                    required: true,
+                    // required: true,
                     error: !!validationErrors.codigoProducto,
                     helperText: validationErrors.codigoProducto ? (
                         <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
@@ -75,26 +74,38 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "estado",
                 header: "Estado",
-                enableEditing: false,
-                editVariant: "select",
-                editSelectOptions: ["EN PROGRESO", "PENDIENTE", "FINALIZADO"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                enableEditing:false,
                 Cell: ({ cell }) => {
-                    const estado = cell.getValue<OrdenProduccion["estado"]>();
-                    const color =
-                        estado === "EVALUACION"
-                            ? "green"
+                    const estado = String(cell.getValue() ?? "");
+                    const bg =
+                        estado === "CANCELADA"
+                            ? "red"
                             : estado === "EN_PRODUCCION"
-                                ? "orange"
-                                : "#00ffbbff";
+                                ? "gold"
+                                : estado === "FINALIZADA_ENTREGADA"
+                                    ? "green"
+                                    : estado === "EVALUACION"
+                                        ? "dodgerblue"
+                                        : "gray";
+
                     return (
-                        <span style={{ color, fontWeight: "bold" }}>
-                            {estado}
+                        <span
+                            style={{
+                                backgroundColor: bg,
+                                color: bg === "gold" ? "black" : "white", // texto oscuro para gold
+                                borderRadius: 12,
+                                padding: "4px 8px",
+                                fontWeight: 600,
+                                fontSize: "0.85rem",
+                                textTransform: "uppercase",
+                                display: "inline-block",
+                            }}
+                        >
+                            {estado.replaceAll ? estado.replaceAll("_", " ") : estado.split("_").join(" ")}
                         </span>
                     );
                 },
             },
-
             {
                 accessorKey: "stockRequerido",
                 header: "Stock requerido",
@@ -112,6 +123,12 @@ const TablaInsumos: React.FC = () => {
                 accessorKey: "lote",
                 header: "Lote",
                 enableEditing: false,
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+            },
+            {
+                accessorKey: "destino",
+                header: "Destino",
+                // enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
             },
             {
@@ -160,8 +177,7 @@ const TablaInsumos: React.FC = () => {
     const tabla = useMaterialReactTable({
         columns,
         data: ordenes,
-        enableColumnResizing: true,
-        columnResizeMode: 'onEnd',
+        // columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
         enableRowActions: true,
         positionActionsColumn: 'last',
@@ -171,11 +187,11 @@ const TablaInsumos: React.FC = () => {
         enableExpandAll: false,
         positionExpandColumn: 'last',
         defaultColumn: {
-            minSize: 80, //allow columns to get smaller than default
-            maxSize: 900, //allow columns to get larger than default
-            size: 110, //make columns wider by default
-            grow: 1,
-            enableResizing: true,
+            // minSize: 80, //allow columns to get smaller than default
+            // maxSize: 900, //allow columns to get larger than default
+            // size: 110, //make columns wider by default
+            // grow: 1,
+            // enableResizing: true,
         },
         initialState: {
             pagination: {
@@ -212,7 +228,7 @@ const TablaInsumos: React.FC = () => {
             className: "tabla",
         },
 
-        getRowId: (row) => row.codigoProducto,
+        getRowId: (row) => String(row.id),
         onCreatingRowCancel: () => setValidationErrors({}),
         onCreatingRowSave: handleCrearOrden,
         onEditingRowCancel: () => setValidationErrors({}),
@@ -260,7 +276,7 @@ const TablaInsumos: React.FC = () => {
                     variant="h5"
                     sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
                 >
-                    Nuevo Orden
+                    Nueva Orden
                 </DialogTitle>
                 <DialogContent
                     sx={{
@@ -325,7 +341,7 @@ const TablaInsumos: React.FC = () => {
                     <Tooltip title="Finalizar Orden">
                         <IconButton
                             color="success"
-                            onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Depósito Central")}
+                            onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Deposito central")}
                         >
                             ✅
                         </IconButton>

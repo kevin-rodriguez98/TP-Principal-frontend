@@ -13,46 +13,6 @@ const TablaProductosEgreso: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
-
-    // const data: movimiento_producto[] = useMemo(
-    //     () => [
-    //         {
-    //             codigoProducto: "P001",
-    //             nombre: "Yogur Natural",
-    //             tipo: "EGRESO",
-    //             categoria: "Lácteos",
-    //             marca: "La Serenísima",
-    //             cantidad: 120,
-    //             unidad: "unidad",
-    //             lote: "L001",
-    //             destino: "Sucursal Centro",
-    //         },
-    //         {
-    //             codigoProducto: "P002",
-    //             nombre: "Queso Cremoso",
-    //             tipo: "EGRESO",
-    //             categoria: "Quesos",
-    //             marca: "Milkaut",
-    //             cantidad: 80,
-    //             unidad: "kilogramos",
-    //             lote: "L002",
-    //             destino: "Sucursal Norte",
-    //         },
-    //         {
-    //             codigoProducto: "P003",
-    //             nombre: "Postre de Vainilla",
-    //             tipo: "EGRESO",
-    //             categoria: "Postres",
-    //             marca: "Yogurísimo",
-    //             cantidad: 50,
-    //             unidad: "unidad",
-    //             lote: "L003",
-    //             destino: "Sucursal Sur",
-    //         },
-    //     ],
-    //     []
-    // );
-
     const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
         () => [
             {
@@ -71,22 +31,7 @@ const TablaProductosEgreso: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
                 },
             },
-            {
-                accessorKey: "nombre",
-                header: "Producto",
-                size: 100,
-                muiTableHeadCellProps: {
-                    style: { color: "#15a017ff" },
-                },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.nombre,
-                    helperText: validationErrors.nombre ? (
-                        <span style={{ color: "red" }}>{validationErrors.nombre}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
-                },
-            },
+
             {
                 accessorKey: "tipo",
                 header: "Tipo",
@@ -105,46 +50,29 @@ const TablaProductosEgreso: React.FC = () => {
                     const estado = cell.getValue<movimiento_producto["tipo"]>();
                     const color = "#00d0ffff";
                     return (
-                        <span style={{ color, fontWeight: "bold" }}>
+                        <span
+                            style={{
+                                color: color,
+                                padding: "4px 8px",
+                                fontWeight: 600,
+                                fontSize: "0.85rem",
+                                textTransform: "uppercase",
+                                display: "inline-block",
+                            }}
+                        >
                             {estado}
                         </span>
                     );
                 },
             },
-            {
-                accessorKey: "categoria",
-                header: "Categoría",
-                editVariant: "select",
-                editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.categoria,
-                    helperText: validationErrors.categoria ? (
-                        <span style={{ color: "red" }}>{validationErrors.categoria}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
-                },
-            },
-            {
-                accessorKey: "marca",
-                header: "Marca",
-                editVariant: "select",
-                editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.marca,
-                    helperText: validationErrors.marca ? (
-                        <span style={{ color: "red" }}>{validationErrors.marca}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-                },
-            },
+
 
             {
                 accessorKey: "cantidad",
                 header: "Cantidad",
+                muiTableHeadCellProps: {
+                    style: { color: "#15a017ff" },
+                },
                 muiEditTextFieldProps: {
                     type: "number",
                     required: true,
@@ -153,32 +81,6 @@ const TablaProductosEgreso: React.FC = () => {
                         <span style={{ color: "red" }}>{validationErrors.cantidad}</span>
                     ) : null,
                     onFocus: () => setValidationErrors({ ...validationErrors, cantidad: undefined }),
-                },
-            },
-            {
-                accessorKey: "unidad",
-                header: "Unidad",
-                editVariant: "select",
-                editSelectOptions: ["unidad", "gramos", "litros", "kilogramos", "toneladas"],
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.unidad,
-                    helperText: validationErrors.unidad ? (
-                        <span style={{ color: "red" }}>{validationErrors.unidad}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-                },
-            },
-            {
-                accessorKey: "lote",
-                header: "Lote",
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.lote,
-                    helperText: validationErrors.lote ? (
-                        <span style={{ color: "red" }}>{validationErrors.lote}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
                 },
             },
             {
@@ -201,11 +103,6 @@ const TablaProductosEgreso: React.FC = () => {
     const validarCamposRegistro = (registro: Partial<movimiento_producto>) => {
         const errores: Record<string, string> = {};
         if (!registro.codigoProducto?.trim()) errores.codigoProducto = "Código requerido";
-        if (!registro.nombre?.trim()) errores.nombre = "Nombre requerido";
-        if (!registro.categoria?.trim()) errores.categoria = "Categoria requerida";
-        if (!registro.marca?.trim()) errores.marca = "Marca requerida";
-        if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
-        if (!registro.lote?.trim()) errores.lote = "Lote requerido";
         if (!registro.destino?.trim()) errores.destino = "Destino requerido";
         if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
         const cantidad = Number(registro.cantidad);
@@ -227,7 +124,7 @@ const TablaProductosEgreso: React.FC = () => {
         table.setCreatingRow(null);
     }
 
-    
+
     const tabla_movimiento_egreso = useMaterialReactTable({
         columns: columns,
         data: movimiento_productos,
@@ -260,13 +157,6 @@ const TablaProductosEgreso: React.FC = () => {
                 pageIndex: 0
             },
             density: 'compact',
-            columnVisibility: {
-                unidad: false,
-                cantidad: false,
-                lote: false,
-                // responsable: false,
-                destino: false,
-            },
         },
         getRowId: (row) => row.codigoProducto,
         onCreatingRowCancel: () => setValidationErrors({}),
@@ -290,28 +180,10 @@ const TablaProductosEgreso: React.FC = () => {
                 </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">
-                        Unidad
-                    </Typography>
-                    <Typography>{row.original.unidad}</Typography>
-                </Box>
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Lote
-                    </Typography>
-                    <Typography>{row.original.lote}</Typography>
-                </Box>
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
                         Destino
                     </Typography>
                     <Typography>{row.original.destino}</Typography>
                 </Box>
-                {/* <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Responsable
-                    </Typography>
-                    <Typography>{row.original.creationUsername}</Typography>
-                </Box> */}
             </Box >
         ),
 
