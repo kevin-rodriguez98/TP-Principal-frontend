@@ -2,14 +2,14 @@ import { useContext } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/tablas.css";
-import { ProductosContext } from "../Context/ProductosContext";
+import { RecetaContext } from "../Context/RecetaContext";
 import Modal from "../components/modal/Modal";
 import { createTheme, ThemeProvider } from "@mui/material";
 import TablaProductos from "../components/Tables/ordenes/TablaProductos";
 
 const ProduccionPage = () => {
 
-  const { modal, isLoading, setModal } = useContext(ProductosContext)!;
+  const { modal, isLoading, setModal } = useContext(RecetaContext)!;
 
   const darkTheme = createTheme({
     palette: {

@@ -6,11 +6,11 @@ export interface movimiento_producto {
     cantidad: number;
     tipo: string;
     destino: string,
-    nombre: string,
-    categoria: string;
-    marca: string;
-    unidad: string;
-    lote: string;
+    // nombre: string,
+    // categoria: string;
+    // marca: string;
+    // unidad: string;
+    // lote: string;
 }
 interface ModalData {
     tipo: "confirm" | "success" | "error";
@@ -38,8 +38,8 @@ interface Movimiento_producto_contextProviderProps {
 }
 
 export function Movimiento_producto_contextProvider({ children }: Movimiento_producto_contextProviderProps) {
-    const URL = "http://localhost:8080/movimiento-producto";
-    // const URL = "https://tp-principal-backend.onrender.com/movimiento-producto";
+    // const URL = "http://localhost:8080/movimiento-producto";
+    const URL = "https://tp-principal-backend.onrender.com/movimiento-producto";
     const [movimiento_productos, setMovimiento_productos] = useState<movimiento_producto[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -50,31 +50,35 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
     }, []);
 
     const obtenermovimientos_producto = async () => {
+        setIsLoading(true);
         try {
             setError(null);
             const response = await fetch(`${URL}/obtener`);
-            if (!response.ok) throw new Error("Error al obtener los insumos");
-
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                setModal({
+                    tipo: "error",
+                    mensaje: errorData?.mensaje || "Error al obtener los movimientos.",
+                });
+                throw new Error("Error al obtener los movimientos");
+            }
             const data = await response.json();
             setMovimiento_productos(data);
-
-        } catch {
+        } catch (err: any) {
+            console.error("❌ Error al obtener movimientos:", err);
             setError("❌ No se pudo conectar con el servidor.");
             setModal({
                 tipo: "error",
                 mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
             setMovimiento_productos([]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleAdd_Movimiento_producto = async (mov: movimiento_producto) => {
-
-        if (movimiento_productos.some((i) => i.codigoProducto === mov.codigoProducto)) {
-            setModal({ tipo: "error", mensaje: "Ya existe un registro de insumo con ese código" });
-            return;
-        }
-
+        setIsLoading(true);
         try {
             const response = await fetch(`${URL}/agregar`, {
                 method: "POST",
@@ -82,15 +86,34 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
                 body: JSON.stringify(mov),
             });
 
-            if (!response.ok) throw new Error("Error al agregar insumo");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                if (response.status === 500) {
+                    setModal({
+                        tipo: "error",
+                        mensaje: errorData?.mensaje || "Error interno del servidor.",
+                    });
+                } else {
+                    setModal({
+                        tipo: "error",
+                        mensaje: errorData?.mensaje || "Error al agregar el movimiento.",
+                    });
+                }
+                throw new Error("Error al agregar movimiento");
+            }
 
             const nuevo = await response.json();
-            setMovimiento_productos([...movimiento_productos, nuevo]);
-            toast.success(`¡Se agregó ${mov.nombre}!`);
-        } catch (error) {
-            console.error("⚠️ Error al agregar insumo:", error);
-            toast.error("Algo salió mal...");
+            setMovimiento_productos(prev => [...prev, nuevo]);
+            toast.success(`✅ ¡Se agregó ${mov.codigoProducto}!`);
+        } catch (err: any) {
+            console.error("⚠️ Error al agregar movimiento:", err);
+            setModal({
+                tipo: "error",
+                mensaje: "No se pudo conectar con el servidor.",
+            });
+            toast.error("❌ Algo salió mal...");
         }
+        setIsLoading(false);
     };
 
     return (

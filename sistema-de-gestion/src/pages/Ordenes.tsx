@@ -2,14 +2,14 @@ import { useContext } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/tablas.css";
-import { OrdenProduccionContext } from "../Context/OrdenesContext";
+import { OrdenesContext } from "../Context/OrdenesContext";
 import Modal from "../components/modal/Modal";
 import { createTheme, ThemeProvider } from "@mui/material";
 import TablaOrden from "../components/Tables/ordenes/TablaOrden";
 
 const OrdenProduccionPage = () => {
 
-  const { modal, tipoModal, setTipoModal } = useContext(OrdenProduccionContext)!;
+  const { modal, isLoading,setModal } = useContext(OrdenesContext)!;
 
   const darkTheme = createTheme({
     palette: {
@@ -34,14 +34,15 @@ const OrdenProduccionPage = () => {
       </main>
       <Footer />
 
-      {tipoModal && modal &&  (
+      {modal && !isLoading && (
         <Modal
           tipo={modal.tipo}
           mensaje={modal.mensaje}
           onConfirm={modal.onConfirm}
-          onClose={() => setTipoModal(null)}
+          onClose={() => setModal(null)}
         />
       )}
+
     </div>
   );
 };

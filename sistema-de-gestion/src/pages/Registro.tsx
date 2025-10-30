@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Movimiento_insumo_context } from "../Context/Movimiento_insumo_context.tsx";
+import { Movimiento_producto_context } from "../Context/Movimiento_producto_context.tsx";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import Footer from '../components/Footer.tsx'
@@ -9,7 +9,7 @@ import "../styles/tablas.css";
 import Modal from "../components/modal/Modal.tsx";
 
 const RegistroInsumos = () => {
-    const { modal, isLoading, setModal } = useContext(Movimiento_insumo_context)!;
+    const { modal, isLoading, setModal } = useContext(Movimiento_producto_context)!;
 
     const darkTheme = createTheme({
         palette: {

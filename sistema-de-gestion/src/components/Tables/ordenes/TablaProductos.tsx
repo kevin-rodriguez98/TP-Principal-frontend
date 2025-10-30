@@ -9,38 +9,20 @@ import { ProductosContext, type Producto } from "../../../Context/ProductosConte
 import SinResultados from "../../SinResultados";
 import { RecetaContext } from "../../../Context/RecetaContext";
 
-
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto } = useContext(ProductosContext)!;
   const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+  const [openModalReceta, setOpenModalReceta] = useState(false);
+  const [codigoProducto, setCodigoProducto] = useState("");
+  const [nuevoInsumo, setNuevoInsumo] = useState({
+    codigoInsumo: "",
+    stockNecesarioInsumo: 0,
+  });
+
+
   const navigate = useNavigate();
-
-
-
-  // 1️⃣ Estados adicionales
-  const [openAgregarInsumo, setOpenAgregarInsumo] = useState(false);
-  const [insumoCodigo, setInsumoCodigo] = useState("");
-  const [insumoCantidad, setInsumoCantidad] = useState<number>(0);
-  const [productoParaAgregar, setProductoParaAgregar] = useState<string | null>(null);
-
-  // 2️⃣ Función para abrir el modal
-  const handleAbrirAgregarInsumo = (codigoProducto: string) => {
-    setProductoParaAgregar(codigoProducto);
-    setInsumoCodigo("");
-    setInsumoCantidad(0);
-    setOpenAgregarInsumo(true);
-  };
-
-  // 3️⃣ Función para enviar el formulario
-  const handleEnviarInsumo = async () => {
-    if (!insumoCodigo.trim() || insumoCantidad <= 0) return alert("Completa los datos correctamente");
-    if (productoParaAgregar) {
-      await agregarInsumoAReceta(productoParaAgregar, insumoCodigo, insumoCantidad);
-      setOpenAgregarInsumo(false);
-    }
-  };
 
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
@@ -48,7 +30,6 @@ const TablaProductos: React.FC = () => {
       {
         accessorKey: "codigo",
         header: "Código",
-        size: 90,
         enableEditing: (row) => row.original.codigo === "",
         muiTableHeadCellProps: {
           style: { color: "#15a017ff" },
@@ -200,22 +181,19 @@ const TablaProductos: React.FC = () => {
   const table = useMaterialReactTable({
     columns,
     data: productos,
-    enableColumnResizing: true,
-    columnResizeMode: 'onEnd',
     createDisplayMode: "modal",
     enableRowActions: true,
     positionActionsColumn: 'last',
     enableGlobalFilter: true,
     editDisplayMode: "modal",
     enableEditing: true,
-    enableExpandAll: false,
     positionExpandColumn: 'last',
-    defaultColumn: {
-      minSize: 80, //allow columns to get smaller than default
-      // size: 110, //make columns wider by default
-      grow: 1,
-      enableResizing: true,
-    },
+    // defaultColumn: {
+    //   minSize: 80,
+    //   // size: 110, //make columns wider by default
+    //   grow: 1,
+    //   enableResizing: true,
+    // },
     initialState: {
       pagination: {
         pageSize: 10,
@@ -223,19 +201,18 @@ const TablaProductos: React.FC = () => {
       },
       density: 'compact',
       columnVisibility: {
-        lote: false,
-        unidad: false,
-        stock: false,
-        nombre: false,
+        // lote: false,
+        // unidad: false,
+        // stock: false,
       },
     },
-    displayColumnDefOptions: {
-      'mrt-row-expand': {
-        size: 0,
-        header: '',
-        Cell: () => null,
-      },
-    },
+    // displayColumnDefOptions: {
+    //   'mrt-row-expand': {
+    //     size: 0,
+    //     header: '',
+    //     Cell: () => null,
+    //   },
+    // },
     muiTableContainerProps: {
       className: "tabla-container",
     },
@@ -416,7 +393,7 @@ const TablaProductos: React.FC = () => {
               {recetas.map((insumo) => (
                 <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
                   <Typography variant="body2">
-                    <strong>{insumo.nombre}</strong> — {insumo.stockNecesario} unidades necesarias
+                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria}
                   </Typography>
                 </li>
               ))}
@@ -426,11 +403,16 @@ const TablaProductos: React.FC = () => {
           <Tooltip title="Agregar Insumo a Receta">
             <IconButton
               color="secondary"
-              onClick={() => handleAbrirAgregarInsumo(row.original.codigo)}
+              onClick={() => {
+                setCodigoProducto(row.original.codigo);
+                setNuevoInsumo({ codigoInsumo: "", stockNecesarioInsumo: 1 });
+                setOpenModalReceta(true);
+              }}
             >
               ➕
             </IconButton>
           </Tooltip>
+
 
         </Box>
       );
@@ -449,32 +431,67 @@ const TablaProductos: React.FC = () => {
 
   return (
     <>
-      {/* Modal para agregar insumo */}
-      <Dialog open={openAgregarInsumo} onClose={() => setOpenAgregarInsumo(false)}>
-        <DialogTitle>Agregar Insumo a Receta</DialogTitle>
-        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+      <MaterialReactTable table={table} />
+      <Dialog
+        open={openModalReceta}
+        onClose={() => setOpenModalReceta(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+        >
+          Agregar Insumo a Receta
+        </DialogTitle>
+
+        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
           <TextField
-            label="Código del Insumo"
-            value={insumoCodigo}
-            onChange={(e) => setInsumoCodigo(e.target.value)}
+            label="Código del Producto"
+            value={codigoProducto}
+            disabled
             fullWidth
           />
           <TextField
-            label="Cantidad necesaria"
+            label="Código del Insumo"
+            value={nuevoInsumo.codigoInsumo}
+            onChange={(e) =>
+              setNuevoInsumo({ ...nuevoInsumo, codigoInsumo: e.target.value })
+            }
+            fullWidth
+          />
+          <TextField
+            label="Cantidad Necesaria"
             type="number"
-            value={insumoCantidad}
-            onChange={(e) => setInsumoCantidad(Number(e.target.value))}
+            value={nuevoInsumo.stockNecesarioInsumo}
+            onChange={(e) =>
+              setNuevoInsumo({
+                ...nuevoInsumo,
+                stockNecesarioInsumo: Number(e.target.value),
+              })
+            }
             fullWidth
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAgregarInsumo(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleEnviarInsumo}>Agregar</Button>
+
+        <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={async () => {
+              await agregarInsumoAReceta(
+                codigoProducto,
+                nuevoInsumo.codigoInsumo,
+                nuevoInsumo.stockNecesarioInsumo
+              );
+              setOpenModalReceta(false);
+            }}
+          >
+            Guardar
+          </Button>
+          <Button onClick={() => setOpenModalReceta(false)}>Cancelar</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Tabla principal */}
-      <MaterialReactTable table={table} />
     </>
   );
 };
