@@ -31,10 +31,9 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "codigoProducto",
                 header: "Codigo",
-                enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
-                    // required: true,
+                    required: true,
                     error: !!validationErrors.codigoProducto,
                     helperText: validationErrors.codigoProducto ? (
                         <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
@@ -127,12 +126,6 @@ const TablaInsumos: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
             },
             {
-                accessorKey: "destino",
-                header: "Destino",
-                // enableEditing: false,
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-            },
-            {
                 accessorKey: "fechaEntrega",
                 header: "Fecha de entrega",
                 muiEditTextFieldProps: {
@@ -162,7 +155,7 @@ const TablaInsumos: React.FC = () => {
     const validarCamposInsumo = (orden: Partial<OrdenProduccion>) => {
         const errores: Record<string, string> = {};
 
-        // if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
+        if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
         if (!orden.productoRequerido?.trim()) errores.productoRequerido = "El producto es requerido";
         if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
         if (!orden.stockRequerido && orden.stockRequerido !== 0)

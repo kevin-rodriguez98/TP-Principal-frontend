@@ -10,19 +10,20 @@ export interface Insumo {
 }
 
 export interface OrdenProduccion {
-  tiempoEstimadoHoras: undefined;
-  id: number,
-  ordenId: number,
   codigoProducto: string;
   productoRequerido: string;
   marca: string;
-  estado: "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA" | "EVALUACION";
   stockRequerido: number;
-  stockProducidoReal: number;
   fechaEntrega: string;
+  estado: "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA" | "EVALUACION";
   lote: string;
-  destino: string;
+
+  tiempoEstimadoHoras: undefined;
+  id: number,
+  ordenId: number,
+  stockProducidoReal: number;
   tiempoEstimado?: number;
+
 }
 
 interface ModalData {
@@ -48,8 +49,6 @@ interface OrdenContextType {
   cancelarOrden: (id: number) => Promise<void>;
   calcularTiempoEstimado: (codigoProducto: string, stockRequerido: number) => Promise<void>;
 
-
-
 }
 
 export const OrdenesContext = createContext<OrdenContextType | undefined>(undefined);
@@ -59,8 +58,8 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-  // const URL = "http://localhost:8080/orden-produccion";
-  const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
+  const URL = "http://localhost:8080/orden-produccion";
+  // const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [modal, setModal] = useState<ModalData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -251,11 +250,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  const calcularTiempoEstimado = async (codigoProducto: string, stockRequerido: number) => {
+  const calcularTiempoEstimado = async () => {
     throw new Error("Function not implemented.");
   }
-
-
 
   return (
     <OrdenesContext.Provider

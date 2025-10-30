@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
 
-interface User {
-  legajo: number;
+export interface User {
+  legajo: string;
   nombre: string;
   event: string;
 }

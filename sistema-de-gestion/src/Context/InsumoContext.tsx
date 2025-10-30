@@ -38,8 +38,8 @@ interface InsumoProviderProps {
 }
 
 export function InsumoProvider({ children }: InsumoProviderProps) {
-    // const URL = "http://localhost:8080/insumos";
-    const URL = "https://tp-principal-backend.onrender.com/insumos";
+    const URL = "http://localhost:8080/insumos";
+    // const URL = "https://tp-principal-backend.onrender.com/insumos";
     const [isLoading, setIsLoading] = useState(true);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);

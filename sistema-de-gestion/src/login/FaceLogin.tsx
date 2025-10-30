@@ -9,7 +9,7 @@ interface LoginProps {
   onCancel?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onCancel }) => {
+const Login: React.FC<LoginProps> = ({  }) => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

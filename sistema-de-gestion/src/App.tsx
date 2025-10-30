@@ -10,7 +10,6 @@ import FaceLogin from './login/FaceLogin.tsx';
 
 function App() {
 
-
   return (
     <>
       <Routes>

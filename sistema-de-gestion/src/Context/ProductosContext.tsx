@@ -56,10 +56,10 @@ interface ProductosProviderProps {
 }
 
 export function ProductosProvider({ children }: ProductosProviderProps) {
-  // const URL = "http://localhost:8080/productos";
-  const URL = "https://tp-principal-backend.onrender.com/productos";
-  // const URL = "http://localhost:8080";
-  // const URL = "https://tp-principal-backend.onrender.com";
+  const URL = "http://localhost:8080/productos";
+  // const URL = "https://tp-principal-backend.onrender.com/productos";
+  const URLEst = "http://localhost:8080";
+  // const URLEst = "https://tp-principal-backend.onrender.com";
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
@@ -79,7 +79,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     setIsLoading(true);
     try {
       setError(null);
-      const response = await fetch(`${URL}/productos/obtener`);
+      const response = await fetch(`${URL}/obtener`);
       if (!response.ok) throw new Error("Error al obtener los productos");
       const data = await response.json();
       setProductos(data);
@@ -98,7 +98,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   const handleAddProducto = async (producto: Producto): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`${URL}/productos/agregar`, {
+      const response = await fetch(`${URL}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(producto),
@@ -122,7 +122,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   const handleEditProducto = async (producto: Producto): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`${URL}/productos/editar/${producto.codigo}`, {
+      const response = await fetch(`${URL}/editar/${producto.codigo}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(producto),
@@ -150,7 +150,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       mensaje: "¿Seguro que deseas eliminar este producto?",
       onConfirm: async () => {
         try {
-          const response = await fetch(`${URL}/productos/eliminar/${codigo}`, {
+          const response = await fetch(`${URL}/eliminar/${codigo}`, {
             method: "DELETE",
           });
           if (!response.ok) throw new Error();
@@ -177,7 +177,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     tiempoPorUnidad: number
   ) => {
     try {
-      const response = await fetch(`${URL}/tiempo-produccion/agregar`, {
+      const response = await fetch(`${URLEst}/tiempo-produccion/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ codigoProducto, tiempoPorUnidad }),
@@ -194,7 +194,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
 
   const obtenerTiemposProduccion = async () => {
     try {
-      const response = await fetch(`${URL}/tiempo-produccion/obtener`);
+      const response = await fetch(`${URLEst}/tiempo-produccion/obtener`);
       if (!response.ok) throw new Error("Error al obtener tiempos de producción");
       const data = await response.json();
       setTiemposProduccion(data);
@@ -209,7 +209,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   ): Promise<number | null> => {
     try {
       const response = await fetch(
-        `${URL}/tiempo-produccion/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
+        `${URLEst}/tiempo-produccion/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
       );
       if (!response.ok) throw new Error("Error al calcular el tiempo estimado");
       const data = await response.json();
