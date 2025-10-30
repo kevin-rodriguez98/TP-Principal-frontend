@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
+import { URL_egresos as URL } from "../App";
 
 export interface movimiento_producto {
     codigoProducto: string;
@@ -38,8 +39,6 @@ interface Movimiento_producto_contextProviderProps {
 }
 
 export function Movimiento_producto_contextProvider({ children }: Movimiento_producto_contextProviderProps) {
-    const URL = "http://localhost:8080/movimiento-producto";
-    // const URL = "https://tp-principal-backend.onrender.com/movimiento-producto";
     const [movimiento_productos, setMovimiento_productos] = useState<movimiento_producto[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);

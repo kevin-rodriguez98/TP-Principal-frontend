@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from 'react-toastify';
+import { URL_ordenes as URL } from "../App";
 
 
 export interface Insumo {
@@ -20,7 +21,6 @@ export interface OrdenProduccion {
 
   tiempoEstimadoHoras: undefined;
   id: number,
-  ordenId: number,
   stockProducidoReal: number;
   tiempoEstimado?: number;
 
@@ -58,8 +58,7 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-  const URL = "http://localhost:8080/orden-produccion";
-  // const URL = "https://tp-principal-backend.onrender.com/orden-produccion";
+
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [modal, setModal] = useState<ModalData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +107,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
     setError(null);
     try {
-      const response = await fetch(`${URL}/agregarautomatizado`, {
+      const response = await fetch(`${URL}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orden),

@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from "react-toastify";
+import { URL_productos as URL } from "../App";
+import { URL_estimacion as URLEst } from "../App";
 
 export interface Producto {
   codigo: string;
@@ -56,10 +58,7 @@ interface ProductosProviderProps {
 }
 
 export function ProductosProvider({ children }: ProductosProviderProps) {
-  const URL = "http://localhost:8080/productos";
-  // const URL = "https://tp-principal-backend.onrender.com/productos";
-  const URLEst = "http://localhost:8080";
-  // const URLEst = "https://tp-principal-backend.onrender.com";
+
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);

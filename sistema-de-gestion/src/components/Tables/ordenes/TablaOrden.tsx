@@ -74,7 +74,10 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "estado",
                 header: "Estado",
-                enableEditing:false,
+                // enableEditing: false,
+                editVariant: "select",
+                editSelectOptions: ["CANCELADA", "EN_PRODUCCION" , "FINALIZADA_ENTREGADA", "EVALUACION"],
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 Cell: ({ cell }) => {
                     const estado = String(cell.getValue() ?? "");
                     const bg =
@@ -122,7 +125,7 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "lote",
                 header: "Lote",
-                enableEditing: false,
+                // enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
             },
             {
@@ -140,13 +143,13 @@ const TablaInsumos: React.FC = () => {
                 },
             },
             {
-            accessorKey: "tiempoEstimadoHoras",
-            header: "Tiempo Estimado (hrs)",
-            enableEditing: false,
-            Cell: ({ cell }) => {
-                const value = cell.getValue<number>();
-                return value !== undefined ? value.toFixed(1) : "-";
-            },
+                accessorKey: "tiempoEstimadoHoras",
+                header: "Tiempo Estimado (hrs)",
+                enableEditing: false,
+                Cell: ({ cell }) => {
+                    const value = cell.getValue<number>();
+                    return value !== undefined ? value.toFixed(1) : "-";
+                },
             },
         ],
         [validationErrors]
@@ -339,24 +342,24 @@ const TablaInsumos: React.FC = () => {
                             ⚙️
                         </IconButton>
                     </Tooltip>
-            <Tooltip title="Calcular tiempo estimado">
-                <IconButton
-                    color="info"
-                    onClick={async () => {
-                        try {
-                            const res = await calcularTiempoEstimado(
-                                row.original.codigoProducto,
-                                row.original.stockRequerido
-                            );
-                            toast.info(`⏱️ Tiempo estimado: ${res} horas`);
-                        } catch {
-                            toast.error("Error al calcular el tiempo estimado");
-                        }
-                    }}
-                >
-                    ⏱️
-                </IconButton>
-            </Tooltip>
+                    <Tooltip title="Calcular tiempo estimado">
+                        <IconButton
+                            color="info"
+                            onClick={async () => {
+                                try {
+                                    const res = await calcularTiempoEstimado(
+                                        row.original.codigoProducto,
+                                        row.original.stockRequerido
+                                    );
+                                    toast.info(`⏱️ Tiempo estimado: ${res} horas`);
+                                } catch {
+                                    toast.error("Error al calcular el tiempo estimado");
+                                }
+                            }}
+                        >
+                            ⏱️
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Finalizar Orden">
                         <IconButton
                             color="success"

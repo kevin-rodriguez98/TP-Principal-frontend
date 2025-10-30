@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
-
+import { URL_ingresos as URL } from "../App";
 export interface movimiento_insumo {
     codigo: string;
     nombre: string;
@@ -39,8 +39,6 @@ interface Movimiento_insumoProviderProps {
 }
 
 export function Movimiento_insumo_contextProvider({ children }: Movimiento_insumoProviderProps) {
-    const URL = "http://localhost:8080/movimiento-insumo";
-    // const URL = "https://tp-principal-backend.onrender.com/movimiento-insumo";
     const [movimiento_insumos, setMovimiento_insumos] = useState<movimiento_insumo[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);

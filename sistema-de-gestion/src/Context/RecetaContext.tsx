@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
+import { URL_recetas as URL } from "../App";
 
 export interface Receta {
     codigoInsumo: string;
@@ -31,8 +32,6 @@ interface RecetaContextType {
 export const RecetaContext = createContext<RecetaContextType | undefined>(undefined);
 
 export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
-    // const URL = "http://localhost:8080/recetas";
-    const URL = "https://tp-principal-backend.onrender.com/recetas";
     const [recetas, setRecetas] = useState<Receta[]>([]);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [isLoading, setIsLoading] = useState(false);

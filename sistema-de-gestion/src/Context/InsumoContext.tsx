@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
+import { URL_insumos as URL } from "../App";
 
 export interface Insumo {
     codigo: string;
@@ -38,8 +39,7 @@ interface InsumoProviderProps {
 }
 
 export function InsumoProvider({ children }: InsumoProviderProps) {
-    const URL = "http://localhost:8080/insumos";
-    // const URL = "https://tp-principal-backend.onrender.com/insumos";
+
     const [isLoading, setIsLoading] = useState(true);
     const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
