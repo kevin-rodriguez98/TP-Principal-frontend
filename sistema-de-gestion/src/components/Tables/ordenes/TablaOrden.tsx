@@ -76,8 +76,17 @@ const TablaInsumos: React.FC = () => {
                 header: "Estado",
                 // enableEditing: false,
                 editVariant: "select",
-                editSelectOptions: ["CANCELADA", "EN_PRODUCCION" , "FINALIZADA_ENTREGADA", "EVALUACION"],
+                editSelectOptions: ["EVALUACION"],
+                defaultValue: "EVALUACION",
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.estado,
+                    helperText: validationErrors.estado ? (
+                        <span style={{ color: "red" }}>{validationErrors.estado}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, estado: undefined }),
+                },
                 Cell: ({ cell }) => {
                     const estado = String(cell.getValue() ?? "");
                     const bg =
@@ -127,6 +136,15 @@ const TablaInsumos: React.FC = () => {
                 header: "Lote",
                 // enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiEditTextFieldProps: {
+                    required: true,
+                    error: !!validationErrors.lote,
+                    helperText: validationErrors.lote ? (
+                        <span style={{ color: "red" }}>{validationErrors.lote}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
+                },
+
             },
             {
                 accessorKey: "fechaEntrega",
@@ -145,7 +163,7 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "tiempoEstimadoHoras",
                 header: "Tiempo Estimado (hrs)",
-                enableEditing: false,
+                // enableEditing: false,
                 Cell: ({ cell }) => {
                     const value = cell.getValue<number>();
                     return value !== undefined ? value.toFixed(1) : "-";
@@ -160,7 +178,9 @@ const TablaInsumos: React.FC = () => {
 
         if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
         if (!orden.productoRequerido?.trim()) errores.productoRequerido = "El producto es requerido";
+        if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
         if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
+        if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
         if (!orden.stockRequerido && orden.stockRequerido !== 0)
             errores.stockRequerido = "El stock planeado es requerido";
         if (!orden.fechaEntrega?.trim())
@@ -203,6 +223,9 @@ const TablaInsumos: React.FC = () => {
                 pageSize: 10,
                 pageIndex: 0
             },
+
+            sorting: [{ id: "id", desc: true }], // o "fecha" si tenés ese campo
+
             density: 'compact',
             columnVisibility: {
                 stockRequerido: false,

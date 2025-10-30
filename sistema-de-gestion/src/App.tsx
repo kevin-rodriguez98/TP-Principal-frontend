@@ -8,25 +8,25 @@ import './app.css';
 import ProduccionPage from './pages/Productos.tsx';
 import FaceLogin from './login/FaceLogin.tsx';
 
-// URL LOCAL
+// URL´s LOCALES
 
 // export const URL_ordenes = "http://localhost:8080/orden-produccion";
 // export const URL_insumos = "http://localhost:8080/insumos";
 // export const URL_ingresos = "http://localhost:8080/movimiento-insumo";
 // export const URL_egresos = "http://localhost:8080/movimiento-producto";
 // export const URL_productos = "http://localhost:8080/productos";
-// export const URL_estimacion = "http://localhost:8080";
+// export const URL_estimacion = "http://localhost:8080/tiempo-produccion";
 // export const URL_recetas = "http://localhost:8080/recetas";
 
 
-// URL SERVER
+// URL´s SERVER
 
 export const URL_ordenes = "https://tp-principal-backend.onrender.com/orden-produccion";
 export const URL_insumos = "https://tp-principal-backend.onrender.com/insumos";
 export const URL_ingresos = "https://tp-principal-backend.onrender.com/movimiento-insumo";
 export const URL_egresos = "https://tp-principal-backend.onrender.com/movimiento-producto";
 export const URL_productos = "https://tp-principal-backend.onrender.com/productos";
-export const URL_estimacion = "https://tp-principal-backend.onrender.com";
+export const URL_estimacion = "https://tp-principal-backend.onrender.com/tiempo-produccion";
 export const URL_recetas = "https://tp-principal-backend.onrender.com/recetas";
 
 function App() {

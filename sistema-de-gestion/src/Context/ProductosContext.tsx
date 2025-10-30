@@ -176,7 +176,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     tiempoPorUnidad: number
   ) => {
     try {
-      const response = await fetch(`${URLEst}/tiempo-produccion/agregar`, {
+      const response = await fetch(`${URLEst}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ codigoProducto, tiempoPorUnidad }),
@@ -193,7 +193,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
 
   const obtenerTiemposProduccion = async () => {
     try {
-      const response = await fetch(`${URLEst}/tiempo-produccion/obtener`);
+      const response = await fetch(`${URLEst}/obtener`);
       if (!response.ok) throw new Error("Error al obtener tiempos de producción");
       const data = await response.json();
       setTiemposProduccion(data);
@@ -208,7 +208,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   ): Promise<number | null> => {
     try {
       const response = await fetch(
-        `${URLEst}/tiempo-produccion/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
+        `${URLEst}/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
       );
       if (!response.ok) throw new Error("Error al calcular el tiempo estimado");
       const data = await response.json();
