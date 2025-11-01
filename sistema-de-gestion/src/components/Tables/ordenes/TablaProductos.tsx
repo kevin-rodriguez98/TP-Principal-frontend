@@ -1,24 +1,30 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_EditActionButtons, type MRT_Row, } from "material-react-table";
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
-import SinResultados from "../../SinResultados";
 import { RecetaContext } from "../../../Context/RecetaContext";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import { InsumoContext } from "../../../Context/InsumoContext";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SinResultados from "../../SinResultados";
 
 const TablaProductos: React.FC = () => {
-  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto} = useContext(ProductosContext)!;
+  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto } = useContext(ProductosContext)!;
   const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
-  const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario} = useContext(TiempoProduccionContext)!;
+  const { insumos } = useContext(InsumoContext)!;
+  const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [codigoProducto, setCodigoProducto] = useState("");
-  const [nuevoInsumo, setNuevoInsumo] = useState({ codigoInsumo: "", stockNecesarioInsumo: 0, });
+  const [nuevoInsumo, setNuevoInsumo] = useState({
+    codigoInsumo: "",
+    nombreInsumo: "",
+    stockNecesarioInsumo: 1,
+  });
 
   const navigate = useNavigate();
 
@@ -110,6 +116,7 @@ const TablaProductos: React.FC = () => {
         muiTableHeadCellProps: { style: { color: "#15a017ff" } },
         muiEditTextFieldProps: {
           type: "number",
+          value: 0,
           error: !!validationErrors.stock,
           helperText: validationErrors.stock ? (
             <span style={{ color: "red" }}>{validationErrors.stock}</span>
@@ -373,7 +380,7 @@ const TablaProductos: React.FC = () => {
               color="secondary"
               onClick={() => {
                 setCodigoProducto(row.original.codigo);
-                setNuevoInsumo({ codigoInsumo: "", stockNecesarioInsumo: 1 });
+                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", stockNecesarioInsumo: 1 });
                 setOpenModalReceta(true);
               }}
             >
@@ -431,14 +438,38 @@ const TablaProductos: React.FC = () => {
             disabled
             fullWidth
           />
+
           <TextField
+            select
             label="Código del Insumo"
             value={nuevoInsumo.codigoInsumo}
-            onChange={(e) =>
-              setNuevoInsumo({ ...nuevoInsumo, codigoInsumo: e.target.value })
-            }
+            onChange={(e) => {
+              const codigo = e.target.value;
+              const insumoSeleccionado = insumos.find(i => i.codigo === codigo);
+              setNuevoInsumo({
+                ...nuevoInsumo,
+                codigoInsumo: codigo,
+                nombreInsumo: insumoSeleccionado ? insumoSeleccionado.nombre : "",
+              });
+            }}
+            fullWidth
+            SelectProps={{ native: true }}
+          >
+            <option value="">Seleccione un insumo</option>
+            {insumos.map((i) => (
+              <option key={i.codigo} value={i.codigo}>
+                {i.codigo}
+              </option>
+            ))}
+          </TextField>
+
+          <TextField
+            label="Nombre del Insumo"
+            value={nuevoInsumo.nombreInsumo}
+            disabled
             fullWidth
           />
+
           <TextField
             label="Cantidad Necesaria"
             type="number"
@@ -471,6 +502,7 @@ const TablaProductos: React.FC = () => {
           <Button onClick={() => setOpenModalReceta(false)}>Cancelar</Button>
         </DialogActions>
       </Dialog>
+
 
     </>
   );

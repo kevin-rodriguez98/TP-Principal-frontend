@@ -55,9 +55,12 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     obtenerOrdenes();
   }, []);
+
+
 
 
 // ====================================================
@@ -132,7 +135,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     } catch {
       setModal({
         tipo: "error",
-        mensaje: "No se pudo conectar con el servidor. Intenta más tarde.",
+        mensaje: "No se pudo crear la orden.",
       });
     }
   };
@@ -157,7 +160,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     } catch {
       setModal({
         tipo: "error",
-        mensaje: "No se pudo conectar con el servidor.",
+        mensaje: "No se pudo marcar la orden en producción.",
       });
     }
   };
@@ -187,7 +190,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     } catch {
       setModal({
         tipo: "error",
-        mensaje: "No se pudo conectar con el servidor.",
+        mensaje: "No se pudo finalizar la orden.",
       });
     }
   };
@@ -209,7 +212,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     } catch {
       setModal({
         tipo: "error",
-        mensaje: "No se pudo conectar con el servidor.",
+        mensaje: "No se pudo cancelar la orden.",
       });
     }
   };
@@ -230,6 +233,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         marcarEnProduccion,
         finalizarOrden,
         cancelarOrden,
+
       }}
     >
       {children}

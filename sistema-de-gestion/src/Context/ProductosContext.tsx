@@ -36,6 +36,16 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setModal } = useContext(ModalContext)!;
+  let count = 0;
+
+
+  // 🔄 Carga inicial de productos
+  useEffect(() => {
+    obtenerProductos();
+    count++;
+    console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
+  }, []);
+
 
   // ✅ Función centralizada para manejar errores HTTP
   const handleFetchError = async (response: Response, defaultMessage: string) => {
@@ -57,10 +67,6 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     throw new Error(errorMessage);
   };
 
-  // 🔄 Carga inicial de productos
-  useEffect(() => {
-    obtenerProductos();
-  }, []);
 
   // 📦 Obtener todos los productos
   const obtenerProductos = async () => {

@@ -5,10 +5,12 @@ import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesCo
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import { ProductosContext } from "../../../Context/ProductosContext";
 import SinResultados from "../../SinResultados";
 
 const TablaInsumos: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error } = useContext(OrdenesContext)!;
+    const { productos } = useContext(ProductosContext)!;
     const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
@@ -31,31 +33,67 @@ const TablaInsumos: React.FC = () => {
             },
             {
                 accessorKey: "codigoProducto",
-                header: "Codigo",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
+                header: "Código",
+                editVariant: "select",
+                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo })),
+                muiEditTextFieldProps: ({ row }) => ({
                     required: true,
+                    onChange: (e) => {
+                        const codigo = e.target.value;
+                        const producto = productos.find((p) => p.codigo === codigo);
+                        row.original.codigoProducto = codigo;
+                        row.original.productoRequerido = producto ? producto.nombre : "";
+                    },
                     error: !!validationErrors.codigoProducto,
-                    helperText: validationErrors.codigoProducto ? (
-                        <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
-                    ) : null,
+                    helperText: validationErrors.codigoProducto,
                     onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
-                },
+                }),
             },
             {
                 accessorKey: "productoRequerido",
                 header: "Producto",
-                enableEditing: (row) => row.original.productoRequerido === "",
+                enableEditing: false, // solo lectura
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
+                muiEditTextFieldProps: ({ row }) => ({
+                    value: row.original.productoRequerido,
                     required: true,
                     error: !!validationErrors.productoRequerido,
-                    helperText: validationErrors.productoRequerido ? (
-                        <span style={{ color: "red" }}>{validationErrors.productoRequerido}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, productoRequerido: undefined }),
-                },
+                    helperText: validationErrors.productoRequerido,
+                }),
             },
+            // {
+            //     accessorKey: "codigoProducto",
+            //     header: "Código",
+            //     editVariant: "select",
+            //     editSelectOptions: codigos.map((codigo: any) => ({
+            //         value: codigo,
+            //         label: codigo,
+            //     })),
+            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+            //     muiEditTextFieldProps: {
+            //         required: true,
+            //         error: !!validationErrors.codigoProducto,
+            //         helperText: validationErrors.codigoProducto ? (
+            //             <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
+            //         ) : null,
+            //         onFocus: () =>
+            //             setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
+            //     },
+            // },
+            // {
+            //     accessorKey: "productoRequerido",
+            //     header: "Producto",
+            //     enableEditing: (row) => row.original.productoRequerido === "",
+            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+            //     muiEditTextFieldProps: {
+            //         required: true,
+            //         error: !!validationErrors.productoRequerido,
+            //         helperText: validationErrors.productoRequerido ? (
+            //             <span style={{ color: "red" }}>{validationErrors.productoRequerido}</span>
+            //         ) : null,
+            //         onFocus: () => setValidationErrors({ ...validationErrors, productoRequerido: undefined }),
+            //     },
+            // },
             {
                 accessorKey: "marca",
                 header: "Marca",
@@ -169,7 +207,6 @@ const TablaInsumos: React.FC = () => {
         const errores: Record<string, string> = {};
 
         if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
-        if (!orden.productoRequerido?.trim()) errores.productoRequerido = "El producto es requerido";
         if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
         if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
         if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
@@ -346,6 +383,7 @@ const TablaInsumos: React.FC = () => {
             const enProduccion = estado === "EN_PRODUCCION";
             const finalizada = estado === "FINALIZADA_ENTREGADA";
             const cancelada = estado === "CANCELADA";
+            const evaluacion = estado === "EVALUACION";
 
             return (
                 <Box sx={{ display: "flex", gap: "0.5rem" }}>
@@ -366,7 +404,7 @@ const TablaInsumos: React.FC = () => {
                             <IconButton
                                 color="success"
                                 onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Deposito central")}
-                                disabled={finalizada || cancelada} // no permite finalizar si ya está finalizada o cancelada
+                                disabled={finalizada || cancelada || evaluacion} // no permite finalizar si ya está finalizada o cancelada
                             >
                                 ✅
                             </IconButton>
@@ -378,7 +416,7 @@ const TablaInsumos: React.FC = () => {
                             <IconButton
                                 color="error"
                                 onClick={() => cancelarOrden(Number(row.original.id))}
-                                disabled={finalizada || cancelada} // no permite cancelar si ya está finalizada o cancelada
+                                disabled={finalizada || cancelada || enProduccion} // no permite cancelar si ya está finalizada o cancelada
                             >
                                 ❌
                             </IconButton>
@@ -455,6 +493,7 @@ const TablaInsumos: React.FC = () => {
             return <SinResultados mensaje="No hay insumos disponibles para mostrar." />;
         },
 
+
         state: {
             isLoading,
         },
@@ -475,3 +514,5 @@ const TablaInsumos: React.FC = () => {
 };
 
 export default TablaInsumos;
+
+
