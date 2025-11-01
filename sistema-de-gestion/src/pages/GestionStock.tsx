@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { InsumoContext } from "../Context/InsumoContext";
 import { createTheme, ThemeProvider } from "@mui/material";
+import { ModalContext } from "../components/modal/ModalContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Modal from "../components/modal/Modal";
@@ -16,8 +17,8 @@ const GestionStock = () => {
       mode: 'dark'
     }
   })
-  const { modal, setModal, isLoading } =
-    useContext(InsumoContext)!;
+  const { isLoading } = useContext(InsumoContext)!;
+  const { modal, setModal } = useContext(ModalContext)!;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,8 +34,8 @@ const GestionStock = () => {
         </section>
       </main>
       <Footer />
-      
-      {modal && !isLoading  && (
+
+      {modal && !isLoading && (
         <Modal
           tipo={modal.tipo}
           mensaje={modal.mensaje}

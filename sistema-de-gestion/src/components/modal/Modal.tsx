@@ -14,8 +14,8 @@ const Modal: React.FC<ModalProps> = ({ tipo, mensaje, onConfirm, onClose }) => {
   const renderIcon = () => {
     switch (tipo) {
       case "confirm": return <FaQuestionCircle className="modal-icon" color="#914ef0" />;
-      case "success": return <FaCheckCircle className="modal-icon" color="#914ef0" />;
-      case "error":   return <FaExclamationCircle className="modal-icon" color="#914ef0" />;
+      case "success": return <FaCheckCircle className="modal-icon" color= "#26ff00ff"/>;
+      case "error":   return <FaExclamationCircle className="modal-icon" color="#ff0000ff" />;
       default: return null;
     }
   }

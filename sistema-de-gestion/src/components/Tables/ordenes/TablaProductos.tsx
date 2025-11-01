@@ -8,22 +8,19 @@ import { useNavigate } from "react-router-dom";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
 import SinResultados from "../../SinResultados";
 import { RecetaContext } from "../../../Context/RecetaContext";
+import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 
 const TablaProductos: React.FC = () => {
-  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto } = useContext(ProductosContext)!;
+  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto} = useContext(ProductosContext)!;
   const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
+  const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario} = useContext(TiempoProduccionContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [codigoProducto, setCodigoProducto] = useState("");
-  const [nuevoInsumo, setNuevoInsumo] = useState({
-    codigoInsumo: "",
-    stockNecesarioInsumo: 0,
-  });
-
+  const [nuevoInsumo, setNuevoInsumo] = useState({ codigoInsumo: "", stockNecesarioInsumo: 0, });
 
   const navigate = useNavigate();
-
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
     () => [
@@ -108,31 +105,18 @@ const TablaProductos: React.FC = () => {
       {
         accessorKey: "stock",
         header: "Stock",
+        enableEditing: false,
+        defaultValue: 0,
         muiTableHeadCellProps: { style: { color: "#15a017ff" } },
         muiEditTextFieldProps: {
           type: "number",
-          required: true,
           error: !!validationErrors.stock,
           helperText: validationErrors.stock ? (
             <span style={{ color: "red" }}>{validationErrors.stock}</span>
           ) : null,
           onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
         },
-      },
-      {
-        accessorKey: "lote",
-        header: "Lote",
-        enableEditing: (row) => row.original.lote === "",
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.lote,
-          helperText: validationErrors.lote ? (
-            <span style={{ color: "red" }}>{validationErrors.lote}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
-        },
-      },
+      }
     ],
     [validationErrors]
   );
@@ -144,11 +128,6 @@ const TablaProductos: React.FC = () => {
     if (!producto.categoria?.trim()) errores.categoria = "Categoría requerida";
     if (!producto.marca?.trim()) errores.marca = "Marca requerida";
     if (!producto.unidad?.trim()) errores.unidad = "Unidad requerida";
-    const stockNumber = Number(producto.stock);
-    if (producto.stock === undefined || producto.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-      errores.stock = "Stock debe ser un número válido mayor a 0";
-    }
-    if (!producto.lote?.trim()) errores.lote = "Lote requerido";
     return errores;
   };
 
@@ -178,6 +157,10 @@ const TablaProductos: React.FC = () => {
     handleDeleteProducto(row.original.codigo);
   };
 
+  const handleTiempoProduccion = (row: MRT_Row<Producto>) => {
+    obtenerTiempoProduccionUnitario(row.original.codigo);
+  }
+
   const table = useMaterialReactTable({
     columns,
     data: productos,
@@ -188,31 +171,13 @@ const TablaProductos: React.FC = () => {
     editDisplayMode: "modal",
     enableEditing: true,
     positionExpandColumn: 'last',
-    // defaultColumn: {
-    //   minSize: 80,
-    //   // size: 110, //make columns wider by default
-    //   grow: 1,
-    //   enableResizing: true,
-    // },
     initialState: {
       pagination: {
         pageSize: 10,
         pageIndex: 0
       },
       density: 'compact',
-      columnVisibility: {
-        // lote: false,
-        // unidad: false,
-        // stock: false,
-      },
     },
-    // displayColumnDefOptions: {
-    //   'mrt-row-expand': {
-    //     size: 0,
-    //     header: '',
-    //     Cell: () => null,
-    //   },
-    // },
     muiTableContainerProps: {
       className: "tabla-container",
     },
@@ -251,10 +216,9 @@ const TablaProductos: React.FC = () => {
           <IconButton
             color="success"
             onClick={async () => {
-              const codigo = row.original.codigo;
-              const cantidad = row.original.stock;
-              await obtenerInsumosNecesarios(codigo, cantidad);
-              setProductoSeleccionado(codigo);
+              await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
+              await handleTiempoProduccion(row);
+              setProductoSeleccionado(row.original.codigo);
               row.toggleExpanded();
             }}
           >
@@ -379,7 +343,7 @@ const TablaProductos: React.FC = () => {
             backgroundColor: "#2b2b2b",
             borderRadius: "10px",
             color: "#fff",
-            width: "100%",
+            width: "50%",
           }}
         >
           <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
@@ -396,7 +360,11 @@ const TablaProductos: React.FC = () => {
                     <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria}
                   </Typography>
                 </li>
+
               ))}
+              <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
+                Tiempo de produccion unitario: {tiempoProduccionUnitario} hs.
+              </Typography>
             </Box>
           )}
 
@@ -412,7 +380,19 @@ const TablaProductos: React.FC = () => {
               ➕
             </IconButton>
           </Tooltip>
-
+          <Tooltip title="Agregar tiempo de producción">
+            <IconButton
+              color="secondary"
+              onClick={() => {
+                const tiempo = prompt("Ingrese el tiempo de producción (en minutos):");
+                if (tiempo) {
+                  agregarTiempoProduccion(row.original.codigo, parseInt(tiempo));
+                }
+              }}
+            >
+              ⏱️
+            </IconButton>
+          </Tooltip>
 
         </Box>
       );

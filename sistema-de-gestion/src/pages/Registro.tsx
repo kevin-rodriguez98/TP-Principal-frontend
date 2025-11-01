@@ -5,11 +5,13 @@ import { createTheme } from "@mui/material";
 import Footer from '../components/Footer.tsx'
 import Header from '../components/Header.tsx'
 import TablaRegistro from "../components/Tables/registros/TablaRegistro.tsx";
-import "../styles/tablas.css";
 import Modal from "../components/modal/Modal.tsx";
+import { ModalContext } from "../components/modal/ModalContext.tsx";
+import "../styles/tablas.css";
 
 const RegistroInsumos = () => {
-    const { modal, isLoading, setModal } = useContext(Movimiento_producto_context)!;
+    const { isLoading } = useContext(Movimiento_producto_context)!;
+    const { modal, setModal } = useContext(ModalContext)!;
 
     const darkTheme = createTheme({
         palette: {

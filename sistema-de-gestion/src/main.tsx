@@ -12,42 +12,47 @@ import { OrdenProduccionProvider } from './Context/OrdenesContext'
 import { ProductosProvider } from './Context/ProductosContext';
 import { FaceAuthProvider } from './Context/FaceAuthContext';
 import { RecetaProvider } from './Context/RecetaContext';
+import { ModalProvider } from './components/modal/ModalContext';
+import { TiempoProduccionProvider } from './Context/TiempoProduccionContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Router>
-      <OpProvider>
-        <InsumoProvider>
-          <PanelProvider>
-            <Movimiento_insumo_contextProvider>
-              <Movimiento_producto_contextProvider>
-                <OrdenProduccionProvider>
-                  <ProductosProvider>
-                    <FaceAuthProvider>
-                      <RecetaProvider>
-
-                      <App />
-                      <ToastContainer
-                        position="bottom-right"
-                        autoClose={2000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="dark"
-                      />
-                    </RecetaProvider>
-                    </FaceAuthProvider>
-                  </ProductosProvider>
-                </OrdenProduccionProvider>
-              </Movimiento_producto_contextProvider>
-            </Movimiento_insumo_contextProvider>
-          </PanelProvider>
-        </InsumoProvider>
-      </OpProvider>
+      <ModalProvider>
+        <OpProvider>
+          <InsumoProvider>
+            <PanelProvider>
+              <Movimiento_insumo_contextProvider>
+                <Movimiento_producto_contextProvider>
+                  <OrdenProduccionProvider>
+                    <ProductosProvider>
+                      <TiempoProduccionProvider>
+                        <FaceAuthProvider>
+                          <RecetaProvider>
+                            <App />
+                            <ToastContainer
+                              position="bottom-right"
+                              autoClose={2000}
+                              hideProgressBar={false}
+                              newestOnTop={false}
+                              closeOnClick
+                              rtl={false}
+                              pauseOnFocusLoss
+                              draggable
+                              pauseOnHover
+                              theme="dark"
+                            />
+                          </RecetaProvider>
+                        </FaceAuthProvider>
+                      </TiempoProduccionProvider>
+                    </ProductosProvider>
+                  </OrdenProduccionProvider>
+                </Movimiento_producto_contextProvider>
+              </Movimiento_insumo_contextProvider>
+            </PanelProvider>
+          </InsumoProvider>
+        </OpProvider>
+      </ModalProvider>
     </Router>
   </StrictMode>,
 )

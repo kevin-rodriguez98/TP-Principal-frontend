@@ -2,13 +2,14 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
-import SinResultados from "../../SinResultados";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
-import { toast } from "react-toastify";
+import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import SinResultados from "../../SinResultados";
 
 const TablaInsumos: React.FC = () => {
-    const { ordenes, isLoading, error, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, calcularTiempoEstimado } = useContext(OrdenesContext)!;
+    const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error } = useContext(OrdenesContext)!;
+    const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const navigate = useNavigate();
 
@@ -160,15 +161,6 @@ const TablaInsumos: React.FC = () => {
                     onFocus: () => setValidationErrors({ ...validationErrors, fechaEntrega: undefined }),
                 },
             },
-            {
-                accessorKey: "tiempoEstimadoHoras",
-                header: "Tiempo Estimado (hrs)",
-                // enableEditing: false,
-                Cell: ({ cell }) => {
-                    const value = cell.getValue<number>();
-                    return value !== undefined ? value.toFixed(1) : "-";
-                },
-            },
         ],
         [validationErrors]
     );
@@ -211,21 +203,12 @@ const TablaInsumos: React.FC = () => {
         enableEditing: true,
         enableExpandAll: false,
         positionExpandColumn: 'last',
-        defaultColumn: {
-            // minSize: 80, //allow columns to get smaller than default
-            // maxSize: 900, //allow columns to get larger than default
-            // size: 110, //make columns wider by default
-            // grow: 1,
-            // enableResizing: true,
-        },
         initialState: {
             pagination: {
                 pageSize: 10,
                 pageIndex: 0
             },
-
-            sorting: [{ id: "id", desc: true }], // o "fecha" si tenés ese campo
-
+            sorting: [{ id: "id", desc: true }],
             density: 'compact',
             columnVisibility: {
                 stockRequerido: false,
@@ -294,6 +277,12 @@ const TablaInsumos: React.FC = () => {
                     </Typography>
                     <Typography>{row.original.lote}</Typography>
                 </Box>
+                <Box>
+                    <Typography variant="subtitle2" color="primary">
+                        Tiempo estimado de Producción
+                    </Typography>
+                    <Typography>{row.original.tiempoEstimado}</Typography>
+                </Box>
 
             </Box>
         ),
@@ -353,56 +342,57 @@ const TablaInsumos: React.FC = () => {
         ),
 
         renderRowActions: ({ row }) => {
+            const estado = row.original.estado; // suponiendo que la orden tiene un campo 'estado'
+            const enProduccion = estado === "EN_PRODUCCION";
+            const finalizada = estado === "FINALIZADA_ENTREGADA";
+            const cancelada = estado === "CANCELADA";
 
             return (
                 <Box sx={{ display: "flex", gap: "0.5rem" }}>
-
                     <Tooltip title="En Producción">
-                        <IconButton
-                            color="warning"
-                            onClick={() => marcarEnProduccion(Number(row.original.id), row.original.codigoProducto)}
-                        >
-                            ⚙️
-                        </IconButton>
+                        <span> {/* Necesario para tooltips en botones deshabilitados */}
+                            <IconButton
+                                color="warning"
+                                onClick={() => marcarEnProduccion(Number(row.original.id), row.original.codigoProducto)}
+                                disabled={enProduccion || finalizada || cancelada} // deshabilita si ya está en producción o terminada/cancelada
+                            >
+                                ⚙️
+                            </IconButton>
+                        </span>
                     </Tooltip>
-                    <Tooltip title="Calcular tiempo estimado">
-                        <IconButton
-                            color="info"
-                            onClick={async () => {
-                                try {
-                                    const res = await calcularTiempoEstimado(
-                                        row.original.codigoProducto,
-                                        row.original.stockRequerido
-                                    );
-                                    toast.info(`⏱️ Tiempo estimado: ${res} horas`);
-                                } catch {
-                                    toast.error("Error al calcular el tiempo estimado");
-                                }
-                            }}
-                        >
-                            ⏱️
-                        </IconButton>
-                    </Tooltip>
+
                     <Tooltip title="Finalizar Orden">
-                        <IconButton
-                            color="success"
-                            onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Deposito central")}
-                        >
-                            ✅
-                        </IconButton>
+                        <span>
+                            <IconButton
+                                color="success"
+                                onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Deposito central")}
+                                disabled={finalizada || cancelada} // no permite finalizar si ya está finalizada o cancelada
+                            >
+                                ✅
+                            </IconButton>
+                        </span>
                     </Tooltip>
 
                     <Tooltip title="Cancelar Orden">
-                        <IconButton
-                            color="error"
-                            onClick={() => cancelarOrden(Number(row.original.id))}
-                        >
-                            ❌
-                        </IconButton>
+                        <span>
+                            <IconButton
+                                color="error"
+                                onClick={() => cancelarOrden(Number(row.original.id))}
+                                disabled={finalizada || cancelada} // no permite cancelar si ya está finalizada o cancelada
+                            >
+                                ❌
+                            </IconButton>
+                        </span>
                     </Tooltip>
 
                     <Tooltip title="Detalles">
-                        <IconButton color="info" onClick={() => row.toggleExpanded()}>
+                        <IconButton
+                            color="info"
+                            onClick={async () => {
+                                await calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido);
+                                row.toggleExpanded();
+                            }}
+                        >
                             ℹ️
                         </IconButton>
                     </Tooltip>

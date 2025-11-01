@@ -1,15 +1,17 @@
 import { useContext } from "react";
+import { OrdenesContext } from "../Context/OrdenesContext";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { ModalContext } from "../components/modal/ModalContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../styles/tablas.css";
-import { OrdenesContext } from "../Context/OrdenesContext";
 import Modal from "../components/modal/Modal";
-import { createTheme, ThemeProvider } from "@mui/material";
 import TablaOrden from "../components/Tables/ordenes/TablaOrden";
+import "../styles/tablas.css";
 
 const OrdenProduccionPage = () => {
 
-  const { modal, isLoading,setModal } = useContext(OrdenesContext)!;
+  const { isLoading } = useContext(OrdenesContext)!;
+  const { modal, setModal } = useContext(ModalContext)!;
 
   const darkTheme = createTheme({
     palette: {

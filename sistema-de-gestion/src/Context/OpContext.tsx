@@ -36,7 +36,7 @@ export function OpProvider({ children }: OpProviderProps) {
         },
 
         {
-            label: "Planificación de Producción",
+            label: "Gestión de Producción",
             icon: './produccion.png',
             acciones: [
                 { label: "Gestionar Ordenes", onClick: () => navigate("/ordenes") },
@@ -45,14 +45,14 @@ export function OpProvider({ children }: OpProviderProps) {
             ]
         },
 
-        {
-            label: "Seguimiento de Producción",
-            icon: './seguimiento.png',
-            acciones: [
-                { label: "", onClick: () => navigate("/") },
-                { label: "", onClick: () => navigate("/") }
-            ]
-        },
+        // {
+        //     label: "Seguimiento de Producción",
+        //     icon: './seguimiento.png',
+        //     acciones: [
+        //         { label: "", onClick: () => navigate("/") },
+        //         { label: "", onClick: () => navigate("/") }
+        //     ]
+        // },
 
         {
             label: "Trazabilidad de Producción",

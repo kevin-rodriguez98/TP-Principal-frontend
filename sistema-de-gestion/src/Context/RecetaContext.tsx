@@ -1,6 +1,7 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { URL_recetas as URL } from "../App";
+import { ModalContext } from "../components/modal/ModalContext";
 
 export interface Receta {
     codigoInsumo: string;
@@ -8,34 +9,41 @@ export interface Receta {
     cantidadNecesaria: number;
 }
 
-interface ModalData {
-    tipo: "confirm" | "success" | "error";
-    mensaje: string;
-    onConfirm?: () => void;
-}
-
 interface RecetaContextType {
     recetas: Receta[];
     setRecetas: React.Dispatch<React.SetStateAction<Receta[]>>;
-    modal: ModalData | null;
-    setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
     obtenerInsumosNecesarios: (codigoProducto: string, cantidad: number) => Promise<void>;
     agregarInsumoAReceta: (
         codigoProducto: string,
         codigoInsumo: string,
         stockNecesarioInsumo: number
     ) => Promise<void>;
-    // error: string | null;
     isLoading: boolean;
 }
 
 export const RecetaContext = createContext<RecetaContextType | undefined>(undefined);
 
 export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
+    const { setModal } = useContext(ModalContext)!;
     const [recetas, setRecetas] = useState<Receta[]>([]);
-    const [modal, setModal] = useState<ModalData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    // ⚙️ Función reutilizable para manejar errores HTTP
+    const handleFetchError = async (response: Response, defaultMessage: string) => {
+        let errorMessage = defaultMessage;
+        try {
+            const data = await response.json();
+            if (data?.message) errorMessage = data.message;
+        } catch { /* no-op */ }
+
+        if (response.status === 500) {
+            setModal({ tipo: "error", mensaje: errorMessage });
+        } else {
+            toast.error(errorMessage);
+        }
+
+        throw new Error(errorMessage);
+    };
 
     const agregarInsumoAReceta = async (
         codigoProducto: string,
@@ -50,25 +58,7 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
                 body: JSON.stringify({ codigoProducto, codigoInsumo, stockNecesarioInsumo }),
             });
 
-            if (!response.ok) {
-                let errorMessage = "Error al agregar insumo";
-                try {
-                    const data = await response.json();
-                    if (data?.message) errorMessage = data.message;
-                } catch {
-                    // Si no es JSON válido, lo dejamos con el mensaje por defecto
-                }
-
-                // Mostramos el modal si es 500
-                if (response.status === 500) {
-                    setModal({
-                        tipo: "error",
-                        mensaje: errorMessage,
-                    });
-                }
-
-                throw new Error(errorMessage);
-            }
+            if (!response.ok) await handleFetchError(response, "Error al agregar insumo a la receta");
 
             toast.success("Insumo agregado correctamente a la receta");
         } catch (error) {
@@ -79,7 +69,6 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-
     const obtenerInsumosNecesarios = async (codigoProducto: string, cantidad: number) => {
         setIsLoading(true);
         try {
@@ -87,23 +76,10 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
                 `${URL}/insumos-necesarios?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
             );
 
-            if (!response.ok) {
-                let errorMessage = "Error al obtener insumos";
-                try {
-                    const data = await response.json();
-                    if (data?.message) errorMessage = data.message;
-                } catch { }
-
-                if (response.status === 500) {
-                    setModal({ tipo: "error", mensaje: errorMessage });
-                }
-
-                throw new Error(errorMessage);
-            }
+            if (!response.ok) await handleFetchError(response, "Error al obtener insumos necesarios");
 
             const data = await response.json();
             setRecetas(data);
-            toast.success("Receta obtenida correctamente");
         } catch (error) {
             console.error(error);
             toast.error("Error al obtener insumos necesarios");
@@ -117,11 +93,8 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
             value={{
                 recetas,
                 setRecetas,
-                modal,
-                setModal,
                 obtenerInsumosNecesarios,
                 agregarInsumoAReceta,
-                // error,
                 isLoading,
             }}
         >

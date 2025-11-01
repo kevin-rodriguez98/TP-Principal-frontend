@@ -1,15 +1,17 @@
 import { useContext } from "react";
+import { RecetaContext } from "../Context/RecetaContext";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { ModalContext } from "../components/modal/ModalContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../styles/tablas.css";
-import { RecetaContext } from "../Context/RecetaContext";
 import Modal from "../components/modal/Modal";
-import { createTheme, ThemeProvider } from "@mui/material";
 import TablaProductos from "../components/Tables/ordenes/TablaProductos";
+import "../styles/tablas.css";
 
 const ProduccionPage = () => {
 
-  const { modal, isLoading, setModal } = useContext(RecetaContext)!;
+  const { isLoading } = useContext(RecetaContext)!;
+  const { modal, setModal } = useContext(ModalContext)!;
 
   const darkTheme = createTheme({
     palette: {
@@ -31,7 +33,6 @@ const ProduccionPage = () => {
         </section>
       </main>
       <Footer />
-
       {modal && !isLoading  && (
         <Modal
           tipo={modal.tipo}

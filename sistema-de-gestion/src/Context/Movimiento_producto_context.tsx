@@ -1,32 +1,19 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import { URL_egresos as URL } from "../App";
+import { ModalContext } from "../components/modal/ModalContext";
 
 export interface movimiento_producto {
     codigoProducto: string;
     cantidad: number;
     tipo: string;
-    destino: string,
-    // nombre: string,
-    // categoria: string;
-    // marca: string;
-    // unidad: string;
-    // lote: string;
-}
-interface ModalData {
-    tipo: "confirm" | "success" | "error";
-    mensaje: string;
-    onConfirm?: () => void;
+    destino: string;
 }
 
 interface Movimiento_productoContextType {
-    modal: ModalData | null;
-    setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
-
     movimiento_productos: movimiento_producto[];
     setMovimiento_productos: React.Dispatch<React.SetStateAction<movimiento_producto[]>>;
-
-    handleAdd_Movimiento_producto: (registro: movimiento_producto) => void;
+    handleAdd_Movimiento_producto: (registro: movimiento_producto) => Promise<void>;
     error: string | null;
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,10 +26,27 @@ interface Movimiento_producto_contextProviderProps {
 }
 
 export function Movimiento_producto_contextProvider({ children }: Movimiento_producto_contextProviderProps) {
+    const { setModal } = useContext(ModalContext)!;
     const [movimiento_productos, setMovimiento_productos] = useState<movimiento_producto[]>([]);
-    const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // ⚙️ Función reutilizable para manejar errores HTTP
+    const handleFetchError = async (response: Response, defaultMessage: string) => {
+        let errorMessage = defaultMessage;
+        try {
+            const data = await response.json();
+            if (data?.message || data?.mensaje) errorMessage = data.message || data.mensaje;
+        } catch { /* no-op */ }
+
+        if (response.status === 500) {
+            setModal({ tipo: "error", mensaje: errorMessage });
+        } else {
+            toast.error(errorMessage);
+        }
+
+        throw new Error(errorMessage);
+    };
 
     useEffect(() => {
         obtenermovimientos_producto();
@@ -53,19 +57,13 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
         try {
             setError(null);
             const response = await fetch(`${URL}/obtener`);
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                setModal({
-                    tipo: "error",
-                    mensaje: errorData?.mensaje || "Error al obtener los movimientos.",
-                });
-                throw new Error("Error al obtener los movimientos");
-            }
+            if (!response.ok) await handleFetchError(response, "Error al obtener los movimientos.");
+
             const data = await response.json();
             setMovimiento_productos(data);
         } catch (err: any) {
             console.error("❌ Error al obtener movimientos:", err);
-            setError("❌ No se pudo conectar con el servidor.");
+            setError(err.message);
             setModal({
                 tipo: "error",
                 mensaje: "El servidor no está disponible.\nIntenta más tarde.",
@@ -85,21 +83,7 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
                 body: JSON.stringify(mov),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                if (response.status === 500) {
-                    setModal({
-                        tipo: "error",
-                        mensaje: errorData?.mensaje || "Error interno del servidor.",
-                    });
-                } else {
-                    setModal({
-                        tipo: "error",
-                        mensaje: errorData?.mensaje || "Error al agregar el movimiento.",
-                    });
-                }
-                throw new Error("Error al agregar movimiento");
-            }
+            if (!response.ok) await handleFetchError(response, "Error al agregar movimiento");
 
             const nuevo = await response.json();
             setMovimiento_productos(prev => [...prev, nuevo]);
@@ -111,8 +95,9 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
                 mensaje: "No se pudo conectar con el servidor.",
             });
             toast.error("❌ Algo salió mal...");
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     return (
@@ -120,8 +105,6 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
             value={{
                 setMovimiento_productos,
                 movimiento_productos,
-                modal,
-                setModal,
                 handleAdd_Movimiento_producto,
                 error,
                 isLoading,

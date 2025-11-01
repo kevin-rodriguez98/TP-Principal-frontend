@@ -1,6 +1,8 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import { URL_ingresos as URL } from "../App";
+import { ModalContext } from "../components/modal/ModalContext";
+
 export interface movimiento_insumo {
     codigo: string;
     nombre: string;
@@ -13,20 +15,10 @@ export interface movimiento_insumo {
     proveedor: string;
 }
 
-interface ModalData {
-    tipo: "confirm" | "success" | "error";
-    mensaje: string;
-    onConfirm?: () => void;
-}
-
 interface Movimiento_insumo_contextType {
-    modal: ModalData | null;
-    setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
-
     movimiento_insumos: movimiento_insumo[];
     setMovimiento_insumos: React.Dispatch<React.SetStateAction<movimiento_insumo[]>>;
-
-    handleAdd_Movimiento_insumo: (mov: movimiento_insumo) => void;
+    handleAdd_Movimiento_insumo: (mov: movimiento_insumo) => Promise<void>;
     error: string | null;
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,42 +31,56 @@ interface Movimiento_insumoProviderProps {
 }
 
 export function Movimiento_insumo_contextProvider({ children }: Movimiento_insumoProviderProps) {
+    const { setModal } = useContext(ModalContext)!;
     const [movimiento_insumos, setMovimiento_insumos] = useState<movimiento_insumo[]>([]);
-    const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    // ⚙️ Función reutilizable para manejar errores HTTP
+    const handleFetchError = async (response: Response, defaultMessage: string) => {
+        let errorMessage = defaultMessage;
+        try {
+            const data = await response.json();
+            if (data?.message) errorMessage = data.message;
+        } catch { /* no-op */ }
+
+        if (response.status === 500) {
+            setModal({ tipo: "error", mensaje: errorMessage });
+        } else {
+            toast.error(errorMessage);
+        }
+
+        throw new Error(errorMessage);
+    };
 
     useEffect(() => {
         obtenermovimientos_insumo();
     }, []);
 
     const obtenermovimientos_insumo = async () => {
+        setIsLoading(true);
         try {
-            setError(null); // Limpia errores anteriores
+            setError(null);
             const response = await fetch(`${URL}/obtener-ingreso`);
-            if (!response.ok) throw new Error("Error al obtener los insumos");
+            if (!response.ok) await handleFetchError(response, "Error al obtener los movimientos de insumos");
 
             const data = await response.json();
             setMovimiento_insumos(data);
-
-        } catch {
-            setError("❌ No se pudo conectar con el servidor.");
-            setModal({
-                tipo: "error",
-                mensaje: "El servidor no está disponible.\nIntenta más tarde.",
-            });
-            setMovimiento_insumos([]); // limpia listado
+        } catch (err: any) {
+            setError(err.message);
+            setMovimiento_insumos([]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleAdd_Movimiento_insumo = async (mov: movimiento_insumo) => {
-
-        if (movimiento_insumos.some((i) => i.codigo === mov.codigo)) {
+        if (movimiento_insumos.some(i => i.codigo === mov.codigo)) {
             setModal({ tipo: "error", mensaje: "Ya existe un registro de insumo con ese código" });
             return;
         }
 
+        setIsLoading(true);
         try {
             const response = await fetch(`${URL}/agregar`, {
                 method: "POST",
@@ -82,14 +88,16 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
                 body: JSON.stringify(mov),
             });
 
-            if (!response.ok) throw new Error("Error al agregar insumo");
+            if (!response.ok) await handleFetchError(response, "Error al agregar insumo");
 
             const nuevo = await response.json();
             setMovimiento_insumos([...movimiento_insumos, nuevo]);
             toast.success(`¡Se agregó ${mov.nombre}!`);
-        } catch (error) {
-            console.error("⚠️ Error al agregar insumo:", error);
+        } catch (err) {
+            console.error("⚠️ Error al agregar insumo:", err);
             toast.error("Algo salió mal...");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -98,8 +106,6 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
             value={{
                 setMovimiento_insumos,
                 movimiento_insumos,
-                modal,
-                setModal,
                 handleAdd_Movimiento_insumo,
                 error,
                 isLoading,

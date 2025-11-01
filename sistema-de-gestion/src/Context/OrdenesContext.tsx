@@ -1,6 +1,7 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from 'react-toastify';
 import { URL_ordenes as URL } from "../App";
+import { ModalContext } from "../components/modal/ModalContext";
 
 
 export interface Insumo {
@@ -18,25 +19,18 @@ export interface OrdenProduccion {
   fechaEntrega: string;
   estado: "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA" | "EVALUACION";
   lote: string;
+  envasado: string;
+  presentacion: string;
 
-  tiempoEstimadoHoras: undefined;
   id: number,
   stockProducidoReal: number;
   tiempoEstimado?: number;
 
 }
 
-interface ModalData {
-  tipo: "confirm" | "success" | "error";
-  mensaje: string;
-  onConfirm?: () => void;
-}
-
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
   setOrdenes: React.Dispatch<React.SetStateAction<OrdenProduccion[]>>;
-  modal: ModalData | null;
-  setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
   handleAddOrden: (orden: OrdenProduccion) => Promise<void>;
   obtenerOrdenes: () => Promise<void>;
   isLoading: boolean;
@@ -47,7 +41,6 @@ interface OrdenContextType {
   marcarEnProduccion: (id: number, codigoProducto: string) => Promise<void>;
   finalizarOrden: (id: number, stockProducidoReal?: number, destino?: string) => Promise<void>;
   cancelarOrden: (id: number) => Promise<void>;
-  calcularTiempoEstimado: (codigoProducto: string, stockRequerido: number) => Promise<void>;
 
 }
 
@@ -58,9 +51,8 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-
+  const { setModal, modal } = useContext(ModalContext)!;
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
-  const [modal, setModal] = useState<ModalData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -68,25 +60,38 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   }, []);
 
 
+// ====================================================
+  // 🔧 Helper: Manejo centralizado de errores del backend
+  // ====================================================
+  const handleFetchError = async (response: Response, defaultMessage: string) => {
+    const errorData = await response.json().catch(() => null);
+    const message = errorData?.message || defaultMessage;
+
+    if (response.status === 500) {
+      setModal({
+        tipo: "error",
+        mensaje: message || "Error interno del servidor.",
+      });
+    } else {
+      setModal({
+        tipo: "error",
+        mensaje: message,
+      });
+    }
+
+    throw new Error(message);
+  };
+
+  // ===============================
+  // 📦 Obtener todas las órdenes
+  // ===============================
   const obtenerOrdenes = async () => {
     setIsLoading(true);
     try {
       setError(null);
       const response = await fetch(`${URL}/obtener`);
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        if (response.status === 500) {
-          setModal({
-            tipo: "error",
-            mensaje: errorData?.message || "Error interno del servidor.",
-          });
-        } else {
-          setModal({
-            tipo: "error",
-            mensaje: "No se pudo obtener la lista de órdenes.",
-          });
-        }
-        throw new Error(errorData?.message || "Error al obtener las órdenes");
+        await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
       }
       const data = await response.json();
       setOrdenes(data);
@@ -104,6 +109,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
+  // ===============================
+  // ➕ Agregar una nueva orden
+  // ===============================
   const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
     setError(null);
     try {
@@ -114,20 +122,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-
-        if (response.status === 500) {
-          setModal({
-            tipo: "error",
-            mensaje: errorData?.message || "Error interno al crear la orden.",
-          });
-        } else {
-          setModal({
-            tipo: "error",
-            mensaje: "No se pudo crear la orden.",
-          });
-        }
-
+        await handleFetchError(response, "No se pudo crear la orden.");
         return;
       }
 
@@ -142,6 +137,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
+  // ===============================
+  // ⚙️ Marcar como EN PRODUCCIÓN
+  // ===============================
   const marcarEnProduccion = async (id: number, codigoProducto: string) => {
     try {
       const response = await fetch(
@@ -150,20 +148,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-
-        if (response.status === 500) {
-          setModal({
-            tipo: "error",
-            mensaje: errorData?.message || "Error interno al marcar la orden en producción.",
-          });
-        } else {
-          setModal({
-            tipo: "error",
-            mensaje: "No se pudo marcar la orden en producción.",
-          });
-        }
-
+        await handleFetchError(response, "No se pudo marcar la orden en producción.");
         return;
       }
 
@@ -177,6 +162,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
+  // ===============================
+  // ✅ Finalizar orden
+  // ===============================
   const finalizarOrden = async (id: number, stockProducidoReal?: number, destino?: string) => {
     if (!destino) return;
 
@@ -187,20 +175,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-
-        if (response.status === 500) {
-          setModal({
-            tipo: "error",
-            mensaje: errorData?.message || "Error interno al finalizar la orden.",
-          });
-        } else {
-          setModal({
-            tipo: "error",
-            mensaje: "No se pudo finalizar la orden.",
-          });
-        }
-
+        await handleFetchError(response, "No se pudo finalizar la orden.");
         return;
       }
 
@@ -217,25 +192,15 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
+  // ===============================
+  // ❌ Cancelar orden
+  // ===============================
   const cancelarOrden = async (id: number) => {
     try {
       const response = await fetch(`${URL}/cancelar/${id}`, { method: "PUT" });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-
-        if (response.status === 500) {
-          setModal({
-            tipo: "error",
-            mensaje: errorData?.message || "Error interno al cancelar la orden.",
-          });
-        } else {
-          setModal({
-            tipo: "error",
-            mensaje: "No se pudo cancelar la orden.",
-          });
-        }
-
+        await handleFetchError(response, "No se pudo cancelar la orden.");
         return;
       }
 
@@ -249,17 +214,13 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  const calcularTiempoEstimado = async () => {
-    throw new Error("Function not implemented.");
-  }
+  
 
   return (
     <OrdenesContext.Provider
       value={{
         ordenes,
         setOrdenes,
-        modal,
-        setModal,
         handleAddOrden,
         obtenerOrdenes,
         isLoading,
@@ -269,7 +230,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         marcarEnProduccion,
         finalizarOrden,
         cancelarOrden,
-        calcularTiempoEstimado
       }}
     >
       {children}

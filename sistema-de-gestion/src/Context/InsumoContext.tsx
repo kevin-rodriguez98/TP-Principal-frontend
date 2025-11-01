@@ -1,6 +1,7 @@
-import { createContext, useEffect, useState } from "react";
-import { toast } from 'react-toastify';
+import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { URL_insumos as URL } from "../App";
+import { ModalContext } from "../components/modal/ModalContext";
 
 export interface Insumo {
     codigo: string;
@@ -12,19 +13,12 @@ export interface Insumo {
     stock: number;
     umbralMinimoStock: number;
 }
-interface ModalData {
-    tipo: "confirm" | "success" | "error";
-    mensaje: string;
-    onConfirm?: () => void;
-}
 
 interface InsumoContextType {
     insumos: Insumo[];
     setInsumos: React.Dispatch<React.SetStateAction<Insumo[]>>;
     insumos_bajo_stock: Insumo[];
     setInsumos_bajo_stock: React.Dispatch<React.SetStateAction<Insumo[]>>;
-    modal: ModalData | null;
-    setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
     handleAddInsumo: (insumo: Insumo) => void;
     handleDelete: (codigo: string) => void;
     handleUpdateInsumo: (insumo: Insumo) => void;
@@ -32,6 +26,7 @@ interface InsumoContextType {
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 export const InsumoContext = createContext<InsumoContextType | undefined>(undefined);
 
 interface InsumoProviderProps {
@@ -39,9 +34,8 @@ interface InsumoProviderProps {
 }
 
 export function InsumoProvider({ children }: InsumoProviderProps) {
-
+    const { setModal } = useContext(ModalContext)!;
     const [isLoading, setIsLoading] = useState(true);
-    const [modal, setModal] = useState<ModalData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [insumos, setInsumos] = useState<Insumo[]>([]);
     const [insumos_bajo_stock, setInsumos_bajo_stock] = useState<Insumo[]>([]);
@@ -54,11 +48,32 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         obtenerInsumosBajoStock();
     }, [insumos]);
 
-    const obtenerInsumos = async () => {
+    // ⚙️ Función reutilizable para manejar errores HTTP
+    const handleFetchError = async (response: Response, defaultMessage: string) => {
+        let errorMessage = defaultMessage;
         try {
-            setError(null); // Limpia errores anteriores
+            const data = await response.json();
+            if (data?.message) errorMessage = data.message;
+        } catch {
+            /* no-op */
+        }
+
+        if (response.status === 500) {
+            setModal({ tipo: "error", mensaje: errorMessage });
+        } else {
+            toast.error(errorMessage);
+        }
+
+        throw new Error(errorMessage);
+    };
+
+    // 📦 Obtener todos los insumos
+    const obtenerInsumos = async () => {
+        setIsLoading(true);
+        try {
+            setError(null);
             const response = await fetch(`${URL}/obtener`);
-            if (!response.ok) throw new Error("Error al obtener los insumos");
+            if (!response.ok) await handleFetchError(response, "Error al obtener los insumos");
             const data = await response.json();
             setInsumos(data);
         } catch {
@@ -67,19 +82,18 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 tipo: "error",
                 mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
-            setInsumos([]); // limpia listado
+            setInsumos([]);
+        } finally {
+            setTimeout(() => setIsLoading(false), 1000);
         }
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 2000);
     };
 
+    // ⚠️ Obtener insumos con stock bajo
     const obtenerInsumosBajoStock = async () => {
         try {
-            setError(null); // Limpia errores anteriores
+            setError(null);
             const response = await fetch(`${URL}/obtener-bajo-stock`);
-            if (!response.ok) throw new Error("Error al obtener los insumos");
-
+            if (!response.ok) await handleFetchError(response, "Error al obtener los insumos con bajo stock");
             const data = await response.json();
             setInsumos_bajo_stock(data);
         } catch {
@@ -88,26 +102,24 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 tipo: "error",
                 mensaje: "El servidor no está disponible.\nIntenta más tarde.",
             });
-            setInsumos_bajo_stock([]); // limpia listado
+            setInsumos_bajo_stock([]);
         }
     };
 
+    // ✅ Validar insumo antes de agregar o editar
     const validarInsumo = (insumo: Insumo, esEdicion: boolean) => {
         const errores: Record<string, string> = {};
-
         const codigoNormalizado = insumo.codigo.trim().toLowerCase();
         const nombreNormalizado = insumo.nombre.trim().toLowerCase();
         const categoriaNormalizada = insumo.categoria.trim().toLowerCase();
         const marcaNormalizada = insumo.marca.trim().toLowerCase();
 
-        // 🚫 Código repetido solo si NO es edición
         if (!esEdicion && insumos.some(i => i.codigo.trim().toLowerCase() === codigoNormalizado)) {
             errores.codigo = "El código ya existe";
         }
 
-        // ✅ Conjunto repetido: nombre + marca + categoría
         const repetido = insumos.some(i =>
-            i.codigo.trim().toLowerCase() !== codigoNormalizado && // distinto código
+            i.codigo.trim().toLowerCase() !== codigoNormalizado &&
             i.nombre.trim().toLowerCase() === nombreNormalizado &&
             i.categoria.trim().toLowerCase() === categoriaNormalizada &&
             i.marca.trim().toLowerCase() === marcaNormalizada
@@ -120,41 +132,37 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         return errores;
     };
 
-
+    // ➕ Agregar insumo
     const handleAddInsumo = async (insumo: Insumo) => {
-        console.log("Nuevo insumo:", insumo);
-        console.log("Lista actual de insumos:", insumos.map(i => i.codigo));
         const errores = validarInsumo(insumo, false);
         if (Object.keys(errores).length > 0) {
             setModal({ tipo: "error", mensaje: Object.values(errores).join("\n") });
             return;
         }
+
         try {
             const response = await fetch(`${URL}/agregar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(insumo),
             });
-            if (!response.ok) throw new Error();
+
+            if (!response.ok) await handleFetchError(response, "Error al agregar el insumo");
+
             const nuevo = await response.json();
             setInsumos([...insumos, nuevo]);
             toast.success(`¡Se agregó ${insumo.nombre}!`);
         } catch {
             setModal({ tipo: "error", mensaje: "No se pudo agregar el insumo." });
-            toast.error("Algo salió mal...");
         }
-        //   toast.info("Información importante");
-        //   toast.warning("Cuidado con esto");
     };
 
+    // ✏️ Editar insumo
     const handleUpdateInsumo = async (insumo: Insumo) => {
         const errores = validarInsumo(insumo, true);
-
         if (Object.keys(errores).length > 0) {
             setModal({ tipo: "error", mensaje: Object.values(errores).join("\n") });
-            toast.error("Algo salió mal...");
-            setInsumos([...insumos]);
-            return; // ✅ esto detiene correctamente la ejecución
+            return;
         }
 
         try {
@@ -164,35 +172,32 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 body: JSON.stringify(insumo),
             });
 
-            if (!response.ok) throw new Error("Error al actualizar insumo");
+            if (!response.ok) await handleFetchError(response, "Error al actualizar insumo");
 
             const actualizado = await response.json();
             setInsumos(insumos.map(i => (i.codigo === actualizado.codigo ? actualizado : i)));
             toast.success(`¡${insumo.nombre} ha sido editado!`);
         } catch {
             setModal({ tipo: "error", mensaje: "Error al actualizar insumo" });
-            toast.error("Algo salió mal...");
         }
     };
 
-
-    const handleDelete = async (codigo: string) => {
+    // 🗑️ Eliminar insumo con confirmación
+    const handleDelete = (codigo: string) => {
         setModal({
             tipo: "confirm",
             mensaje: "¿Seguro que deseas eliminar este insumo?",
             onConfirm: async () => {
                 try {
-                    const response = await fetch(`${URL}/eliminar/${codigo}`, {
-                        method: "DELETE",
-                    });
-                    if (!response.ok) throw new Error();
+                    const response = await fetch(`${URL}/eliminar/${codigo}`, { method: "DELETE" });
+                    if (!response.ok) await handleFetchError(response, "Error al eliminar el insumo");
 
-                    setInsumos(insumos.filter((i) => i.codigo !== codigo));
+                    setInsumos(insumos.filter(i => i.codigo !== codigo));
                     setModal(null);
-                    toast.success(`Se ha eliminado!`);
+                    toast.success("¡Se ha eliminado!");
                 } catch {
                     setModal(null);
-                    toast.error("Algo salió mal...");
+                    toast.error("No se pudo eliminar el insumo.");
                 }
             },
         });
@@ -203,16 +208,14 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
             value={{
                 insumos,
                 setInsumos,
-                modal,
-                setModal,
+                insumos_bajo_stock,
+                setInsumos_bajo_stock,
                 handleAddInsumo,
                 handleDelete,
                 handleUpdateInsumo,
                 error,
                 isLoading,
                 setIsLoading,
-                insumos_bajo_stock,
-                setInsumos_bajo_stock,
             }}
         >
             {children}
