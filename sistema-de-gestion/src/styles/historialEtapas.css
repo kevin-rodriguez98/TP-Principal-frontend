@@ -1,0 +1,71 @@
+.timeline-container {
+    margin-top: 10px;
+}
+
+.timeline {
+    list-style: none;
+    padding-left: 0;
+    position: relative;
+    margin-left: 20px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #444;
+    border-radius: 2px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Colores por estado */
+.timeline-marker.evaluacion {
+    background-color: dodgerblue;
+}
+
+.timeline-marker.en_produccion {
+    background-color: gold;
+}
+
+.timeline-marker.finalizada_entregada {
+    background-color: green;
+}
+
+.timeline-marker.cancelada {
+    background-color: red;
+}
+
+.timeline-marker.default {
+    background-color: gray;
+}
+
+.timeline-content {
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 10px 15px;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.timeline-content:hover {
+    transform: scale(1.02);
+    background-color: #292929;
+}

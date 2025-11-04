@@ -10,30 +10,31 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ tipo, mensaje, onConfirm, onClose }) => {
-
   const renderIcon = () => {
     switch (tipo) {
-      case "confirm": return <FaQuestionCircle className="modal-icon" color="#914ef0" />;
-      case "success": return <FaCheckCircle className="modal-icon" color= "#26ff00ff"/>;
-      case "error":   return <FaExclamationCircle className="modal-icon" color="#ff0000ff" />;
+      case "confirm": return <FaQuestionCircle className="modal-icon" color="#8b5cf6" />;
+      case "success": return <FaCheckCircle className="modal-icon" color="#22c55e" />;
+      case "error":   return <FaExclamationCircle className="modal-icon" color="#ef4444" />;
       default: return null;
     }
-  }
+  };
 
   return (
     <div className="modal-backdrop">
-      <div className={`modal modal-${tipo}`}>
-        <p>{renderIcon()}{mensaje}</p>
-        <div className="modal-buttons">
-          {tipo === "confirm" && (
-            <>
-              <button className="btn-confirm" onClick={onConfirm}>Sí</button>
-              <button className="btn-cancel" onClick={onClose}>No</button>
-            </>
-          )}
-          {tipo !== "confirm" && (
-            <button className="btn-close" onClick={onClose}>Cerrar</button>
-          )}
+      <div className={`modal-container modal-${tipo}`}>
+        <div className="modal-content">
+          {renderIcon()}
+          <p className="modal-message">{mensaje}</p>
+          <div className="modal-buttons">
+            {tipo === "confirm" ? (
+              <>
+                <button className="btn-confirm" onClick={onConfirm}>Sí</button>
+                <button className="btn-cancel" onClick={onClose}>No</button>
+              </>
+            ) : (
+              <button className="btn-close" onClick={onClose}>Cerrar</button>
+            )}
+          </div>
         </div>
       </div>
     </div>

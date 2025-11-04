@@ -11,13 +11,22 @@ export interface Insumo {
   cantidad: string;
 }
 
+
+interface HistorialEtapa {
+  id: number;
+  etapa: string;
+  fecha: string;
+  nota?: string;
+}
+
+
 export interface OrdenProduccion {
   codigoProducto: string;
   productoRequerido: string;
   marca: string;
   stockRequerido: number;
   fechaEntrega: string;
-  estado: "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA" | "EVALUACION";
+  estado: "EVALUACIÓN" | "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA";
   lote: string;
   envasado: string;
   presentacion: string;
@@ -25,7 +34,6 @@ export interface OrdenProduccion {
   id: number,
   stockProducidoReal: number;
   tiempoEstimado?: number;
-
 }
 
 interface OrdenContextType {
@@ -42,6 +50,12 @@ interface OrdenContextType {
   finalizarOrden: (id: number, stockProducidoReal?: number, destino?: string) => Promise<void>;
   cancelarOrden: (id: number) => Promise<void>;
 
+  notificarEtapa: (id: number, nuevaEtapa: string) => Promise<void>;
+  agregarNota: (id: number, nota: string) => Promise<void>;
+  obtenerHistorialEtapas: (id: number) => Promise<HistorialEtapa[]>
+  historial: HistorialEtapa[];
+  setHistorial: React.Dispatch<React.SetStateAction<HistorialEtapa[]>>;
+
 }
 
 export const OrdenesContext = createContext<OrdenContextType | undefined>(undefined);
@@ -55,6 +69,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [historial, setHistorial] = useState<HistorialEtapa[]>([]);
 
   useEffect(() => {
     obtenerOrdenes();
@@ -62,8 +77,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
 
 
 
-
-// ====================================================
+  // ====================================================
   // 🔧 Helper: Manejo centralizado de errores del backend
   // ====================================================
   const handleFetchError = async (response: Response, defaultMessage: string) => {
@@ -217,7 +231,82 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  
+  // ===============================
+  // 📨 Notificar nueva etapa
+  // ===============================
+  const notificarEtapa = async (id: number, nuevaEtapa: string) => {
+    try {
+      const response = await fetch(`${URL}/notificar-etapa/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevaEtapa),
+      });
+
+      if (!response.ok) {
+        await handleFetchError(response, "No se pudo notificar la nueva etapa.");
+        return;
+      }
+
+      toast.info(`Etapa actualizada a ${nuevaEtapa}`);
+      await obtenerOrdenes();
+    } catch {
+      setModal({
+        tipo: "error",
+        mensaje: "No se pudo actualizar la etapa de la orden.",
+      });
+    }
+  };
+
+  // ===============================
+  // 📝 Agregar nota a la orden
+  // ===============================
+  const agregarNota = async (id: number, nota: string) => {
+    try {
+      const response = await fetch(`${URL}/agregar-nota/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nota),
+      });
+
+      if (!response.ok) {
+        await handleFetchError(response, "No se pudo agregar la nota.");
+        return;
+      }
+
+      toast.success("Nota agregada correctamente.");
+      await obtenerOrdenes();
+    } catch {
+      setModal({
+        tipo: "error",
+        mensaje: "No se pudo agregar la nota.",
+      });
+    }
+  };
+
+  // ===============================
+  // 📜 Obtener historial de etapas
+  // ===============================
+  const obtenerHistorialEtapas = async (id: number): Promise<HistorialEtapa[]> => {
+    try {
+      const response = await fetch(`${URL}/${id}/historial-etapas`);
+      if (!response.ok) {
+        await handleFetchError(response, "No se pudo obtener el historial de etapas.");
+        return [];
+      }
+
+      const data = await response.json();
+      return data;
+    } catch {
+      // setModal({
+      //   tipo: "error",
+      //   mensaje: "Error al obtener historial de etapas.",
+      // });
+      return [];
+    }
+  };
+
+
+
 
   return (
     <OrdenesContext.Provider
@@ -233,6 +322,11 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         marcarEnProduccion,
         finalizarOrden,
         cancelarOrden,
+        notificarEtapa,
+        agregarNota,
+        obtenerHistorialEtapas,
+        historial,
+        setHistorial
 
       }}
     >

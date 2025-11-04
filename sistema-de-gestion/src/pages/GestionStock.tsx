@@ -5,7 +5,7 @@ import { ModalContext } from "../components/modal/ModalContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Modal from "../components/modal/Modal";
-import TablaInsumos from "../components/Tables/insumos/TablaInsumos";
+import TablaInsumos from "../components/Tables/insumos/Tabla";
 import "../styles/tablas.css";
 
 

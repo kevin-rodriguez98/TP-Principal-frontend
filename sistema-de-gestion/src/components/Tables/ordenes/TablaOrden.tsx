@@ -7,8 +7,9 @@ import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import SinResultados from "../../SinResultados";
+import HistorialEtapas from "./HistorialEtapas";
 
-const TablaInsumos: React.FC = () => {
+const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
     const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
@@ -34,6 +35,7 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "codigoProducto",
                 header: "Código",
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 editVariant: "select",
                 editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo })),
                 muiEditTextFieldProps: ({ row }) => ({
@@ -43,6 +45,8 @@ const TablaInsumos: React.FC = () => {
                         const producto = productos.find((p) => p.codigo === codigo);
                         row.original.codigoProducto = codigo;
                         row.original.productoRequerido = producto ? producto.nombre : "";
+                        row.original.marca = producto ? producto.marca : "";
+                        // row.original.categoria = producto ? producto.categoria : "";
                     },
                     error: !!validationErrors.codigoProducto,
                     helperText: validationErrors.codigoProducto,
@@ -56,70 +60,35 @@ const TablaInsumos: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: ({ row }) => ({
                     value: row.original.productoRequerido,
-                    required: true,
                     error: !!validationErrors.productoRequerido,
-                    helperText: validationErrors.productoRequerido,
+                    helperText: validationErrors.productoRequerido ? (
+                        <span style={{ color: "red" }}>{validationErrors.productoRequerido}</span>
+                    ) : null,
+                    onFocus: () => setValidationErrors({ ...validationErrors, productoRequerido: undefined }),
                 }),
             },
-            // {
-            //     accessorKey: "codigoProducto",
-            //     header: "Código",
-            //     editVariant: "select",
-            //     editSelectOptions: codigos.map((codigo: any) => ({
-            //         value: codigo,
-            //         label: codigo,
-            //     })),
-            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.codigoProducto,
-            //         helperText: validationErrors.codigoProducto ? (
-            //             <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
-            //         ) : null,
-            //         onFocus: () =>
-            //             setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
-            //     },
-            // },
-            // {
-            //     accessorKey: "productoRequerido",
-            //     header: "Producto",
-            //     enableEditing: (row) => row.original.productoRequerido === "",
-            //     muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-            //     muiEditTextFieldProps: {
-            //         required: true,
-            //         error: !!validationErrors.productoRequerido,
-            //         helperText: validationErrors.productoRequerido ? (
-            //             <span style={{ color: "red" }}>{validationErrors.productoRequerido}</span>
-            //         ) : null,
-            //         onFocus: () => setValidationErrors({ ...validationErrors, productoRequerido: undefined }),
-            //     },
-            // },
             {
                 accessorKey: "marca",
                 header: "Marca",
-                enableEditing: (row) => row.original.marca === "",
-                editVariant: "select",
-                editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
+                enableEditing: false, // solo lectura
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
+                muiEditTextFieldProps: ({ row }) => ({
+                    value: row.original.marca,
                     error: !!validationErrors.marca,
                     helperText: validationErrors.marca ? (
                         <span style={{ color: "red" }}>{validationErrors.marca}</span>
                     ) : null,
                     onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-                },
+                }),
             },
             {
                 accessorKey: "estado",
                 header: "Estado",
-                // enableEditing: false,
                 editVariant: "select",
-                editSelectOptions: ["EVALUACION"],
-                defaultValue: "EVALUACION",
+                editSelectOptions: ["EVALUACIÓN"],
+                defaultValue: "EVALUACIÓN",
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
-                    required: true,
                     error: !!validationErrors.estado,
                     helperText: validationErrors.estado ? (
                         <span style={{ color: "red" }}>{validationErrors.estado}</span>
@@ -135,10 +104,9 @@ const TablaInsumos: React.FC = () => {
                                 ? "gold"
                                 : estado === "FINALIZADA_ENTREGADA"
                                     ? "green"
-                                    : estado === "EVALUACION"
+                                    : estado === "EVALUACIÓN"
                                         ? "dodgerblue"
                                         : "gray";
-
                     return (
                         <span
                             style={{
@@ -208,8 +176,9 @@ const TablaInsumos: React.FC = () => {
 
         if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
         if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
-        if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
-        if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
+        // if (!orden.productoRequerido?.trim()) errores.productoRequerido = "El lote es requerido";
+        // if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
+        // if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
         if (!orden.stockRequerido && orden.stockRequerido !== 0)
             errores.stockRequerido = "El stock planeado es requerido";
         if (!orden.fechaEntrega?.trim())
@@ -218,13 +187,20 @@ const TablaInsumos: React.FC = () => {
     };
 
     const handleCrearOrden: MRT_TableOptions<OrdenProduccion>["onCreatingRowSave"] = async ({ values, table }) => {
+        setValidationErrors({});
         const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
+        // 🔹 Forzar valor por defecto
+        const nuevaOrden = {
+            ...values,
+            estado: values.estado ?? "EVALUACIÓN",
+        };
+
         setValidationErrors({});
-        await handleAddOrden(values);
+        await handleAddOrden(nuevaOrden);
         table.setCreatingRow(null);
     };
 
@@ -285,44 +261,64 @@ const TablaInsumos: React.FC = () => {
             <Box
                 sx={{
                     display: "flex",
-                    // gridTemplateColumns: "repeat(6, 1fr)",
-                    // 
-                    gap: 10,
-                    padding: 2,
+                    flexDirection: "column",
+                    gap: 3,
+                    p: 2,
                     backgroundColor: "#2b2b2bff",
                     borderRadius: "10px",
                     color: "#fff",
                 }}
             >
+                <Box sx={{ display: "flex", gap: 6 }}>
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Cant. Planeada
+                        </Typography>
+                        <Typography>{row.original.stockRequerido}</Typography>
+                    </Box>
 
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Cant. Planeada
-                    </Typography>
-                    <Typography>{row.original.stockRequerido}</Typography>
-                </Box>
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Fecha Entrega
+                        </Typography>
+                        <Typography>{row.original.fechaEntrega}</Typography>
+                    </Box>
 
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Fecha Entrega
-                    </Typography>
-                    <Typography>{row.original.fechaEntrega}</Typography>
-                </Box>
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Lote
-                    </Typography>
-                    <Typography>{row.original.lote}</Typography>
-                </Box>
-                <Box>
-                    <Typography variant="subtitle2" color="primary">
-                        Tiempo estimado de Producción
-                    </Typography>
-                    <Typography>{row.original.tiempoEstimado}</Typography>
-                </Box>
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Lote
+                        </Typography>
+                        <Typography>{row.original.lote}</Typography>
+                    </Box>
 
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Tiempo estimado de Producción
+                        </Typography>
+
+                        {row.original.tiempoEstimado ? (
+                            <Typography>{row.original.tiempoEstimado}</Typography>
+                        ) : (
+                            <IconButton title="Calcular tiempo"
+                                color="info"
+                                onClick={async () => {
+                                    await calcularTiempoEstimado(
+                                        row.original.codigoProducto,
+                                        row.original.stockRequerido
+                                    );
+                                }}
+                            >
+                                ⏱️
+                            </IconButton>
+                        )}
+                    </Box>
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                    <HistorialEtapas ordenId={row.original.id} />
+                </Box>
             </Box>
         ),
+
 
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
@@ -383,7 +379,7 @@ const TablaInsumos: React.FC = () => {
             const enProduccion = estado === "EN_PRODUCCION";
             const finalizada = estado === "FINALIZADA_ENTREGADA";
             const cancelada = estado === "CANCELADA";
-            const evaluacion = estado === "EVALUACION";
+            const evaluacion = estado === "EVALUACIÓN";
 
             return (
                 <Box sx={{ display: "flex", gap: "0.5rem" }}>
@@ -427,7 +423,6 @@ const TablaInsumos: React.FC = () => {
                         <IconButton
                             color="info"
                             onClick={async () => {
-                                await calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido);
                                 row.toggleExpanded();
                             }}
                         >
@@ -513,6 +508,6 @@ const TablaInsumos: React.FC = () => {
     );
 };
 
-export default TablaInsumos;
+export default TablaOrden;
 
 

@@ -1,4 +1,4 @@
-.modal-backdrop {
+/* .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -63,4 +63,123 @@
 
 .modal-icon {
   font-size: 1.5rem;
+} */
+
+
+
+/* Fondo del modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Contenedor principal */
+.modal-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: scale(0.9);
+  animation: popUp 0.25s ease-out forwards;
+}
+
+/* Ícono */
+.modal-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  animation: bounceIcon 0.5s ease;
+}
+
+/* Texto */
+.modal-message {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+/* Botones */
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Botón base */
+.modal-buttons button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Colores de botones */
+.btn-confirm {
+  background-color: #8b5cf6;
+  color: white;
+}
+.btn-confirm:hover {
+  background-color: #7c3aed;
+}
+
+.btn-cancel {
+  background-color: #e5e7eb;
+  color: #333;
+}
+.btn-cancel:hover {
+  background-color: #d1d5db;
+}
+
+.btn-close {
+  background-color: #111827;
+  color: white;
+}
+.btn-close:hover {
+  background-color: #000000;
+}
+
+/* Diferente borde según tipo */
+.modal-success {
+  border-top: 6px solid #22c55e;
+}
+.modal-error {
+  border-top: 6px solid #ef4444;
+}
+.modal-confirm {
+  border-top: 6px solid #8b5cf6;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIcon {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
