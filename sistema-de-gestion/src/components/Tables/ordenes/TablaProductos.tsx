@@ -297,28 +297,6 @@ const TablaProductos: React.FC = () => {
         }}
       >
         <Button
-          onClick={() => navigate("/")}
-          className="btn-volver"
-          variant="contained"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "#2b2b2b",
-            color: "#fff",
-            borderRadius: "30px",
-            padding: "8px 16px",
-            textTransform: "none",
-            fontWeight: "bold",
-            "&:hover": {
-              backgroundColor: "#444",
-              transform: "scale(1.05)",
-            },
-          }}
-        >
-          <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-        </Button>
-        <Button
           variant="contained"
           onClick={() => table.setCreatingRow(true)}
           className="boton-agregar-insumo"

@@ -1,16 +1,13 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
-import { Box, Button, CircularProgress, Typography, } from "@mui/material";
+import { Box, CircularProgress, Typography, } from "@mui/material";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../SinResultados";
-import { useNavigate } from "react-router-dom";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
 
 const InsumosBajoStock: React.FC = () => {
     const { insumos_bajo_stock, isLoading, error } = useContext(InsumoContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const navigate = useNavigate();
 
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
         () => [
@@ -191,28 +188,6 @@ const InsumosBajoStock: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    onClick={() => navigate("/")}
-                    className="btn-volver"
-                    variant="contained"
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        backgroundColor: "#2b2b2b",
-                        color: "#fff",
-                        borderRadius: "30px",
-                        padding: "8px 16px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        "&:hover": {
-                            backgroundColor: "#444",
-                            transform: "scale(1.05)",
-                        },
-                    }}
-                >
-                    <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-                </Button>
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
                     <Typography variant="h5" color="primary" className="titulo-lista-insumos">
                         Insumos con bajo stock

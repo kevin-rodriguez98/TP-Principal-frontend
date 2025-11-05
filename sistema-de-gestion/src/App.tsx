@@ -1,12 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
 import Menu from './pages/Menu'
-import GestionStock from './pages/GestionStock.tsx';
-import Registro from "./pages/Registro.tsx";
-import OrdenProduccionPage from './pages/Ordenes.tsx';
-
 import './app.css';
-import ProduccionPage from './pages/Productos.tsx';
 import FaceLogin from './login/FaceLogin.tsx';
+import PanelGeneral from './components/PanelGeneral.tsx';
+import { useContext } from 'react';
+import { ModalContext } from './components/modal/ModalContext.tsx';
+import Modal from './components/modal/Modal.tsx';
 
 // URL´s LOCALES
 
@@ -30,17 +29,24 @@ export const URL_estimacion = "https://tp-principal-backend.onrender.com/tiempo-
 export const URL_recetas = "https://tp-principal-backend.onrender.com/recetas";
 
 function App() {
-
+  const { modal, setModal } = useContext(ModalContext)!;
   return (
     <>
       <Routes>
         <Route path="/" element={<Menu />} />
-        <Route path="/gestion-stock" element={<GestionStock />} />
-        <Route path="/registro" element={<Registro />} />
-        <Route path="/ordenes" element={<OrdenProduccionPage />} />
-        <Route path="/produccion" element={<ProduccionPage />} />
         <Route path="/login" element={<FaceLogin />} />
+        <Route path="/PanelGestion/:id" element={<PanelGeneral />} />
       </Routes>
+
+
+      {modal && (
+        <Modal
+          tipo={modal.tipo}
+          mensaje={modal.mensaje}
+          onConfirm={modal.onConfirm}
+          onClose={() => setModal(null)}
+        />
+      )}
     </>
   )
 }

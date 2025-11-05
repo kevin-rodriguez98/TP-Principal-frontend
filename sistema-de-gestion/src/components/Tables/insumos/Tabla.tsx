@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
 import InsumosBajoStock from "./InsumosBajoStock";
 import ListaInsumos from "./ListaInsumos";
+import "../../../styles/tablas.css";
 
 const Tabla: React.FC = () => {
     const [tabActiva, setTabActiva] = useState(0);

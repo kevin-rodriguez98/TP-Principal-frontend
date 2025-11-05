@@ -30,8 +30,8 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Gestión de Stock",
             icon: './stock.png',
             acciones: [
-                { label: "Gestionar insumos", onClick: () => navigate("/gestion-stock") },
-                { label: "Gestionar registros", onClick: () => navigate("/registro") }
+                { label: "Gestionar insumos", onClick: () => navigate("/PanelGestion/0") },
+                { label: "Gestionar registros", onClick: () => navigate("/PanelGestion/1") }
             ]
         },
 
@@ -39,20 +39,11 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Gestión de Producción",
             icon: './produccion.png',
             acciones: [
-                { label: "Gestionar Ordenes", onClick: () => navigate("/ordenes") },
-                { label: "Gestionar Productos", onClick: () => navigate("/produccion") },
+                { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
+                { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
 
             ]
         },
-
-        // {
-        //     label: "Seguimiento de Producción",
-        //     icon: './seguimiento.png',
-        //     acciones: [
-        //         { label: "", onClick: () => navigate("/") },
-        //         { label: "", onClick: () => navigate("/") }
-        //     ]
-        // },
 
         {
             label: "Trazabilidad de Producción",

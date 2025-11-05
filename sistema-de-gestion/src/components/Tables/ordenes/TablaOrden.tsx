@@ -376,7 +376,7 @@ const TablaOrden: React.FC = () => {
 
         renderRowActions: ({ row }) => {
             const estado = row.original.estado; // suponiendo que la orden tiene un campo 'estado'
-            const enProduccion = estado === "EN_PRODUCCION";
+            const enProduccion = estado === "EN_PRODUCCION"
             const finalizada = estado === "FINALIZADA_ENTREGADA";
             const cancelada = estado === "CANCELADA";
             const evaluacion = estado === "EVALUACIÓN";
@@ -443,28 +443,6 @@ const TablaOrden: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    onClick={() => navigate("/")}
-                    className="btn-volver"
-                    variant="contained"
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        backgroundColor: "#2b2b2b",
-                        color: "#fff",
-                        borderRadius: "30px",
-                        padding: "8px 16px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        "&:hover": {
-                            backgroundColor: "#444",
-                            transform: "scale(1.05)",
-                        },
-                    }}
-                >
-                    <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-                </Button>
                 <Button
                     variant="contained"
                     onClick={() => table.setCreatingRow(true)}

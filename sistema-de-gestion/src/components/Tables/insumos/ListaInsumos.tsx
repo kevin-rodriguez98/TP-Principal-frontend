@@ -6,13 +6,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../SinResultados";
-import { useNavigate } from "react-router-dom";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
+
 
 const TablaInsumos: React.FC = () => {
     const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error } = useContext(InsumoContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const navigate = useNavigate();
 
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
         () => [
@@ -323,28 +321,6 @@ const TablaInsumos: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    onClick={() => navigate("/")}
-                    className="btn-volver"
-                    variant="contained"
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        backgroundColor: "#2b2b2b",
-                        color: "#fff",
-                        borderRadius: "30px",
-                        padding: "8px 16px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        "&:hover": {
-                            backgroundColor: "#444",
-                            transform: "scale(1.05)",
-                        },
-                    }}
-                >
-                    <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-                </Button>
                 <Button
                     variant="contained"
                     onClick={() => table.setCreatingRow(true)}

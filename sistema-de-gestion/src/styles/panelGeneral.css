@@ -1,0 +1,11 @@
+.panel-general {
+    padding: 1rem;
+    margin: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .panel-general {
+        padding: 0.25rem;
+        margin: 0;
+    }
+}

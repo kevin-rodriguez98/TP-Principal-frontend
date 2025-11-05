@@ -3,15 +3,11 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
 import SinResultados from "../../SinResultados";
-import { useNavigate } from "react-router-dom";
-// import { DeleteIcon, EditIcon } from "lucide-react";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
 
 
 const TablaProductosEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const navigate = useNavigate();
 
     const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
         () => [
@@ -233,28 +229,6 @@ const TablaProductosEgreso: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    onClick={() => navigate("/")}
-                    className="btn-volver"
-                    variant="contained"
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        backgroundColor: "#2b2b2b",
-                        color: "#fff",
-                        borderRadius: "30px",
-                        padding: "8px 16px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        "&:hover": {
-                            backgroundColor: "#444",
-                            transform: "scale(1.05)",
-                        },
-                    }}
-                >
-                    <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-                </Button>
                 <Button
                     variant="contained"
                     onClick={() => table.setCreatingRow(true)}

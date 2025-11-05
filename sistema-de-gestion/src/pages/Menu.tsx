@@ -3,6 +3,8 @@ import HomeOperaciones from '../components/HomeOperaciones.tsx'
 import Footer from '../components/Footer.tsx'
 import "../styles/Menu.css";
 
+
+
 const Menu = () => {
     return (
         <div className='menu-container '>

@@ -1,56 +1,13 @@
 import React, { useMemo, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { Movimiento_insumo_context, type movimiento_insumo } from "../../../Context/Movimiento_insumo_context";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
-// import { DeleteIcon, EditIcon } from "lucide-react";
 import SinResultados from "../../SinResultados";
 
 export const TablaInsumos: React.FC = () => {
     const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
-    const navigate = useNavigate();
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
-
-    // const data: movimiento_insumo[] = useMemo(
-    //     () => [
-    //         {
-    //             codigo: "P001",
-    //             nombre: "Yogur Natural",
-    //             tipo: "INGRESO",
-    //             categoria: "Lácteos",
-    //             marca: "La Serenísima",
-    //             stock: 120,
-    //             unidad: "unidad",
-    //             lote: "L001",
-    //             proveedor: "Sucursal Centro",
-    //         },
-    //         {
-    //             codigo: "P002",
-    //             nombre: "Queso Cremoso",
-    //             tipo: "INGRESO",
-    //             categoria: "Quesos",
-    //             marca: "Milkaut",
-    //             stock: 80,
-    //             unidad: "kilogramos",
-    //             lote: "L002",
-    //             proveedor: "Sucursal Norte",
-    //         },
-    //         {
-    //             codigo: "P003",
-    //             nombre: "Postre de Vainilla",
-    //             tipo: "INGRESO",
-    //             categoria: "Postres",
-    //             marca: "Yogurísimo",
-    //             stock: 50,
-    //             unidad: "unidad",
-    //             lote: "L003",
-    //             proveedor: "Sucursal Sur",
-    //         },
-    //     ],
-    //     []
-    // );
 
     const columns = useMemo<MRT_ColumnDef<movimiento_insumo>[]>(
         () => [
@@ -369,28 +326,6 @@ export const TablaInsumos: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    onClick={() => navigate("/")}
-                    className="btn-volver"
-                    variant="contained"
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        backgroundColor: "#2b2b2b",
-                        color: "#fff",
-                        borderRadius: "30px",
-                        padding: "8px 16px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        "&:hover": {
-                            backgroundColor: "#444",
-                            transform: "scale(1.05)",
-                        },
-                    }}
-                >
-                    <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
-                </Button>
                 <Button
                     variant="contained"
                     onClick={() => table.setCreatingRow(true)}
