@@ -1,18 +1,16 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_EditActionButtons, type MRT_Row, } from "material-react-table";
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography } from "@mui/material";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
-import { RecetaContext } from "../../../Context/RecetaContext";
+import { RecetaContext, type Receta } from "../../../Context/RecetaContext";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { InsumoContext } from "../../../Context/InsumoContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SinResultados from "../../SinResultados";
+import SinResultados from "../../estaticos/SinResultados";
 
 const TablaProductos: React.FC = () => {
-  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto } = useContext(ProductosContext)!;
+  const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
   const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
   const { insumos } = useContext(InsumoContext)!;
   const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
@@ -20,20 +18,21 @@ const TablaProductos: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [codigoProducto, setCodigoProducto] = useState("");
-  const [nuevoInsumo, setNuevoInsumo] = useState({
+  const [nuevoInsumo, setNuevoInsumo] = useState<Receta>({
     codigoInsumo: "",
     nombreInsumo: "",
     stockNecesarioInsumo: 1,
+    unidad: ""
   });
 
-  const navigate = useNavigate();
+
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
     () => [
       {
         accessorKey: "codigo",
         header: "Código",
-        enableEditing: (row) => row.original.codigo === "",
+        enableEditing: false,
         muiTableHeadCellProps: {
           style: { color: "#15a017ff" },
         },
@@ -130,7 +129,6 @@ const TablaProductos: React.FC = () => {
 
   const validarProducto = (producto: Partial<Producto>) => {
     const errores: Record<string, string> = {};
-    if (!producto.codigo?.trim()) errores.codigo = "Código requerido";
     if (!producto.nombre?.trim()) errores.nombre = "Nombre requerido";
     if (!producto.categoria?.trim()) errores.categoria = "Categoría requerida";
     if (!producto.marca?.trim()) errores.marca = "Marca requerida";
@@ -144,8 +142,17 @@ const TablaProductos: React.FC = () => {
       setValidationErrors(errores);
       return;
     }
+
     setValidationErrors({});
-    await handleAddProducto(values);
+    // await handleAddProducto(values);
+
+    const codigo = values.codigo && values.codigo.trim() !== ""
+      ? values.codigo
+      : obtenerSiguienteCodigo();
+
+    const nuevoProducto: Producto = { ...values, codigo };
+    await handleAddProducto(nuevoProducto);
+
     table.setCreatingRow(null);
   };
 
@@ -164,9 +171,6 @@ const TablaProductos: React.FC = () => {
     handleDeleteProducto(row.original.codigo);
   };
 
-  const handleTiempoProduccion = (row: MRT_Row<Producto>) => {
-    obtenerTiempoProduccionUnitario(row.original.codigo);
-  }
 
   const table = useMaterialReactTable({
     columns,
@@ -224,7 +228,7 @@ const TablaProductos: React.FC = () => {
             color="success"
             onClick={async () => {
               await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
-              await handleTiempoProduccion(row);
+              await obtenerTiempoProduccionUnitario(row.original.codigo);
               setProductoSeleccionado(row.original.codigo);
               row.toggleExpanded();
             }}
@@ -234,29 +238,37 @@ const TablaProductos: React.FC = () => {
         </Tooltip>
       </Box>
     ),
-    renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
-      <>
-        <DialogTitle
-          variant="h5"
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-        >
-          Nuevo Producto
-        </DialogTitle>
-        <DialogContent
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 2,
-            padding: 2,
-          }}
-        >
-          {internalEditComponents}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-          <MRT_EditActionButtons table={table} row={row} color="primary" />
-        </DialogActions>
-      </>
-    ),
+
+    renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => {
+      const siguienteCodigo = obtenerSiguienteCodigo();
+      row._valuesCache.codigo = siguienteCodigo;
+
+      return (
+        <>
+          <DialogTitle
+            variant="h5"
+            sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+          >
+            Nuevo Producto
+          </DialogTitle>
+
+          <DialogContent
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 2,
+              padding: 2,
+            }}
+          >
+            {internalEditComponents}
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+            <MRT_EditActionButtons table={table} row={row} color="primary" />
+          </DialogActions>
+        </>
+      );
+    },
+
     renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
         <DialogTitle
@@ -301,7 +313,7 @@ const TablaProductos: React.FC = () => {
           onClick={() => table.setCreatingRow(true)}
           className="boton-agregar-insumo"
         >
-          <span className="texto-boton">Nueva Producto</span>
+          <span className="texto-boton">Nuevo Producto</span>
           <span className="icono-boton">➕</span>
         </Button>
         <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
@@ -342,7 +354,7 @@ const TablaProductos: React.FC = () => {
               {recetas.map((insumo) => (
                 <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
                   <Typography variant="body2">
-                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria}
+                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.stockNecesarioInsumo/* +" " +{insumo.unidad}*/}
                   </Typography>
                 </li>
 
@@ -358,7 +370,7 @@ const TablaProductos: React.FC = () => {
               color="secondary"
               onClick={() => {
                 setCodigoProducto(row.original.codigo);
-                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", stockNecesarioInsumo: 1 });
+                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", stockNecesarioInsumo: 1, unidad: "gr." });
                 setOpenModalReceta(true);
               }}
             >
@@ -368,6 +380,7 @@ const TablaProductos: React.FC = () => {
           <Tooltip title="Agregar tiempo de producción">
             <IconButton
               color="secondary"
+              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario > 0}
               onClick={() => {
                 const tiempo = prompt("Ingrese el tiempo de producción (en minutos):");
                 if (tiempo) {
@@ -378,6 +391,7 @@ const TablaProductos: React.FC = () => {
               ⏱️
             </IconButton>
           </Tooltip>
+
 
         </Box>
       );
@@ -419,7 +433,7 @@ const TablaProductos: React.FC = () => {
 
           <TextField
             select
-            label="Código del Insumo"
+            // label="Código del Insumo"
             value={nuevoInsumo.codigoInsumo}
             onChange={(e) => {
               const codigo = e.target.value;
@@ -436,17 +450,10 @@ const TablaProductos: React.FC = () => {
             <option value="">Seleccione un insumo</option>
             {insumos.map((i) => (
               <option key={i.codigo} value={i.codigo}>
-                {i.codigo}
+                {i.codigo + " - " + i.nombre}
               </option>
             ))}
           </TextField>
-
-          <TextField
-            label="Nombre del Insumo"
-            value={nuevoInsumo.nombreInsumo}
-            disabled
-            fullWidth
-          />
 
           <TextField
             label="Cantidad Necesaria"
@@ -460,6 +467,18 @@ const TablaProductos: React.FC = () => {
             }
             fullWidth
           />
+          <TextField
+            label="Unidad"
+            type="text"
+            value={nuevoInsumo.unidad}
+            onChange={(e) =>
+              setNuevoInsumo({
+                ...nuevoInsumo,
+                unidad: e.target.value,
+              })
+            }
+            fullWidth
+          />
         </DialogContent>
 
         <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
@@ -467,11 +486,7 @@ const TablaProductos: React.FC = () => {
             variant="contained"
             color="primary"
             onClick={async () => {
-              await agregarInsumoAReceta(
-                codigoProducto,
-                nuevoInsumo.codigoInsumo,
-                nuevoInsumo.stockNecesarioInsumo
-              );
+              await agregarInsumoAReceta(codigoProducto, nuevoInsumo);
               setOpenModalReceta(false);
             }}
           >

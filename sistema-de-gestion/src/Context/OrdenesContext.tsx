@@ -70,9 +70,12 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<HistorialEtapa[]>([]);
+  let count = 0;
 
   useEffect(() => {
     obtenerOrdenes();
+    count++;
+    console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
   }, []);
 
 
@@ -304,8 +307,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       return [];
     }
   };
-
-
 
 
   return (

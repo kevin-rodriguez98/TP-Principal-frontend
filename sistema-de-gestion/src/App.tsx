@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Menu from './pages/Menu'
 import './app.css';
 import FaceLogin from './login/FaceLogin.tsx';
-import PanelGeneral from './components/PanelGeneral.tsx';
+import PanelGeneral from './components/Tables/PanelGeneral.tsx'
 import { useContext } from 'react';
 import { ModalContext } from './components/modal/ModalContext.tsx';
 import Modal from './components/modal/Modal.tsx';

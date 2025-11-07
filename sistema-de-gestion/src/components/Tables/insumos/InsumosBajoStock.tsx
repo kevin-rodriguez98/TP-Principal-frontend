@@ -1,13 +1,12 @@
-import React, { useMemo, useState, useContext } from "react";
+import React, { useMemo, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
 import { Box, CircularProgress, Typography, } from "@mui/material";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
-import SinResultados from "../../SinResultados";
+import SinResultados from "../../estaticos/SinResultados";
 
 const InsumosBajoStock: React.FC = () => {
     const { insumos_bajo_stock, isLoading, error } = useContext(InsumoContext)!;
-    const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
         () => [
@@ -15,76 +14,27 @@ const InsumosBajoStock: React.FC = () => {
                 accessorKey: "codigo",
                 header: "Código",
                 size: 90,
-                enableEditing: (row) => row.original.codigo === "",
-                muiTableHeadCellProps: {
-                    style: { color: "#15a017ff" },
-                },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.codigo,
-                    helperText: validationErrors.codigo ? (
-                        <span style={{ color: "red" }}>{validationErrors.codigo}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, codigo: undefined }),
-                },
+                muiTableHeadCellProps: {style: { color: "#15a017ff" } },
             },
             {
                 accessorKey: "nombre",
                 header: "Nombre",
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.nombre,
-                    helperText: validationErrors.nombre ? (
-                        <span style={{ color: "red" }}>{validationErrors.nombre}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
-                },
             },
             {
                 accessorKey: "categoria",
                 header: "Categoría",
-                editVariant: "select",
-                editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.categoria,
-                    helperText: validationErrors.categoria ? (
-                        <span style={{ color: "red" }}>{validationErrors.categoria}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
-                },
             },
             {
                 accessorKey: "marca",
                 header: "Marca",
-                editVariant: "select",
-                editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.marca,
-                    helperText: validationErrors.marca ? (
-                        <span style={{ color: "red" }}>{validationErrors.marca}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-                },
             },
             {
                 accessorKey: "unidad",
                 header: "Unidad",
-                editVariant: "select",
-                editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.unidad,
-                    helperText: validationErrors.unidad ? (
-                        <span style={{ color: "red" }}>{validationErrors.unidad}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-                },
             },
             {
                 accessorKey: "stock",
@@ -92,13 +42,6 @@ const InsumosBajoStock: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     type: "number",
-                    inputProps: { min: 0 },
-                    required: true,
-                    error: !!validationErrors.stock,
-                    helperText: validationErrors.stock ? (
-                        <span style={{ color: "red" }}>{validationErrors.stock}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
                 },
                 Cell: ({ row }) => {
                     const stock = row.original.stock;
@@ -120,20 +63,10 @@ const InsumosBajoStock: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: {
                     type: "number",
-                    required: true,
-                    error: !!validationErrors.umbralMinimoStock,
-                    helperText: validationErrors.umbralMinimoStock ? (
-                        <span style={{ color: "red" }}>{validationErrors.umbralMinimoStock}</span>
-                    ) : null,
-                    onFocus: () =>
-                        setValidationErrors({
-                            ...validationErrors,
-                            umbralMinimoStock: undefined,
-                        }),
                 },
             },
         ],
-        [validationErrors]
+        []
     );
 
 
@@ -178,7 +111,7 @@ const InsumosBajoStock: React.FC = () => {
 
         getRowId: (row) => row.codigo,
 
-        renderTopToolbarCustomActions: ({}) => (
+        renderTopToolbarCustomActions: ({ }) => (
             <Box
                 sx={{
                     display: 'flex',

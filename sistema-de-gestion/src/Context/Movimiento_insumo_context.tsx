@@ -4,10 +4,13 @@ import { URL_ingresos as URL } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
 
 export interface movimiento_insumo {
-    codigo: string;
+    codigoInsumo: string;
+
     nombre: string;
     categoria: string;
     marca: string;
+
+
     tipo: string;
     unidad: string;
     stock: number;
@@ -75,10 +78,6 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
     };
 
     const handleAdd_Movimiento_insumo = async (mov: movimiento_insumo) => {
-        if (movimiento_insumos.some(i => i.codigo === mov.codigo)) {
-            setModal({ tipo: "error", mensaje: "Ya existe un registro de insumo con ese código" });
-            return;
-        }
 
         setIsLoading(true);
         try {
@@ -109,7 +108,7 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
                 handleAdd_Movimiento_insumo,
                 error,
                 isLoading,
-                setIsLoading
+                setIsLoading,
             }}
         >
             {children}

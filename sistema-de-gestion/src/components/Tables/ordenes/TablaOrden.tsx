@@ -2,11 +2,9 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
-import { useNavigate } from "react-router-dom";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
-import SinResultados from "../../SinResultados";
+import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 
 const TablaOrden: React.FC = () => {
@@ -14,7 +12,6 @@ const TablaOrden: React.FC = () => {
     const { productos } = useContext(ProductosContext)!;
     const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const navigate = useNavigate();
 
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
@@ -24,20 +21,13 @@ const TablaOrden: React.FC = () => {
                 header: "ID",
                 enableEditing: false,
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    error: !!validationErrors.id,
-                    helperText: validationErrors.id ? (
-                        <span style={{ color: "red" }}>{validationErrors.id}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, id: undefined }),
-                },
             },
             {
                 accessorKey: "codigoProducto",
-                header: "Código",
+                header: "Codigo producto",
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 editVariant: "select",
-                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo })),
+                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo + " - " + p.nombre })),
                 muiEditTextFieldProps: ({ row }) => ({
                     required: true,
                     onChange: (e) => {
@@ -60,13 +50,27 @@ const TablaOrden: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: ({ row }) => ({
                     value: row.original.productoRequerido,
-                    error: !!validationErrors.productoRequerido,
-                    helperText: validationErrors.productoRequerido ? (
-                        <span style={{ color: "red" }}>{validationErrors.productoRequerido}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, productoRequerido: undefined }),
                 }),
             },
+            {
+                accessorKey: "etapa",
+                header: "Etapa",
+                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                editVariant: "select",
+                editSelectOptions: ["ETAPA1", "ETAPA2", "ETAPA3", "ETAPA4", "ETAPA5", "ETAPA6"],
+                muiEditTextFieldProps: ({ row }) => ({
+                    required: true,
+                    onChange: (e) => {
+                        const codigo = e.target.value;
+                        const producto = productos.find((p) => p.codigo === codigo);
+                        row.original.codigoProducto = codigo;
+                        row.original.productoRequerido = producto ? producto.nombre : "";
+                        row.original.marca = producto ? producto.marca : "";
+                        // row.original.categoria = producto ? producto.categoria : "";
+                    },
+                }),
+            },
+
             {
                 accessorKey: "marca",
                 header: "Marca",
@@ -74,11 +78,6 @@ const TablaOrden: React.FC = () => {
                 muiTableHeadCellProps: { style: { color: "#15a017ff" } },
                 muiEditTextFieldProps: ({ row }) => ({
                     value: row.original.marca,
-                    error: !!validationErrors.marca,
-                    helperText: validationErrors.marca ? (
-                        <span style={{ color: "red" }}>{validationErrors.marca}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
                 }),
             },
             {
@@ -175,10 +174,8 @@ const TablaOrden: React.FC = () => {
         const errores: Record<string, string> = {};
 
         if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
+        if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
         if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
-        // if (!orden.productoRequerido?.trim()) errores.productoRequerido = "El lote es requerido";
-        // if (!orden.marca?.trim()) errores.marca = "La marca es requerida";
-        // if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
         if (!orden.stockRequerido && orden.stockRequerido !== 0)
             errores.stockRequerido = "El stock planeado es requerido";
         if (!orden.fechaEntrega?.trim())

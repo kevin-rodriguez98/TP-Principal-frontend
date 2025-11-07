@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import '../styles/Operacion.css'
+import '../../styles/Operacion.css'
 import { AnimatePresence, motion } from 'framer-motion';
-import { type Modulo } from '../Context/OpContext';
+import { type Modulo } from '../../Context/OpContext';
 
 
 const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {

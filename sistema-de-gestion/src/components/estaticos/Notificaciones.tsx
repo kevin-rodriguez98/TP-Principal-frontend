@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import { PanelContext } from "../Context/PanelContext";
+import { PanelContext } from "../../Context/PanelContext";
 import { Bell } from "lucide-react";
-import '../styles/notificacion.css';
+import '../../styles/notificacion.css';
 
 const Notificaciones: React.FC = () => {
     const { notify, is_slide_open, togglePanel, notisNoLeidas } = useContext(PanelContext)!;

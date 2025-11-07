@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { OpContext } from '../Context/OpContext';
-import Operacion from './Operacion.tsx'
-import '../styles/Main.css'
+import { OpContext } from '../../Context/OpContext';
+import Operacion from './Operacion'
+import '../../styles/Main.css'
 
 
 const HomeOperaciones = () => {

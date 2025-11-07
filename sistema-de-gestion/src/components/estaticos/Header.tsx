@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Nav.css';
+import '../../styles/Nav.css';
 import Notificaciones from './Notificaciones';
 import { Login as LoginIcon } from "@mui/icons-material";
 

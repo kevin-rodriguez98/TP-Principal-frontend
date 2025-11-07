@@ -1,5 +1,5 @@
 import { BiSad } from "react-icons/bi";
-import "../styles/SinResultados.css";
+import "../../styles/SinResultados.css";
 
 
 interface SinResultadosProps {

@@ -9,7 +9,6 @@ export interface Insumo {
     categoria: string;
     marca: string;
     unidad: string;
-    lote: string;
     stock: number;
     umbralMinimoStock: number;
 }
@@ -19,9 +18,12 @@ interface InsumoContextType {
     setInsumos: React.Dispatch<React.SetStateAction<Insumo[]>>;
     insumos_bajo_stock: Insumo[];
     setInsumos_bajo_stock: React.Dispatch<React.SetStateAction<Insumo[]>>;
+
     handleAddInsumo: (insumo: Insumo) => void;
     handleDelete: (codigo: string) => void;
     handleUpdateInsumo: (insumo: Insumo) => void;
+    obtenerSiguienteCodigo: () => void;
+
     error: string | null;
     isLoading: boolean;
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -204,6 +206,26 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         });
     };
 
+    // const obtenerSiguienteCodigo = () => {
+    //     if (insumos.length === 0) return "I001"; // si no hay ninguno
+
+    //     // Tomar el último código
+    //     const ultimoCodigo = insumos[insumos.length - 1].codigo; // ejemplo: I003
+    //     const numero = parseInt(ultimoCodigo.slice(1)); // toma el número: 3
+    //     const siguiente = numero + 1;
+
+    //     // Devuelve con formato I004
+    //     return `I${siguiente.toString().padStart(3, "0")}`;
+    // };
+    const obtenerSiguienteCodigo = () => {
+        if (insumos.length === 0) return "I001";
+        const ultimo = insumos[insumos.length - 1].codigo;
+        const numero = parseInt(ultimo.replace(/\D/g, "")); // toma solo los números
+        console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
+        return `I${(numero + 1).toString().padStart(3, "0")}`;
+    };
+
+
     return (
         <InsumoContext.Provider
             value={{
@@ -214,6 +236,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
                 handleAddInsumo,
                 handleDelete,
                 handleUpdateInsumo,
+                obtenerSiguienteCodigo,
                 error,
                 isLoading,
                 setIsLoading,

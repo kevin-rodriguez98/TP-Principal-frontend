@@ -1,6 +1,6 @@
-import Header from '../components/Header.tsx'
-import HomeOperaciones from '../components/HomeOperaciones.tsx'
-import Footer from '../components/Footer.tsx'
+import Header from '../components/estaticos/Header.tsx'
+import HomeOperaciones from '../components/estaticos/HomeOperaciones.tsx'
+import Footer from '../components/estaticos/Footer.tsx'
 import "../styles/Menu.css";
 
 

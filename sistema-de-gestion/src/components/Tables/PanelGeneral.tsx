@@ -5,10 +5,10 @@ import { darkScrollbar } from "@mui/material";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
-import Tabla from "./Tables/insumos/Tabla";
-import TablaOrden from "./Tables/ordenes/TablaOrden";
-import TablaProductos from "./Tables/ordenes/TablaProductos";
-import TablaRegistro from "./Tables/registros/TablaRegistro";
+import Tabla from "./insumos/Tabla";
+import TablaOrden from "./ordenes/TablaOrden";
+import TablaProductos from "./ordenes/TablaProductos";
+import TablaRegistro from "./registros/TablaRegistro";
 
 
 const TabPanel = ({ children, value, index }: any) => {

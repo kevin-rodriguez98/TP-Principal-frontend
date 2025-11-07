@@ -5,11 +5,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
-import SinResultados from "../../SinResultados";
+import SinResultados from "../../estaticos/SinResultados";
 
 
 const TablaInsumos: React.FC = () => {
-    const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error } = useContext(InsumoContext)!;
+    const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error, obtenerSiguienteCodigo } = useContext(InsumoContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
@@ -18,7 +18,7 @@ const TablaInsumos: React.FC = () => {
                 accessorKey: "codigo",
                 header: "Código",
                 size: 90,
-                enableEditing: (row) => row.original.codigo === "",
+                enableEditing: false,
                 muiTableHeadCellProps: {
                     style: { color: "#15a017ff" },
                 },
@@ -139,12 +139,8 @@ const TablaInsumos: React.FC = () => {
         [validationErrors]
     );
 
-    const validarCamposInsumo = (insumo: Partial<Insumo>, esEdicion: boolean = false) => {
+    const validarCamposInsumo = (insumo: Partial<Insumo>) => {
         const errores: Record<string, string> = {};
-
-        // Código solo obligatorio al crear
-        if (!esEdicion && !insumo.codigo?.trim()) errores.codigo = "Código requerido";
-
         if (!insumo.nombre?.trim()) errores.nombre = "Nombre requerido";
         if (!insumo.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!insumo.marca?.trim()) errores.marca = "Marca requerida";
@@ -161,26 +157,31 @@ const TablaInsumos: React.FC = () => {
     };
 
     const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
-        const errores = validarCamposInsumo(values, false);
+        const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
-
         setValidationErrors({});
-        const nuevoInsumoConLote: Insumo = { ...values, lote: values.lote ?? "" };
-        await handleAddInsumo(nuevoInsumoConLote);
-
+        // 🔹 Agregar el código por defecto si no lo tiene
+        const codigo = values.codigo && values.codigo.trim() !== ""
+            ? values.codigo
+            : obtenerSiguienteCodigo();
+        const nuevoInsumo: Insumo = {
+            ...values,
+            codigo,
+        };
+        await handleAddInsumo(nuevoInsumo);
         table.setCreatingRow(null);
     };
 
+
     const handleSaveInsumo: MRT_TableOptions<Insumo>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
-        const errores = validarCamposInsumo(values, true);
+        const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
         }
-
         setValidationErrors({});
         await handleUpdateInsumo(values);
         exitEditingMode();
@@ -238,35 +239,36 @@ const TablaInsumos: React.FC = () => {
         onEditingRowCancel: () => setValidationErrors({}),
         onEditingRowSave: handleSaveInsumo,
 
-        renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
-            <>
-                <DialogTitle
-                    variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-                >
-                    Nuevo Insumo
-                </DialogTitle>
 
-                <DialogContent
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                        padding: 2,
-                    }}
-                >
-                    {internalEditComponents}
-                </DialogContent>
-                <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-                    <MRT_EditActionButtons
-                        table={table}
-                        row={row}
-                        // variant="contained"
-                        color="primary"
-                    />
-                </DialogActions>
-            </>
-        ),
+        renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => {
+            const siguienteCodigo = obtenerSiguienteCodigo();
+            row._valuesCache.codigo = siguienteCodigo;
+
+            return (
+                <>
+                    <DialogTitle
+                        variant="h5"
+                        sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                    >
+                        Nuevo Insumo
+                    </DialogTitle>
+
+                    <DialogContent
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: 2,
+                            padding: 2,
+                        }}
+                    >
+                        {internalEditComponents}
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+                        <MRT_EditActionButtons table={table} row={row} color="primary" />
+                    </DialogActions>
+                </>
+            );
+        },
 
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>

@@ -10,6 +10,8 @@ export interface Producto {
   marca: string;
   unidad: string;
   stock: number;
+  envasado: string;
+  presentacion: string;
 }
 
 interface ProductoContextType {
@@ -23,6 +25,7 @@ interface ProductoContextType {
   handleAddProducto: (producto: Producto) => Promise<void>;
   handleEditProducto: (producto: Producto) => Promise<void>;
   handleDeleteProducto: (codigo: string) => void;
+  obtenerSiguienteCodigo: () => void;
 }
 
 export const ProductosContext = createContext<ProductoContextType | undefined>(undefined);
@@ -163,6 +166,15 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     });
   };
 
+  const obtenerSiguienteCodigo = () => {
+    if (productos.length === 0) return "P001";
+    const ultimo = productos[productos.length - 1].codigo;
+    const numero = parseInt(ultimo.replace(/\D/g, "")); // toma solo los números
+    console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
+    return `P${(numero + 1).toString().padStart(3, "0")}`;
+  };
+
+
   return (
     <ProductosContext.Provider
       value={{
@@ -176,6 +188,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
         handleAddProducto,
         handleEditProducto,
         handleDeleteProducto,
+        obtenerSiguienteCodigo,
       }}
     >
       {children}

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
-import SinResultados from "../../SinResultados";
+import SinResultados from "../../estaticos/SinResultados";
 
 
 const TablaProductosEgreso: React.FC = () => {
