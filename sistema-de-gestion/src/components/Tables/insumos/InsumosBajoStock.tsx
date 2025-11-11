@@ -5,6 +5,8 @@ import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../estaticos/SinResultados";
 
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+
 const InsumosBajoStock: React.FC = () => {
     const { insumos_bajo_stock, isLoading, error } = useContext(InsumoContext)!;
 
@@ -14,45 +16,41 @@ const InsumosBajoStock: React.FC = () => {
                 accessorKey: "codigo",
                 header: "Código",
                 size: 90,
-                muiTableHeadCellProps: {style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "nombre",
                 header: "Nombre",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "categoria",
                 header: "Categoría",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "marca",
                 header: "Marca",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "unidad",
                 header: "Unidad",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "stock",
                 header: "Stock",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: {
                     type: "number",
                 },
                 Cell: ({ row }) => {
                     const stock = row.original.stock;
-                    const umbral = row.original.umbralMinimoStock;
-                    const isLow = stock < umbral;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: isLow ? "red" : "inherit" }}>{stock}</Typography>
-                            {isLow && (
-                                <FaExclamationTriangle color="red" title="debajo del umbral" />
-                            )}
+                            <Typography sx={{ color: "red" }}>{stock}</Typography>
+                            <FaExclamationTriangle color="red" title="debajo del umbral" />
                         </Box>
                     );
                 },
@@ -60,9 +58,17 @@ const InsumosBajoStock: React.FC = () => {
             {
                 accessorKey: "umbralMinimoStock",
                 header: "Umbral mínimo",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: {
                     type: "number",
+                },
+                Cell: ({ row }) => {
+                    const umbral = row.original.umbralMinimoStock;
+                    return (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                            <Typography sx={{ color: "#e4f502ff" }}>{umbral}</Typography>
+                        </Box>
+                    );
                 },
             },
         ],

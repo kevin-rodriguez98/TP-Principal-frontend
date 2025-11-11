@@ -50,6 +50,11 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         count++;
         console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
     }, []); // solo una vez al montar
+    useEffect(() => {
+        obtenerInsumosBajoStock();
+        count++;
+        console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
+    }, [insumos]); // solo una vez al montar
 
     // ⚙️ Función reutilizable para manejar errores HTTP
     const handleFetchError = async (response: Response, defaultMessage: string) => {

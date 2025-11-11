@@ -4,18 +4,18 @@ import { URL_ingresos as URL } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
 
 export interface movimiento_insumo {
-    codigoInsumo: string;
-
+    id: number,
+    codigo: string;
     nombre: string;
     categoria: string;
     marca: string;
-
-
     tipo: string;
     unidad: string;
     stock: number;
     lote: string;
     proveedor: string;
+    responsable: string;
+    creationUsername: string;
 }
 
 interface Movimiento_insumo_contextType {

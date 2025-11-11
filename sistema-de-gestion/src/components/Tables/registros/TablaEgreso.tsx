@@ -3,94 +3,85 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
 import SinResultados from "../../estaticos/SinResultados";
+import { ProductosContext } from "../../../Context/ProductosContext";
 
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaProductosEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
+    const { productos } = useContext(ProductosContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+
+    const limpiarError = (campo: string) =>
+        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+
+    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+        required: true,
+        error: !!validationErrors[campo],
+        helperText: validationErrors[campo] ? (
+            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+        ) : null,
+        onFocus: () => limpiarError(campo),
+        ...extraProps,
+    });
+
 
     const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
         () => [
             {
+                accessorKey: "id",
+                header: "ID",
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+            },
+            {
                 accessorKey: "codigoProducto",
-                header: "Codigo",
-                size: 100,
-                muiTableHeadCellProps: {
-                    style: { color: "#15a017ff" },
-                },
-                muiEditTextFieldProps: {
+                header: "Producto",
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                editVariant: "select",
+                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo + " - " + p.nombre })),
+                muiEditTextFieldProps: ({ row, table }) => ({
                     required: true,
                     error: !!validationErrors.codigoProducto,
-                    helperText: validationErrors.codigoProducto ? (
-                        <span style={{ color: "red" }}>{validationErrors.codigoProducto}</span>
-                    ) : null,
+                    helperText: validationErrors.codigoProducto,
                     onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
-                },
-            },
+                    onChange: (e) => {
+                        const codigo = e.target.value;
+                        const producto = productos.find((p) => p.codigo === codigo);
+                        row._valuesCache.codigo = codigo;
+                        row._valuesCache.nombre = producto?.nombre || "";
+                        row._valuesCache.marca = producto?.marca || "";
+                        // row._valuesCache.categoria = producto?.categoria || "";
 
-            {
-                accessorKey: "tipo",
-                header: "Tipo",
-                editVariant: "select",
-                editSelectOptions: ["EGRESO"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.tipo,
-                    helperText: validationErrors.tipo ? (
-                        <span style={{ color: "red" }}>{validationErrors.tipo}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, tipo: undefined }),
-                },
-                Cell: ({ cell }) => {
-                    const estado = cell.getValue<movimiento_producto["tipo"]>();
+                        table.setCreatingRow({
+                            ...row,
+                            _valuesCache: { ...row._valuesCache },
+                            original: { ...row.original, ...row._valuesCache },
+                        });
+                    },
+                }),
+                Cell: ({ row }) => {
+                    const tipo = row.original.tipo || "EGRESO";
+                    const codigo = row.original.codigoProducto;
                     const color = "#00d0ffff";
                     return (
-                        <span
-                            style={{
-                                color: color,
-                                padding: "4px 8px",
-                                fontWeight: 600,
-                                fontSize: "0.85rem",
-                                textTransform: "uppercase",
-                                display: "inline-block",
-                            }}
-                        >
-                            {estado}
+                        <span style={{ color, fontWeight: "bold" }}>
+                            {tipo} {codigo}
                         </span>
                     );
                 },
             },
-
-
             {
                 accessorKey: "cantidad",
                 header: "Cantidad",
-                muiTableHeadCellProps: {
-                    style: { color: "#15a017ff" },
-                },
-                muiEditTextFieldProps: {
-                    type: "number",
-                    required: true,
-                    error: !!validationErrors.cantidad,
-                    helperText: validationErrors.cantidad ? (
-                        <span style={{ color: "red" }}>{validationErrors.cantidad}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, cantidad: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("cantidad",),
             },
             {
                 accessorKey: "destino",
                 header: "Destino",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.destino,
-                    helperText: validationErrors.destino ? (
-                        <span style={{ color: "red" }}>{validationErrors.destino}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, destino: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("destino",),
             },
         ],
         [validationErrors]
@@ -100,7 +91,6 @@ const TablaProductosEgreso: React.FC = () => {
         const errores: Record<string, string> = {};
         if (!registro.codigoProducto?.trim()) errores.codigoProducto = "Código requerido";
         if (!registro.destino?.trim()) errores.destino = "Destino requerido";
-        if (!registro.tipo?.trim()) errores.tipo = "Tipo requerido";
         const cantidad = Number(registro.cantidad);
         if (registro.cantidad === undefined || registro.cantidad === null || isNaN(cantidad) || cantidad <= 0) {
             errores.cantidad = "Cantidad debe ser un número válido mayor a 0";
@@ -115,8 +105,14 @@ const TablaProductosEgreso: React.FC = () => {
             return;
         }
 
+        const nuevaOrden = {
+            ...values,
+            tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "EGRESO",
+
+        };
+
         setValidationErrors({});
-        await handleAdd_Movimiento_producto(values);
+        await handleAdd_Movimiento_producto(nuevaOrden);
         table.setCreatingRow(null);
     }
 

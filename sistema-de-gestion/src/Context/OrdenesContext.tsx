@@ -11,7 +11,6 @@ export interface Insumo {
   cantidad: string;
 }
 
-
 interface HistorialEtapa {
   id: number;
   etapa: string;
@@ -19,8 +18,8 @@ interface HistorialEtapa {
   nota?: string;
 }
 
-
 export interface OrdenProduccion {
+  id: number,
   codigoProducto: string;
   productoRequerido: string;
   marca: string;
@@ -28,10 +27,14 @@ export interface OrdenProduccion {
   fechaEntrega: string;
   estado: "EVALUACIÓN" | "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA";
   lote: string;
+
   envasado: string;
   presentacion: string;
+  etapa: string;
+  nota: string;
 
-  id: number,
+  creationUsername: string;
+  fechaCreacion: string;
   stockProducidoReal: number;
   tiempoEstimado?: number;
 }
@@ -45,11 +48,9 @@ interface OrdenContextType {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-
   marcarEnProduccion: (id: number, codigoProducto: string) => Promise<void>;
   finalizarOrden: (id: number, stockProducidoReal?: number, destino?: string) => Promise<void>;
   cancelarOrden: (id: number) => Promise<void>;
-
   notificarEtapa: (id: number, nuevaEtapa: string) => Promise<void>;
   agregarNota: (id: number, nota: string) => Promise<void>;
   obtenerHistorialEtapas: (id: number) => Promise<HistorialEtapa[]>
@@ -57,9 +58,7 @@ interface OrdenContextType {
   setHistorial: React.Dispatch<React.SetStateAction<HistorialEtapa[]>>;
 
 }
-
 export const OrdenesContext = createContext<OrdenContextType | undefined>(undefined);
-
 interface OrdenProviderProps {
   children: ReactNode;
 }
@@ -115,6 +114,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       }
       const data = await response.json();
       setOrdenes(data);
+      console.log("ORDENES:", data);
     } catch (err: any) {
       setError(err.message);
       if (!modal) {
@@ -149,6 +149,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const nuevaOrden = await response.json();
       setOrdenes(prev => [...prev, nuevaOrden]);
       toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
+      notificarEtapa(nuevaOrden.id, "ETAPA1");
     } catch {
       setModal({
         tipo: "error",
@@ -300,10 +301,10 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const data = await response.json();
       return data;
     } catch {
-      // setModal({
-      //   tipo: "error",
-      //   mensaje: "Error al obtener historial de etapas.",
-      // });
+      setModal({
+        tipo: "error",
+        mensaje: "Error al obtener historial de etapas.",
+      });
       return [];
     }
   };

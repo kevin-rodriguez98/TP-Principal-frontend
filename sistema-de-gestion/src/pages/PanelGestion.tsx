@@ -1,5 +1,5 @@
 
-import PanelGeneral from "../components/PanelGeneral";
+import PanelGeneral from "../components/Tables/PanelGeneral";
 
 const PanelGestion = () => {
 

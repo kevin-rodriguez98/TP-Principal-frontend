@@ -11,7 +11,7 @@ export interface Producto {
   unidad: string;
   stock: number;
   envasado: string;
-  presentacion: string;
+  presentacion: string; 
 }
 
 interface ProductoContextType {

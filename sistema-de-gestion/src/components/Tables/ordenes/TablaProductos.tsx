@@ -9,6 +9,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SinResultados from "../../estaticos/SinResultados";
 
+
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
   const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
@@ -26,6 +29,20 @@ const TablaProductos: React.FC = () => {
   });
 
 
+  const limpiarError = (campo: string) =>
+    setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+
+  const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+    required: true,
+    error: !!validationErrors[campo],
+    helperText: validationErrors[campo] ? (
+      <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+    ) : null,
+    onFocus: () => limpiarError(campo),
+    ...extraProps,
+  });
+
+
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
     () => [
@@ -33,31 +50,15 @@ const TablaProductos: React.FC = () => {
         accessorKey: "codigo",
         header: "Código",
         enableEditing: false,
-        muiTableHeadCellProps: {
-          style: { color: "#15a017ff" },
-        },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.codigo,
-          helperText: validationErrors.codigo ? (
-            <span style={{ color: "red" }}>{validationErrors.codigo}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, codigo: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("codigo"),
       },
       {
         accessorKey: "nombre",
         header: "Nombre",
         enableEditing: (row) => row.original.nombre === "",
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.nombre,
-          helperText: validationErrors.nombre ? (
-            <span style={{ color: "red" }}>{validationErrors.nombre}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("nombre"),
       },
       {
         accessorKey: "categoria",
@@ -65,15 +66,8 @@ const TablaProductos: React.FC = () => {
         enableEditing: (row) => row.original.categoria === "",
         editVariant: "select",
         editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.categoria,
-          helperText: validationErrors.categoria ? (
-            <span style={{ color: "red" }}>{validationErrors.categoria}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("categoria"),
       },
       {
         accessorKey: "marca",
@@ -81,15 +75,8 @@ const TablaProductos: React.FC = () => {
         enableEditing: (row) => row.original.marca === "",
         editVariant: "select",
         editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.marca,
-          helperText: validationErrors.marca ? (
-            <span style={{ color: "red" }}>{validationErrors.marca}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("marca"),
       },
       {
         accessorKey: "unidad",
@@ -97,31 +84,16 @@ const TablaProductos: React.FC = () => {
         enableEditing: (row) => row.original.unidad === "",
         editVariant: "select",
         editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors.unidad,
-          helperText: validationErrors.unidad ? (
-            <span style={{ color: "red" }}>{validationErrors.unidad}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("unidad"),
       },
       {
         accessorKey: "stock",
         header: "Stock",
         enableEditing: false,
         defaultValue: 0,
-        muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-        muiEditTextFieldProps: {
-          type: "number",
-          value: 0,
-          error: !!validationErrors.stock,
-          helperText: validationErrors.stock ? (
-            <span style={{ color: "red" }}>{validationErrors.stock}</span>
-          ) : null,
-          onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
-        },
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("stock", { type: "number", required: false}),
       }
     ],
     [validationErrors]
@@ -150,7 +122,7 @@ const TablaProductos: React.FC = () => {
       ? values.codigo
       : obtenerSiguienteCodigo();
 
-    const nuevoProducto: Producto = { ...values, codigo };
+    const nuevoProducto: Producto = { ...values, codigo, stock: 0 };
     await handleAddProducto(nuevoProducto);
 
     table.setCreatingRow(null);
@@ -354,7 +326,7 @@ const TablaProductos: React.FC = () => {
               {recetas.map((insumo) => (
                 <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
                   <Typography variant="body2">
-                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.stockNecesarioInsumo/* +" " +{insumo.unidad}*/}
+                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.stockNecesarioInsumo + " " + insumo.unidad}
                   </Typography>
                 </li>
 

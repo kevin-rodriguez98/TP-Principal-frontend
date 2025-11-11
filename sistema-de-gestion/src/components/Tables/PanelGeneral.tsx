@@ -146,7 +146,7 @@ export default function PanelGeneral({}) {
                             >
 
                                 <Tab label="Gestión de Insumos" />
-                                <Tab label="Registros de Ingreso/Egreso" />
+                                <Tab label="Registros" />
                                 <Tab label="Productos" />
                                 <Tab label="Órdenes de Producción" />
                             </Tabs>

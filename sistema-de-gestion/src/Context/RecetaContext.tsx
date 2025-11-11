@@ -7,7 +7,7 @@ export interface Receta {
     codigoInsumo: string;
     stockNecesarioInsumo: number;
     nombreInsumo: string;
-    unidad:string;
+    unidad: string;
 }
 
 interface RecetaContextType {

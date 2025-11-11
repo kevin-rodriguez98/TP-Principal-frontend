@@ -20,7 +20,6 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
 
     // const { historial, setHistorial } = useContext(OrdenesContext)!;
 
-
     const { obtenerHistorialEtapas } = useContext(OrdenesContext)!;
 
     useEffect(() => {

@@ -1,116 +1,112 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, Dialog, TextField, IconButton, Tooltip, Typography, FormControl, MenuItem, Select, } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTADOS_COLORES: Record<string, string> = {
+    CANCELADA: "red",
+    EN_PRODUCCION: "gold",
+    FINALIZADA_ENTREGADA: "green",
+    EVALUACIÓN: "dodgerblue",
+};
+
 const TablaOrden: React.FC = () => {
-    const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error } = useContext(OrdenesContext)!;
+    const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error, notificarEtapa, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
     const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
+    const limpiarError = (campo: string) =>
+        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+
+    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+        required: true,
+        error: !!validationErrors[campo],
+        helperText: validationErrors[campo] ? (
+            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+        ) : null,
+        onFocus: () => limpiarError(campo),
+        ...extraProps,
+    });
+
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
-
             {
                 accessorKey: "id",
                 header: "ID",
                 enableEditing: false,
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
             {
                 accessorKey: "codigoProducto",
-                header: "Codigo producto",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                header: "Producto",
+                muiTableHeadCellProps: ESTILOS_CABECERA,
                 editVariant: "select",
-                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo + " - " + p.nombre })),
-                muiEditTextFieldProps: ({ row }) => ({
-                    required: true,
+                editSelectOptions: productos.map((p) => ({
+                    value: p.codigo,
+                    label: p.codigo + " - " + p.nombre + " - " + p.marca,
+                })),
+                muiEditTextFieldProps: ({ row, table }) => ({
                     onChange: (e) => {
                         const codigo = e.target.value;
                         const producto = productos.find((p) => p.codigo === codigo);
-                        row.original.codigoProducto = codigo;
-                        row.original.productoRequerido = producto ? producto.nombre : "";
-                        row.original.marca = producto ? producto.marca : "";
-                        // row.original.categoria = producto ? producto.categoria : "";
+                        row._valuesCache.codigoProducto = codigo;
+                        row._valuesCache.productoRequerido = producto?.nombre || "";
+                        row._valuesCache.marca = producto?.marca || "";
+                        // row._valuesCache.categoria = insumo?.categoria || "";
+
+                        table.setCreatingRow({
+                            ...row,
+                            _valuesCache: { ...row._valuesCache },
+                            original: { ...row.original, ...row._valuesCache },
+                        });
+
                     },
-                    error: !!validationErrors.codigoProducto,
-                    helperText: validationErrors.codigoProducto,
-                    onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
+                    ...baseTextFieldProps("codigoProducto"),
                 }),
+                Cell: ({ row }) => row.original.codigoProducto || "—",
             },
             {
                 accessorKey: "productoRequerido",
                 header: "Producto",
-                enableEditing: false, // solo lectura
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: ({ row }) => ({
-                    value: row.original.productoRequerido,
+                    value: row._valuesCache.productoRequerido
                 }),
+                Cell: ({ row }) => row.original.productoRequerido || "—",
             },
-            {
-                accessorKey: "etapa",
-                header: "Etapa",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                editVariant: "select",
-                editSelectOptions: ["ETAPA1", "ETAPA2", "ETAPA3", "ETAPA4", "ETAPA5", "ETAPA6"],
-                muiEditTextFieldProps: ({ row }) => ({
-                    required: true,
-                    onChange: (e) => {
-                        const codigo = e.target.value;
-                        const producto = productos.find((p) => p.codigo === codigo);
-                        row.original.codigoProducto = codigo;
-                        row.original.productoRequerido = producto ? producto.nombre : "";
-                        row.original.marca = producto ? producto.marca : "";
-                        // row.original.categoria = producto ? producto.categoria : "";
-                    },
-                }),
-            },
-
             {
                 accessorKey: "marca",
                 header: "Marca",
-                enableEditing: false, // solo lectura
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: ({ row }) => ({
-                    value: row.original.marca,
+                    value: row._valuesCache.marca
                 }),
+                Cell: ({ row }) => row.original.marca || "—",
             },
             {
                 accessorKey: "estado",
                 header: "Estado",
-                editVariant: "select",
-                editSelectOptions: ["EVALUACIÓN"],
-                defaultValue: "EVALUACIÓN",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    error: !!validationErrors.estado,
-                    helperText: validationErrors.estado ? (
-                        <span style={{ color: "red" }}>{validationErrors.estado}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, estado: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                enableEditing: false,
+                muiEditTextFieldProps: { value: "EVALUACIÓN" },
                 Cell: ({ cell }) => {
                     const estado = String(cell.getValue() ?? "");
-                    const bg =
-                        estado === "CANCELADA"
-                            ? "red"
-                            : estado === "EN_PRODUCCION"
-                                ? "gold"
-                                : estado === "FINALIZADA_ENTREGADA"
-                                    ? "green"
-                                    : estado === "EVALUACIÓN"
-                                        ? "dodgerblue"
-                                        : "gray";
+                    const bg = ESTADOS_COLORES[estado] || "gray";
                     return (
                         <span
                             style={{
                                 backgroundColor: bg,
-                                color: bg === "gold" ? "black" : "white", // texto oscuro para gold
+                                color: bg === "gold" ? "black" : "white",
                                 borderRadius: 12,
                                 padding: "4px 8px",
                                 fontWeight: 600,
@@ -119,73 +115,238 @@ const TablaOrden: React.FC = () => {
                                 display: "inline-block",
                             }}
                         >
-                            {estado.replaceAll ? estado.replaceAll("_", " ") : estado.split("_").join(" ")}
+                            {estado.replaceAll("_", " ")}
                         </span>
                     );
                 },
             },
             {
+                accessorKey: "etapa",
+                header: "Etapa",
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                Cell: ({ row }) => {
+                    const [etapa, setEtapa] = useState(row.original.etapa || "ETAPA1");
+                    const [open, setOpen] = useState(false);
+                    const [nota, setNota] = useState(row.original.nota || "");
+                    const [loading, setLoading] = useState(false);
+
+                    const handleCambiarEtapa = async (nuevaEtapa: string) => {
+                        setEtapa(nuevaEtapa);
+                            await notificarEtapa(row.original.id, nuevaEtapa);
+                    };
+
+                    const handleGuardarNota = async () => {
+                        if (!nota.trim()) return;
+                        setLoading(true);
+                        try {
+                            await agregarNota(row.original.id, nota);
+                            setOpen(false);
+                        } finally {
+                            setLoading(false);
+                        }
+                    };
+
+                    return (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <FormControl
+                                variant="standard"
+                                sx={{
+                                    minWidth: 100,
+                                    background: "#2b2b2b",
+                                    borderRadius: "6px",
+                                    px: 1,
+                                }}
+                            >
+                                <Select
+                                    value={etapa}
+                                    onChange={(e) => handleCambiarEtapa(e.target.value)}
+                                    sx={{
+                                        color: "#fff",
+                                        "& .MuiSelect-icon": { color: "#15a017ff" },
+                                    }}
+                                >
+                                    <MenuItem value="ETAPA1">ETAPA1</MenuItem>
+                                    <MenuItem value="ETAPA2">ETAPA2</MenuItem>
+                                    <MenuItem value="ETAPA3">ETAPA3</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <Tooltip title="Agregar nota">
+                                <IconButton
+                                    size="small"
+                                    onClick={() => setOpen(true)}
+                                    sx={{ color: "#15a017ff" }}
+                                >
+                                    <NoteAddIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+
+                            {/* Modal oscuro */}
+                            <Dialog
+                                open={open}
+                                onClose={() => setOpen(false)}
+                                PaperProps={{
+                                    sx: {
+                                        backgroundColor: "#1e1e1e",
+                                        color: "#f1f1f1",
+                                        width: "420px",
+                                        borderRadius: 3,
+                                        p: 2,
+                                    },
+                                }}
+                            >
+                                <DialogTitle sx={{ fontWeight: 600, fontSize: "1.1rem" }}>
+                                    Nota de la etapa {etapa}
+                                </DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        autoFocus
+                                        fullWidth
+                                        multiline
+                                        minRows={3}
+                                        variant="filled"
+                                        value={nota}
+                                        onChange={(e) => setNota(e.target.value)}
+                                        label="Escribe una nota"
+                                        InputProps={{
+                                            style: {
+                                                color: "#fff",
+                                                background: "#2b2b2b",
+                                            },
+                                        }}
+                                        InputLabelProps={{
+                                            style: { color: "#bbb" },
+                                        }}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button
+                                        onClick={() => setOpen(false)}
+                                        sx={{ color: "#ccc", textTransform: "none" }}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                    <Button
+                                        onClick={handleGuardarNota}
+                                        variant="contained"
+                                        sx={{
+                                            backgroundColor: "#15a017ff",
+                                            textTransform: "none",
+                                            "&:hover": { backgroundColor: "#178c15" },
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Guardando..." : "Guardar"}
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                        </div>
+                    );
+                },
+            },
+
+
+            {
                 accessorKey: "stockRequerido",
                 header: "Stock requerido",
-                muiEditTextFieldProps: {
-                    type: "number",
-                    required: true,
-                    error: !!validationErrors.stockRequerido,
-                    helperText: validationErrors.stockRequerido ? (
-                        <span style={{ color: "red" }}>{validationErrors.stockRequerido}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, stockRequerido: undefined }),
-                },
+                muiEditTextFieldProps: baseTextFieldProps("stockRequerido", { type: "number" }),
             },
             {
                 accessorKey: "lote",
                 header: "Lote",
-                // enableEditing: false,
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.lote,
-                    helperText: validationErrors.lote ? (
-                        <span style={{ color: "red" }}>{validationErrors.lote}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, lote: undefined }),
-                },
-
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("lote"),
+                Cell: ({ row }) => row.original.lote || "—",
             },
             {
                 accessorKey: "fechaEntrega",
                 header: "Fecha de entrega",
-                muiEditTextFieldProps: {
-                    required: true,
+                muiEditTextFieldProps: baseTextFieldProps("fechaEntrega", {
                     type: "date",
                     InputLabelProps: { shrink: true },
-                    error: !!validationErrors.fechaEntrega,
-                    helperText: validationErrors.fechaEntrega ? (
-                        <span style={{ color: "red" }}>{validationErrors.fechaEntrega}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, fechaEntrega: undefined }),
-                },
+                }),
+                Cell: ({ row }) => row.original.fechaEntrega || "—",
+            },
+
+            // 🟢 Nuevas columnas agregadas
+            {
+                accessorKey: "envasado",
+                header: "Envasado",
+                enableEditing: true,
+                editVariant: "select",
+                editSelectOptions: ["Plástico", "Vidrio", "Sachet", "Cartón"],
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("envasado"),
+                Cell: ({ row }) => row.original.envasado || "—",
+            },
+            {
+                accessorKey: "presentacion",
+                header: "Presentación",
+                enableEditing: true,
+                editVariant: "select",
+                editSelectOptions: ["Gramos", "Litros", "Kilos"],
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("presentacion"),
+                Cell: ({ row }) => row.original.presentacion || "—",
+            },
+            {
+                accessorKey: "creationUsername",
+                header: "Responsable",
+                enableEditing: false,
+                muiEditTextFieldProps: { value: "admin" },
+                Cell: ({ row }) =>
+                    row.original.fechaCreacion
+                        ? new Date(row.original.fechaCreacion).toLocaleString()
+                        : "—",
+            },
+            {
+                accessorKey: "fechaCreacion",
+                header: "Fecha creación",
+                enableEditing: false,
+                muiEditTextFieldProps: { value: new Date().toLocaleString() },
+                Cell: ({ row }) =>
+                    row.original.fechaCreacion
+                        ? new Date(row.original.fechaCreacion).toLocaleString()
+                        : "—",
+            },
+            {
+                accessorKey: "tiempoEstimado",
+                header: "Tiempo estimado",
+                enableEditing: false,
+                Cell: ({ row }) => row.original.tiempoEstimado ?? "—",
             },
         ],
         [validationErrors]
     );
 
-    const validarCamposInsumo = (orden: Partial<OrdenProduccion>) => {
-        const errores: Record<string, string> = {};
+    //     const errores: Record<string, string> = {};
+    //     if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
+    //     if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
+    //     if (!orden.presentacion?.trim()) errores.presentacion = "La presentación es requerida";
+    //     if (!orden.envasado?.trim()) errores.envasado = "El tipo de envasado es requerido";
+    //     if (!orden.stockRequerido && orden.stockRequerido !== 0)
+    //         errores.stockRequerido = "El stock planeado es requerido";
+    //     if (!orden.fechaEntrega?.trim())
+    //         errores.fechaEntrega = "La fecha de entrega es requerida";
+    //     return errores;
+    // };
 
-        if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
-        if (!orden.estado?.trim()) errores.estado = "El estado es requerido";
-        if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
-        if (!orden.stockRequerido && orden.stockRequerido !== 0)
-            errores.stockRequerido = "El stock planeado es requerido";
-        if (!orden.fechaEntrega?.trim())
-            errores.fechaEntrega = "La fecha de entrega es requerida";
-        return errores;
+    const validar = (o: Partial<OrdenProduccion>) => {
+        const err: Record<string, string> = {};
+        if (!o.codigoProducto?.trim()) err.codigoProducto = "El código es requerido";
+        if (!o.lote?.trim()) err.lote = "El lote es requerido";
+        if (!o.presentacion?.trim()) err.presentacion = "La presentación es requerida";
+        if (!o.envasado?.trim()) err.envasado = "El tipo de envasado es requerido";
+        if (!o.stockRequerido && o.stockRequerido !== 0)
+            err.stockRequerido = "El stock planeado es requerido";
+        if (!o.fechaEntrega?.trim()) err.fechaEntrega = "La fecha de entrega es requerida";
+        return err;
     };
 
     const handleCrearOrden: MRT_TableOptions<OrdenProduccion>["onCreatingRowSave"] = async ({ values, table }) => {
         setValidationErrors({});
-        const errores = validarCamposInsumo(values);
+        const errores = validar(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
             return;
@@ -193,7 +354,8 @@ const TablaOrden: React.FC = () => {
         // 🔹 Forzar valor por defecto
         const nuevaOrden = {
             ...values,
-            estado: values.estado ?? "EVALUACIÓN",
+            estado: values.estado && values.estado.trim() !== "" ? values.estado : "EVALUACIÓN",
+            etapa: values.etapa && values.etapa.trim() !== "" ? values.etapa : "ETAPA1",
         };
 
         setValidationErrors({});
@@ -206,10 +368,10 @@ const TablaOrden: React.FC = () => {
         data: ordenes,
         // columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
+        editDisplayMode: "row",
         enableRowActions: true,
         positionActionsColumn: 'last',
         enableGlobalFilter: true,
-        editDisplayMode: "modal",
         enableEditing: true,
         enableExpandAll: false,
         positionExpandColumn: 'last',
@@ -222,6 +384,9 @@ const TablaOrden: React.FC = () => {
             density: 'compact',
             columnVisibility: {
                 stockRequerido: false,
+                creationUsername: false,
+                fechaCreacion: false,
+                tiempoEstimado: false,
                 fechaEntrega: false,
                 lote: false,
             },
@@ -267,79 +432,196 @@ const TablaOrden: React.FC = () => {
                 }}
             >
                 <Box sx={{ display: "flex", gap: 6 }}>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Cant. Planeada
-                        </Typography>
-                        <Typography>{row.original.stockRequerido}</Typography>
-                    </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Fecha Entrega
-                        </Typography>
-                        <Typography>{row.original.fechaEntrega}</Typography>
-                    </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Lote
-                        </Typography>
-                        <Typography>{row.original.lote}</Typography>
-                    </Box>
+                    {[
+                        ["Stock Requerido", row.original.stockRequerido],
+                        ["Stock producido", row.original.stockProducidoReal],
+                        ["Fecha creación", row.original.fechaCreacion],
+                        ["Fecha entrega", row.original.fechaEntrega],
+                        ["Lote", row.original.lote],
+                    ].map(([label, value]) => (
+                        <Box key={label}>
+                            <Typography variant="subtitle2" color="primary">
+                                {label}
+                            </Typography>
+                            <Typography>{value || "—"}</Typography>
+                        </Box>
+                    ))}
 
                     <Box>
                         <Typography variant="subtitle2" color="primary">
                             Tiempo estimado de Producción
                         </Typography>
-
                         {row.original.tiempoEstimado ? (
                             <Typography>{row.original.tiempoEstimado}</Typography>
                         ) : (
-                            <IconButton title="Calcular tiempo"
+                            <IconButton
+                                title="Calcular tiempo"
                                 color="info"
-                                onClick={async () => {
-                                    await calcularTiempoEstimado(
-                                        row.original.codigoProducto,
-                                        row.original.stockRequerido
-                                    );
-                                }}
+                                onClick={() =>
+                                    calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido)
+                                }
                             >
                                 ⏱️
                             </IconButton>
                         )}
                     </Box>
+
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Responsable
+                        </Typography>
+                        <Typography>{row.original.creationUsername}</Typography>
+                    </Box>
                 </Box>
+
                 <Box sx={{ mt: 2 }}>
                     <HistorialEtapas ordenId={row.original.id} />
                 </Box>
             </Box>
         ),
 
+        renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => {
+            const camposRequeridos = [
+                "codigoProducto",
+                "stockRequerido",
+                "lote",
+                "fechaEntrega",
+                "envasado",
+                "presentacion"
+            ];
 
-        renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
-            <>
-                <DialogTitle
-                    variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-                >
-                    Nueva Orden
-                </DialogTitle>
-                <DialogContent
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                        padding: 2,
-                    }}
-                >
-                    {internalEditComponents}
-                </DialogContent>
-                <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-                    <MRT_EditActionButtons table={table} row={row} color="primary" />
-                </DialogActions>
-            </>
-        ),
+            const obtenerNombreCampo = (comp: React.ReactNode) => {
+                if (!React.isValidElement(comp)) return "";
+                const props = comp.props as {
+                    column?: { accessorKey?: string; id?: string };
+                    name?: string;
+                };
+                const raw =
+                    props.column?.accessorKey ||
+                    props.column?.id ||
+                    props.name ||
+                    (comp.key ? comp.key.toString() : "");
+                return raw.replace("mrt-row-create_", "");
+            };
+
+            const camposUsuario = internalEditComponents.filter((comp) =>
+                camposRequeridos.includes(obtenerNombreCampo(comp))
+            );
+
+            const camposAutomaticos = internalEditComponents.filter(
+                (comp) => !camposRequeridos.includes(obtenerNombreCampo(comp))
+            );
+
+            return (
+                <>
+                    <DialogTitle
+                        variant="h6"
+                        sx={{
+                            textAlign: "center",
+                            fontWeight: 600,
+                            color: "#bbdefb",
+                            letterSpacing: "0.5px",
+                            mb: 1,
+                        }}
+                    >
+                        Nueva Orden de Producción
+                    </DialogTitle>
+
+                    <DialogContent
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 3,
+                            py: 2,
+                            px: 3,
+                            backgroundColor: "#121212",
+                            color: "#e0e0e0",
+                            maxHeight: "70vh", // 🔹 para evitar que se desborde
+                            overflowY: "auto", // 🔹 scroll si es necesario
+                        }}
+                    >
+                        {/* Sección de datos obligatorios */}
+                        <Box
+                            sx={{
+                                backgroundColor: "#1e1e1e",
+                                borderRadius: 2,
+                                border: "1px solid #2a2a2a",
+                                boxShadow: "0 0 10px rgba(0,0,0,0.3)",
+                                p: 3,
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    mb: 2,
+                                    fontWeight: "bold",
+                                    color: "#64b5f6",
+                                    borderBottom: "1px solid #1976d2",
+                                    pb: 1,
+                                    textAlign: "center",
+                                }}
+                            >
+                                Datos obligatorios
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: 2,
+                                }}
+                            >
+                                {camposUsuario}
+                            </Box>
+                        </Box>
+
+                        {/* Sección de datos automáticos */}
+                        <Box
+                            sx={{
+                                backgroundColor: "#1a1a1a",
+                                borderRadius: 2,
+                                border: "1px solid #333",
+                                boxShadow: "0 0 10px rgba(0,0,0,0.25)",
+                                p: 3,
+                            }}
+                        >
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    mb: 2,
+                                    fontWeight: "bold",
+                                    color: "#b0bec5",
+                                    borderBottom: "1px solid #424242",
+                                    pb: 1,
+                                    textAlign: "center",
+                                }}
+                            >
+                                Datos automáticos
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: 2,
+                                }}
+                            >
+                                {camposAutomaticos}
+                            </Box>
+                        </Box>
+                    </DialogContent>
+
+                    <DialogActions
+                        sx={{
+                            justifyContent: "center",
+                            py: 2,
+                            borderTop: "1px solid #333",
+                            backgroundColor: "#121212",
+                        }}
+                    >
+                        <MRT_EditActionButtons table={table} row={row} color="primary" />
+                    </DialogActions>
+                </>
+            );
+        },
 
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
@@ -372,60 +654,53 @@ const TablaOrden: React.FC = () => {
         ),
 
         renderRowActions: ({ row }) => {
-            const estado = row.original.estado; // suponiendo que la orden tiene un campo 'estado'
-            const enProduccion = estado === "EN_PRODUCCION"
+            const { id, codigoProducto, estado, stockProducidoReal } = row.original;
+            const enProduccion = estado === "EN_PRODUCCION";
             const finalizada = estado === "FINALIZADA_ENTREGADA";
             const cancelada = estado === "CANCELADA";
             const evaluacion = estado === "EVALUACIÓN";
 
+            const acciones = [
+                {
+                    title: "En Producción",
+                    icon: "⚙️",
+                    color: "warning",
+                    action: () => marcarEnProduccion(Number(id), codigoProducto),
+                    disabled: enProduccion || finalizada || cancelada,
+                },
+                {
+                    title: "Finalizar Orden",
+                    icon: "✅",
+                    color: "success",
+                    action: () => finalizarOrden(id, stockProducidoReal, "Deposito central"),
+                    disabled: finalizada || cancelada || evaluacion,
+                },
+                {
+                    title: "Cancelar Orden",
+                    icon: "❌",
+                    color: "error",
+                    action: () => cancelarOrden(Number(id)),
+                    disabled: finalizada || cancelada || enProduccion,
+                },
+                {
+                    title: "Detalles",
+                    icon: "ℹ️",
+                    color: "info",
+                    action: () => row.toggleExpanded(),
+                },
+            ];
+
             return (
                 <Box sx={{ display: "flex", gap: "0.5rem" }}>
-                    <Tooltip title="En Producción">
-                        <span> {/* Necesario para tooltips en botones deshabilitados */}
-                            <IconButton
-                                color="warning"
-                                onClick={() => marcarEnProduccion(Number(row.original.id), row.original.codigoProducto)}
-                                disabled={enProduccion || finalizada || cancelada} // deshabilita si ya está en producción o terminada/cancelada
-                            >
-                                ⚙️
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-
-                    <Tooltip title="Finalizar Orden">
-                        <span>
-                            <IconButton
-                                color="success"
-                                onClick={() => finalizarOrden(row.original.id, row.original.stockProducidoReal, "Deposito central")}
-                                disabled={finalizada || cancelada || evaluacion} // no permite finalizar si ya está finalizada o cancelada
-                            >
-                                ✅
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-
-                    <Tooltip title="Cancelar Orden">
-                        <span>
-                            <IconButton
-                                color="error"
-                                onClick={() => cancelarOrden(Number(row.original.id))}
-                                disabled={finalizada || cancelada || enProduccion} // no permite cancelar si ya está finalizada o cancelada
-                            >
-                                ❌
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-
-                    <Tooltip title="Detalles">
-                        <IconButton
-                            color="info"
-                            onClick={async () => {
-                                row.toggleExpanded();
-                            }}
-                        >
-                            ℹ️
-                        </IconButton>
-                    </Tooltip>
+                    {acciones.map(({ title, icon, color, action, disabled }) => (
+                        <Tooltip key={title} title={title}>
+                            <span>
+                                <IconButton color={color as any} onClick={action} disabled={disabled}>
+                                    {icon}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    ))}
                 </Box>
             );
         },

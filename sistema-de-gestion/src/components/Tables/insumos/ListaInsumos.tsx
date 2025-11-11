@@ -7,10 +7,28 @@ import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../estaticos/SinResultados";
 
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+
+
 
 const TablaInsumos: React.FC = () => {
     const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error, obtenerSiguienteCodigo } = useContext(InsumoContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+
+
+    const limpiarError = (campo: string) =>
+        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+
+    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+        required: true,
+        error: !!validationErrors[campo],
+        helperText: validationErrors[campo] ? (
+            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+        ) : null,
+        onFocus: () => limpiarError(campo),
+        ...extraProps,
+    });
+
 
     const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
         () => [
@@ -19,90 +37,45 @@ const TablaInsumos: React.FC = () => {
                 header: "Código",
                 size: 90,
                 enableEditing: false,
-                muiTableHeadCellProps: {
-                    style: { color: "#15a017ff" },
-                },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.codigo,
-                    helperText: validationErrors.codigo ? (
-                        <span style={{ color: "red" }}>{validationErrors.codigo}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, codigo: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("codigo"),
             },
             {
                 accessorKey: "nombre",
                 header: "Nombre",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.nombre,
-                    helperText: validationErrors.nombre ? (
-                        <span style={{ color: "red" }}>{validationErrors.nombre}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, nombre: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("nombre"),
             },
             {
                 accessorKey: "categoria",
                 header: "Categoría",
                 editVariant: "select",
                 editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.categoria,
-                    helperText: validationErrors.categoria ? (
-                        <span style={{ color: "red" }}>{validationErrors.categoria}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, categoria: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("categoria"),
             },
             {
                 accessorKey: "marca",
                 header: "Marca",
                 editVariant: "select",
                 editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.marca,
-                    helperText: validationErrors.marca ? (
-                        <span style={{ color: "red" }}>{validationErrors.marca}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, marca: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("marca"),
             },
             {
                 accessorKey: "unidad",
                 header: "Unidad",
                 editVariant: "select",
                 editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    required: true,
-                    error: !!validationErrors.unidad,
-                    helperText: validationErrors.unidad ? (
-                        <span style={{ color: "red" }}>{validationErrors.unidad}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, unidad: undefined }),
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("unidad"),
             },
             {
                 accessorKey: "stock",
                 header: "Stock",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    type: "number",
-                    inputProps: { min: 0 },
-                    required: true,
-                    error: !!validationErrors.stock,
-                    helperText: validationErrors.stock ? (
-                        <span style={{ color: "red" }}>{validationErrors.stock}</span>
-                    ) : null,
-                    onFocus: () => setValidationErrors({ ...validationErrors, stock: undefined }),
-                },
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("stock", { type: "number", required: false }),
                 Cell: ({ row }) => {
                     const stock = row.original.stock;
                     const umbral = row.original.umbralMinimoStock;
@@ -120,19 +93,15 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "umbralMinimoStock",
                 header: "Umbral mínimo",
-                muiTableHeadCellProps: { style: { color: "#15a017ff" } },
-                muiEditTextFieldProps: {
-                    type: "number",
-                    required: true,
-                    error: !!validationErrors.umbralMinimoStock,
-                    helperText: validationErrors.umbralMinimoStock ? (
-                        <span style={{ color: "red" }}>{validationErrors.umbralMinimoStock}</span>
-                    ) : null,
-                    onFocus: () =>
-                        setValidationErrors({
-                            ...validationErrors,
-                            umbralMinimoStock: undefined,
-                        }),
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: baseTextFieldProps("umbralMinimoStock", { type: "number" }),
+                Cell: ({ row }) => {
+                    const umbral = row.original.umbralMinimoStock;
+                    return (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                            <Typography sx={{ color: "#e4f502ff" }}>{umbral}</Typography>
+                        </Box>
+                    );
                 },
             },
         ],
@@ -145,10 +114,10 @@ const TablaInsumos: React.FC = () => {
         if (!insumo.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!insumo.marca?.trim()) errores.marca = "Marca requerida";
         if (!insumo.unidad?.trim()) errores.unidad = "Medida requerida";
-        const stockNumber = Number(insumo.stock);
-        if (insumo.stock === undefined || insumo.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-            errores.stock = "Stock debe ser un número válido mayor a 0";
-        }
+        // const stockNumber = Number(insumo.stock);
+        // if (insumo.stock === undefined || insumo.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
+        //     errores.stock = "Stock debe ser un número válido mayor a 0";
+        // }
         const umbralNumber = Number(insumo.umbralMinimoStock);
         if (insumo.umbralMinimoStock === undefined || insumo.umbralMinimoStock === null || isNaN(umbralNumber) || umbralNumber <= 0) {
             errores.umbralMinimoStock = "Umbral mínimo debe ser un número válido mayor a 0";
@@ -170,6 +139,7 @@ const TablaInsumos: React.FC = () => {
         const nuevoInsumo: Insumo = {
             ...values,
             codigo,
+            stock: 0
         };
         await handleAddInsumo(nuevoInsumo);
         table.setCreatingRow(null);
