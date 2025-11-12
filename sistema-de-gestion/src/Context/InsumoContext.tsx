@@ -211,17 +211,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         });
     };
 
-    // const obtenerSiguienteCodigo = () => {
-    //     if (insumos.length === 0) return "I001"; // si no hay ninguno
-
-    //     // Tomar el último código
-    //     const ultimoCodigo = insumos[insumos.length - 1].codigo; // ejemplo: I003
-    //     const numero = parseInt(ultimoCodigo.slice(1)); // toma el número: 3
-    //     const siguiente = numero + 1;
-
-    //     // Devuelve con formato I004
-    //     return `I${siguiente.toString().padStart(3, "0")}`;
-    // };
     const obtenerSiguienteCodigo = () => {
         if (insumos.length === 0) return "I001";
         const ultimo = insumos[insumos.length - 1].codigo;

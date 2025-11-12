@@ -149,7 +149,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const nuevaOrden = await response.json();
       setOrdenes(prev => [...prev, nuevaOrden]);
       toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
-      notificarEtapa(nuevaOrden.id, "ETAPA1");
+      
     } catch {
       setModal({
         tipo: "error",
@@ -174,6 +174,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       }
 
       toast.success(`Orden ${id} marcada como EN PRODUCCIÓN`);
+      notificarEtapa(id, "Cocción");
       await obtenerOrdenes();
     } catch {
       setModal({
@@ -243,7 +244,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const response = await fetch(`${URL}/notificar-etapa/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaEtapa),
+        body: nuevaEtapa,
       });
 
       if (!response.ok) {
@@ -269,7 +270,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const response = await fetch(`${URL}/agregar-nota/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nota),
+        body: nota,
       });
 
       if (!response.ok) {

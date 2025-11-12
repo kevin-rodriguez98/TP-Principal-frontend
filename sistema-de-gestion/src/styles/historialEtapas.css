@@ -1,71 +1,67 @@
 .timeline-container {
-    margin-top: 10px;
+    background: #141414;
+    padding: 10px 14px;
+    border-radius: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .timeline {
     list-style: none;
-    padding-left: 0;
     position: relative;
-    margin-left: 20px;
+    margin: 0;
+    padding-left: 18px;
 }
 
 .timeline::before {
     content: "";
     position: absolute;
-    left: 10px;
+    left: 8px;
     top: 0;
-    bottom: 0;
-    width: 3px;
-    background: #444;
-    border-radius: 2px;
+    width: 2px;
+    height: 100%;
+    background: #2e7d32;
+    opacity: 0.4;
 }
 
 .timeline-item {
     position: relative;
-    margin-bottom: 20px;
-    padding-left: 30px;
+    margin-bottom: 10px;
 }
 
 .timeline-marker {
     position: absolute;
-    left: 0;
-    top: 5px;
-    width: 16px;
-    height: 16px;
+    left: -1px;
+    top: 3px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 2px solid white;
-}
-
-/* Colores por estado */
-.timeline-marker.evaluacion {
-    background-color: dodgerblue;
-}
-
-.timeline-marker.en_produccion {
-    background-color: gold;
-}
-
-.timeline-marker.finalizada_entregada {
-    background-color: green;
-}
-
-.timeline-marker.cancelada {
-    background-color: red;
-}
-
-.timeline-marker.default {
-    background-color: gray;
+    background: #15a017;
+    border: 2px solid #1b1b1b;
 }
 
 .timeline-content {
-    background-color: #1e1e1e;
-    border-radius: 8px;
-    padding: 10px 15px;
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
-    transition: transform 0.2s ease;
+    padding-left: 18px;
+    color: #f2f2f2;
 }
 
-.timeline-content:hover {
-    transform: scale(1.02);
-    background-color: #292929;
+.timeline-content h6 {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #bbb;
+}
+
+.timeline.compact .timeline-item {
+    margin-bottom: 6px;
+}
+
+.timeline.compact .timeline-marker {
+    width: 8px;
+    height: 8px;
 }

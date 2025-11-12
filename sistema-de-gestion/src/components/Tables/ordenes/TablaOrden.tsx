@@ -1,21 +1,30 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, Dialog, TextField, IconButton, Tooltip, Typography, FormControl, MenuItem, Select, } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography} from "@mui/material";
 import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
 import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
+import CeldaEstado from "./CeldaEstado";
+import CeldaEtapa from "./CeldaEtapa";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 
-import NoteAddIcon from "@mui/icons-material/NoteAdd";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
-const ESTADOS_COLORES: Record<string, string> = {
-    CANCELADA: "red",
-    EN_PRODUCCION: "gold",
-    FINALIZADA_ENTREGADA: "green",
-    EVALUACIÓN: "dodgerblue",
+export const ESTADOS = {
+    cancelada: "CANCELADA",
+    enProduccion: "EN_PRODUCCION",
+    finalizada: "FINALIZADA_ENTREGADA",
+    evaluacion: "EVALUACIÓN",
+} as const;
+
+export const COLORES_ESTADOS: Record<string, string> = {
+    [ESTADOS.cancelada]: "red",
+    [ESTADOS.enProduccion]: "gold",
+    [ESTADOS.finalizada]: "green",
+    [ESTADOS.evaluacion]: "dodgerblue",
 };
+
 
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error, notificarEtapa, agregarNota } = useContext(OrdenesContext)!;
@@ -36,8 +45,16 @@ const TablaOrden: React.FC = () => {
         ...extraProps,
     });
 
+    const opcionesProductos = useMemo(() =>
+        productos.map((p) => ({
+            value: p.codigo,
+            label: `${p.codigo} - ${p.nombre} - ${p.marca}`,
+        })), [productos]);
+
+
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
+
             {
                 accessorKey: "id",
                 header: "ID",
@@ -49,10 +66,7 @@ const TablaOrden: React.FC = () => {
                 header: "Producto",
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 editVariant: "select",
-                editSelectOptions: productos.map((p) => ({
-                    value: p.codigo,
-                    label: p.codigo + " - " + p.nombre + " - " + p.marca,
-                })),
+                editSelectOptions: opcionesProductos,
                 muiEditTextFieldProps: ({ row, table }) => ({
                     onChange: (e) => {
                         const codigo = e.target.value;
@@ -60,14 +74,11 @@ const TablaOrden: React.FC = () => {
                         row._valuesCache.codigoProducto = codigo;
                         row._valuesCache.productoRequerido = producto?.nombre || "";
                         row._valuesCache.marca = producto?.marca || "";
-                        // row._valuesCache.categoria = insumo?.categoria || "";
-
                         table.setCreatingRow({
                             ...row,
                             _valuesCache: { ...row._valuesCache },
                             original: { ...row.original, ...row._valuesCache },
                         });
-
                     },
                     ...baseTextFieldProps("codigoProducto"),
                 }),
@@ -96,157 +107,30 @@ const TablaOrden: React.FC = () => {
             {
                 accessorKey: "estado",
                 header: "Estado",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
                 enableEditing: false,
-                muiEditTextFieldProps: { value: "EVALUACIÓN" },
-                Cell: ({ cell }) => {
-                    const estado = String(cell.getValue() ?? "");
-                    const bg = ESTADOS_COLORES[estado] || "gray";
-                    return (
-                        <span
-                            style={{
-                                backgroundColor: bg,
-                                color: bg === "gold" ? "black" : "white",
-                                borderRadius: 12,
-                                padding: "4px 8px",
-                                fontWeight: 600,
-                                fontSize: "0.85rem",
-                                textTransform: "uppercase",
-                                display: "inline-block",
-                            }}
-                        >
-                            {estado.replaceAll("_", " ")}
-                        </span>
-                    );
-                },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                Cell: ({ row }) => (
+                    <CeldaEstado
+                        row={row}
+                        marcarEnProduccion={marcarEnProduccion}
+                        finalizarOrden={finalizarOrden}
+                        cancelarOrden={cancelarOrden}
+                    />
+                ),
             },
             {
                 accessorKey: "etapa",
                 header: "Etapa",
                 enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-                Cell: ({ row }) => {
-                    const [etapa, setEtapa] = useState(row.original.etapa || "ETAPA1");
-                    const [open, setOpen] = useState(false);
-                    const [nota, setNota] = useState(row.original.nota || "");
-                    const [loading, setLoading] = useState(false);
-
-                    const handleCambiarEtapa = async (nuevaEtapa: string) => {
-                        setEtapa(nuevaEtapa);
-                            await notificarEtapa(row.original.id, nuevaEtapa);
-                    };
-
-                    const handleGuardarNota = async () => {
-                        if (!nota.trim()) return;
-                        setLoading(true);
-                        try {
-                            await agregarNota(row.original.id, nota);
-                            setOpen(false);
-                        } finally {
-                            setLoading(false);
-                        }
-                    };
-
-                    return (
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <FormControl
-                                variant="standard"
-                                sx={{
-                                    minWidth: 100,
-                                    background: "#2b2b2b",
-                                    borderRadius: "6px",
-                                    px: 1,
-                                }}
-                            >
-                                <Select
-                                    value={etapa}
-                                    onChange={(e) => handleCambiarEtapa(e.target.value)}
-                                    sx={{
-                                        color: "#fff",
-                                        "& .MuiSelect-icon": { color: "#15a017ff" },
-                                    }}
-                                >
-                                    <MenuItem value="ETAPA1">ETAPA1</MenuItem>
-                                    <MenuItem value="ETAPA2">ETAPA2</MenuItem>
-                                    <MenuItem value="ETAPA3">ETAPA3</MenuItem>
-                                </Select>
-                            </FormControl>
-
-                            <Tooltip title="Agregar nota">
-                                <IconButton
-                                    size="small"
-                                    onClick={() => setOpen(true)}
-                                    sx={{ color: "#15a017ff" }}
-                                >
-                                    <NoteAddIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
-
-                            {/* Modal oscuro */}
-                            <Dialog
-                                open={open}
-                                onClose={() => setOpen(false)}
-                                PaperProps={{
-                                    sx: {
-                                        backgroundColor: "#1e1e1e",
-                                        color: "#f1f1f1",
-                                        width: "420px",
-                                        borderRadius: 3,
-                                        p: 2,
-                                    },
-                                }}
-                            >
-                                <DialogTitle sx={{ fontWeight: 600, fontSize: "1.1rem" }}>
-                                    Nota de la etapa {etapa}
-                                </DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        autoFocus
-                                        fullWidth
-                                        multiline
-                                        minRows={3}
-                                        variant="filled"
-                                        value={nota}
-                                        onChange={(e) => setNota(e.target.value)}
-                                        label="Escribe una nota"
-                                        InputProps={{
-                                            style: {
-                                                color: "#fff",
-                                                background: "#2b2b2b",
-                                            },
-                                        }}
-                                        InputLabelProps={{
-                                            style: { color: "#bbb" },
-                                        }}
-                                    />
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button
-                                        onClick={() => setOpen(false)}
-                                        sx={{ color: "#ccc", textTransform: "none" }}
-                                    >
-                                        Cancelar
-                                    </Button>
-                                    <Button
-                                        onClick={handleGuardarNota}
-                                        variant="contained"
-                                        sx={{
-                                            backgroundColor: "#15a017ff",
-                                            textTransform: "none",
-                                            "&:hover": { backgroundColor: "#178c15" },
-                                        }}
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Guardando..." : "Guardar"}
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                        </div>
-                    );
-                },
+                Cell: ({ row }) => (
+                    <CeldaEtapa
+                        row={row}
+                        agregarNota={agregarNota}
+                        notificarEtapa={notificarEtapa}
+                    />
+                ),
             },
-
-
             {
                 accessorKey: "stockRequerido",
                 header: "Stock requerido",
@@ -268,8 +152,6 @@ const TablaOrden: React.FC = () => {
                 }),
                 Cell: ({ row }) => row.original.fechaEntrega || "—",
             },
-
-            // 🟢 Nuevas columnas agregadas
             {
                 accessorKey: "envasado",
                 header: "Envasado",
@@ -320,17 +202,6 @@ const TablaOrden: React.FC = () => {
         [validationErrors]
     );
 
-    //     const errores: Record<string, string> = {};
-    //     if (!orden.codigoProducto?.trim()) errores.codigoProducto = "El código es requerido";
-    //     if (!orden.lote?.trim()) errores.lote = "El lote es requerido";
-    //     if (!orden.presentacion?.trim()) errores.presentacion = "La presentación es requerida";
-    //     if (!orden.envasado?.trim()) errores.envasado = "El tipo de envasado es requerido";
-    //     if (!orden.stockRequerido && orden.stockRequerido !== 0)
-    //         errores.stockRequerido = "El stock planeado es requerido";
-    //     if (!orden.fechaEntrega?.trim())
-    //         errores.fechaEntrega = "La fecha de entrega es requerida";
-    //     return errores;
-    // };
 
     const validar = (o: Partial<OrdenProduccion>) => {
         const err: Record<string, string> = {};
@@ -355,7 +226,7 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado && values.estado.trim() !== "" ? values.estado : "EVALUACIÓN",
-            etapa: values.etapa && values.etapa.trim() !== "" ? values.etapa : "ETAPA1",
+            etapa: values.etapa && values.etapa.trim() !== "" ? values.etapa : "Cocción",
         };
 
         setValidationErrors({});
@@ -366,7 +237,6 @@ const TablaOrden: React.FC = () => {
     const tabla = useMaterialReactTable({
         columns,
         data: ordenes,
-        // columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
         editDisplayMode: "row",
         enableRowActions: true,
@@ -377,7 +247,7 @@ const TablaOrden: React.FC = () => {
         positionExpandColumn: 'last',
         initialState: {
             pagination: {
-                pageSize: 10,
+                pageSize: 5,
                 pageIndex: 0
             },
             sorting: [{ id: "id", desc: true }],
@@ -654,39 +524,36 @@ const TablaOrden: React.FC = () => {
         ),
 
         renderRowActions: ({ row }) => {
-            const { id, codigoProducto, estado, stockProducidoReal } = row.original;
-            const enProduccion = estado === "EN_PRODUCCION";
-            const finalizada = estado === "FINALIZADA_ENTREGADA";
-            const cancelada = estado === "CANCELADA";
-            const evaluacion = estado === "EVALUACIÓN";
+            // const { id, codigoProducto, estado, stockProducidoReal } = row.original;
 
             const acciones = [
-                {
-                    title: "En Producción",
-                    icon: "⚙️",
-                    color: "warning",
-                    action: () => marcarEnProduccion(Number(id), codigoProducto),
-                    disabled: enProduccion || finalizada || cancelada,
-                },
-                {
-                    title: "Finalizar Orden",
-                    icon: "✅",
-                    color: "success",
-                    action: () => finalizarOrden(id, stockProducidoReal, "Deposito central"),
-                    disabled: finalizada || cancelada || evaluacion,
-                },
-                {
-                    title: "Cancelar Orden",
-                    icon: "❌",
-                    color: "error",
-                    action: () => cancelarOrden(Number(id)),
-                    disabled: finalizada || cancelada || enProduccion,
-                },
+                // {
+                //     title: "En Producción",
+                //     icon: "⚙️",
+                //     color: "warning",
+                //     action: () => marcarEnProduccion(Number(id), codigoProducto),
+                //     disabled: estado === ESTADOS.enProduccion || estado === ESTADOS.finalizada || estado === ESTADOS.cancelada
+                // },
+                // {
+                //     title: "Finalizar Orden",
+                //     icon: "✅",
+                //     color: "success",
+                //     action: () => finalizarOrden(id, stockProducidoReal, "Deposito central"),
+                //     disabled: estado === ESTADOS.finalizada || estado === ESTADOS.cancelada || estado === ESTADOS.evaluacion
+                // },
+                // {
+                //     title: "Cancelar Orden",
+                //     icon: "❌",
+                //     color: "error",
+                //     action: () => cancelarOrden(Number(id)),
+                //     disabled: ESTADOS.finalizada === estado || ESTADOS.cancelada === estado || ESTADOS.enProduccion === estado,
+                // },
                 {
                     title: "Detalles",
                     icon: "ℹ️",
                     color: "info",
                     action: () => row.toggleExpanded(),
+                    disabled: false
                 },
             ];
 
@@ -759,5 +626,4 @@ const TablaOrden: React.FC = () => {
 };
 
 export default TablaOrden;
-
 
