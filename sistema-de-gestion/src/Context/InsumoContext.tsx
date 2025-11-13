@@ -42,19 +42,20 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
     const [insumos, setInsumos] = useState<Insumo[]>([]);
     const [insumos_bajo_stock, setInsumos_bajo_stock] = useState<Insumo[]>([]);
     let count = 0;
-    // 1️⃣ Efecto para cargar los insumos al inicio
+
     useEffect(() => {
         obtenerInsumos();
         obtenerInsumosBajoStock();
-
         count++;
         console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
-    }, []); // solo una vez al montar
+    }, []);
+    
+
     useEffect(() => {
         obtenerInsumosBajoStock();
         count++;
         console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
-    }, [insumos]); // solo una vez al montar
+    }, [insumos]);
 
     // ⚙️ Función reutilizable para manejar errores HTTP
     const handleFetchError = async (response: Response, defaultMessage: string) => {

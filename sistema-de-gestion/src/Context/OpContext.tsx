@@ -41,16 +41,6 @@ export function OpProvider({ children }: OpProviderProps) {
             acciones: [
                 { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
                 { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
-
-            ]
-        },
-
-        {
-            label: "Trazabilidad de Producción",
-            icon: './calidad.png',
-            acciones: [
-                { label: "", onClick: () => navigate("/") },
-                { label: "", onClick: () => navigate("/") }
             ]
         },
 
@@ -58,8 +48,9 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Reportes",
             icon: './reportes.png',
             acciones: [
-                { label: "", onClick: () => navigate("/") },
-                { label: "", onClick: () => navigate("/") }
+                { label: "Reportes de producción", onClick: () => navigate("/") },
+                { label: "Rportes de insumos", onClick: () => navigate("/") },
+                { label: "Otros", onClick: () => navigate("/") }
             ]
         }
     ];

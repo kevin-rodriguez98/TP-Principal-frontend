@@ -25,6 +25,12 @@ const TablaProductosEgreso: React.FC = () => {
         ...extraProps,
     });
 
+    const opcionesProductos = useMemo(() =>
+        productos.map((p) => ({
+            value: p.codigo,
+            label: `${p.codigo} - ${p.nombre} - ${p.marca}`,
+        })), [productos]);
+
 
     const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
         () => [
@@ -39,7 +45,7 @@ const TablaProductosEgreso: React.FC = () => {
                 header: "Producto",
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 editVariant: "select",
-                editSelectOptions: productos.map((p) => ({ value: p.codigo, label: p.codigo + " - " + p.nombre })),
+                editSelectOptions: opcionesProductos,
                 muiEditTextFieldProps: ({ row, table }) => ({
                     required: true,
                     error: !!validationErrors.codigoProducto,
@@ -51,8 +57,6 @@ const TablaProductosEgreso: React.FC = () => {
                         row._valuesCache.codigo = codigo;
                         row._valuesCache.nombre = producto?.nombre || "";
                         row._valuesCache.marca = producto?.marca || "";
-                        // row._valuesCache.categoria = producto?.categoria || "";
-
                         table.setCreatingRow({
                             ...row,
                             _valuesCache: { ...row._valuesCache },
@@ -128,7 +132,6 @@ const TablaProductosEgreso: React.FC = () => {
         enableGlobalFilter: true,
         editDisplayMode: "modal",
         enableExpandAll: false,
-        // enableColumnOrdering: true,
         defaultColumn: {
             minSize: 80,
             maxSize: 900,
@@ -268,21 +271,7 @@ const TablaProductosEgreso: React.FC = () => {
                 transition: 'transform 0.2s',
             },
         }),
-        muiTableContainerProps: {
-            className: "tabla-container",
-        },
-        muiTableBodyCellProps: {
-            className: "tabla-body-cell",
-        },
-        muiTableHeadCellProps: {
-            className: "tabla-head-cell",
-        },
-        muiTablePaperProps: {
-            className: "tabla-paper",
-        },
-        muiTableProps: {
-            className: "tabla",
-        },
+
         state: {
             isLoading,
         },
