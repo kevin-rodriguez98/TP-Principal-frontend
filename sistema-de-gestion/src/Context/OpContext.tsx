@@ -48,9 +48,8 @@ export function OpProvider({ children }: OpProviderProps) {
             label: "Reportes",
             icon: './reportes.png',
             acciones: [
-                { label: "Reportes de producción", onClick: () => navigate("/") },
-                { label: "Rportes de insumos", onClick: () => navigate("/") },
-                { label: "Otros", onClick: () => navigate("/") }
+                { label: "Reportes de insumos", onClick: () => navigate("/reportes/insumos") },
+                { label: "Reportes de producción", onClick: () => navigate("/reportes/ordenes") },
             ]
         }
     ];
