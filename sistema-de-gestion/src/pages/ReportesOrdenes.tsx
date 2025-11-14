@@ -116,7 +116,7 @@ const ReportesOrdenes = () => {
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
                     gap: "25px",
                     marginTop: "30px",
                 }}

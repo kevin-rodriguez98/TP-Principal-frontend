@@ -25,11 +25,24 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
         fetchHistorial();
     }, []);
 
+    // const fetchHistorial = async () => {
+    //     const data = await obtenerHistorialEtapas(ordenId);
+    //     setHistorial(data);
+    //     setLoading(false);
+    // };
+
     const fetchHistorial = async () => {
         const data = await obtenerHistorialEtapas(ordenId);
-        setHistorial(data);
+
+        const conFechasDummy = data.map((e: Etapa) => ({
+            ...e,
+            fecha: e.fecha || new Date().toISOString()
+        }));
+
+        setHistorial(conFechasDummy);
         setLoading(false);
     };
+
 
     if (loading)
         return (
@@ -60,7 +73,10 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
                                 {etapa.etapa.replaceAll("_", " ")}
                             </Typography>
                             <Typography variant="caption" sx={{ color: "#ccc" }}>
-                                {new Date(etapa.fecha).toLocaleString()}
+                                {etapa.fecha
+                                    ? new Date(etapa.fecha).toLocaleString()
+                                    : new Date().toLocaleString()} - Usuario
+
                             </Typography>
                         </div>
                     </li>

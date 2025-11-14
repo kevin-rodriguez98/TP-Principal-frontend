@@ -132,7 +132,7 @@ const UsuariosPanel: React.FC = () => {
       <Paper sx={{ mb: 3 }}>
         <Tabs
           value={tab}
-          onChange={(e, v) => setTab(v)}
+          onChange={(_e, v) => setTab(v)}
           indicatorColor="primary"
           textColor="primary"
           centered

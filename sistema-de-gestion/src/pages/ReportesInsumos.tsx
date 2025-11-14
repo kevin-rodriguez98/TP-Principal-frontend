@@ -75,12 +75,12 @@ const ReportesInsumos = () => {
     ).map(([categoria, stock]) => ({ categoria, stock }));
 
     // 🔹 5. Tipos de movimiento
-    const movPorTipo = Object.entries(
-        movimiento_insumos.reduce((acc: any, mov) => {
-            acc[mov.tipo] = (acc[mov.tipo] || 0) + 1;
-            return acc;
-        }, {})
-    ).map(([tipo, cantidad]) => ({ tipo, cantidad }));
+    // const movPorTipo = Object.entries(
+    //     movimiento_insumos.reduce((acc: any, mov) => {
+    //         acc[mov.tipo] = (acc[mov.tipo] || 0) + 1;
+    //         return acc;
+    //     }, {})
+    // ).map(([tipo, cantidad]) => ({ tipo, cantidad }));
 
 
     // === Componente principal ===
@@ -198,7 +198,7 @@ return (
                 </ResponsiveContainer>
             </Card>
 
-            <Card titulo="Tipos de Movimiento">
+            {/* <Card titulo="Tipos de Movimiento">
                 <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                         <Pie dataKey="cantidad" data={movPorTipo} outerRadius={90} label>
@@ -208,7 +208,7 @@ return (
                         </Pie>
                     </PieChart>
                 </ResponsiveContainer>
-            </Card>
+            </Card> */}
 
         </div>
     </div>

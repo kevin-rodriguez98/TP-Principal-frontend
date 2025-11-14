@@ -70,6 +70,7 @@ const CeldaEtapa: React.FC<CeldaEtapaProps> = ({ row, agregarNota, notificarEtap
                     <MenuItem value="Cocción">Cocción</MenuItem>
                     <MenuItem value="Enfriado">Enfriado</MenuItem>
                     <MenuItem value="Almacenamiento">Almacenamiento</MenuItem>
+                    <MenuItem value="Pasteurización">Pasteurización</MenuItem>
                     <MenuItem value="Envasado">Envasado</MenuItem>
                 </Select>
             </FormControl>
