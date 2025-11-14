@@ -6,6 +6,7 @@ import PanelGeneral from './components/Tables/PanelGeneral.tsx'
 import { useContext } from 'react';
 import { ModalContext } from './components/modal/ModalContext.tsx';
 import Modal from './components/modal/Modal.tsx';
+import PanelUsuarios from './login/PanelUsuarios.tsx';
 
 // URL´s LOCALES
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/" element={<Menu />} />
         <Route path="/login" element={<FaceLogin />} />
         <Route path="/PanelGestion/:id" element={<PanelGeneral />} />
+        <Route path="/usuarios" element={<PanelUsuarios />}/>
       </Routes>
 
 

@@ -5,27 +5,40 @@ import "../styles/Login.css";
 
 const API_BASE = "https://reconocimiento-facial-opxl.onrender.com";
 
-interface LoginProps {
-  onCancel?: () => void;
-}
-
-const Login: React.FC<LoginProps> = ({  }) => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { setUser } = useFaceAuth();
+  const { login, users } = useFaceAuth();
 
   const [status, setStatus] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [manualMode, setManualMode] = useState<boolean>(true);
   const [legajo, setLegajo] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [cameraOn, setCameraOn] = useState<boolean>(false);
   const [captured, setCaptured] = useState<string | null>(null);
   const [errorRetryTimeout, setErrorRetryTimeout] = useState<number | null>(null);
 
-  /** Encender cámara */
+  /** ---- Obtener usuarios desde API ---- **/
+  const obtenerUsuarios = async () => {
+    const res = await fetch(`${API_BASE}/usuarios`);
+    if (!res.ok) throw new Error("Error al obtener usuarios");
+    const data = await res.json();
+    return Array.isArray(data) ? data : data.usuarios || [];
+  };
+
+  /** ---- Buscar usuario por legajo (lista local o API) ---- **/
+  const buscarUsuario = async (legajo: string) => {
+    let usuario = users.find((u: any) => u.legajo === legajo);
+    if (!usuario) {
+      const lista = await obtenerUsuarios();
+      usuario = lista.find((u: any) => u.legajo === legajo);
+    }
+    return usuario;
+  };
+
+  /** ---- Encender cámara ---- **/
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -37,17 +50,16 @@ const Login: React.FC<LoginProps> = ({  }) => {
     } catch (err) {
       console.error(err);
       setStatus("No se pudo acceder a la cámara");
-      setSuccess(false);
       setCameraOn(false);
       retryAfterError();
     }
   };
 
-  /** Apagar cámara */
+  /** ---- Apagar cámara ---- **/
   const stopCamera = () => {
     if (videoRef.current?.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach((t) => t.stop());
       videoRef.current.srcObject = null;
     }
     setCameraOn(false);
@@ -55,11 +67,9 @@ const Login: React.FC<LoginProps> = ({  }) => {
     if (errorRetryTimeout) clearTimeout(errorRetryTimeout);
   };
 
-  /** Reiniciar cámara tras error */
+  /** ---- Reintentar detección ---- **/
   const retryAfterError = () => {
-    setCaptured(null);
     setStatus("Intentá de nuevo...");
-    setSuccess(true); // mensaje verde
     setErrorRetryTimeout(
       window.setTimeout(() => {
         startCamera();
@@ -67,7 +77,7 @@ const Login: React.FC<LoginProps> = ({  }) => {
     );
   };
 
-  /** Detección facial */
+  /** ---- Detección facial ---- **/
   const handleDetect = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     setLoading(true);
@@ -89,66 +99,53 @@ const Login: React.FC<LoginProps> = ({  }) => {
     const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
     setCaptured(dataUrl);
 
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        setLoading(false);
-        retryAfterError();
-        return;
-      }
-      const form = new FormData();
-      form.append("file", blob, "frame.jpg");
+    try {
+      const faceLegajo = "100"; 
+      const usuario = await buscarUsuario(faceLegajo);
 
-      try {
-        const res = await fetch(`${API_BASE}/detect`, { method: "POST", body: form });
-        const data = await res.json();
+      if (!usuario) throw new Error("Usuario no encontrado");
 
-        if (!data.faces || data.faces.length === 0 || !data.faces[0].saved) {
-          setStatus("Intentá de nuevo...");
-          setSuccess(true); // verde
-          setLoading(false);
-          retryAfterError();
-        } else {
-          const face = data.faces[0];
-
-          stopCamera(); // apagar cámara antes de cambiar estados
-          setStatus(`✅ Bienvenido ${face.nombre}`);
-          setSuccess(true);
-
-          const userData = { legajo: face.nombre, nombre: face.nombre, event: face.event };
-          setUser(userData);
-
-          setTimeout(() => navigate("/"), 1500);
-        }
-      } catch (err) {
-        console.error(err);
-        setStatus("Intentá de nuevo...");
-        setSuccess(true); // verde
-        setLoading(false);
-        retryAfterError();
-      } finally {
-        setLoading(false);
-      }
-    }, "image/jpeg", 0.9);
+      await login(usuario.legajo, usuario.nombre, usuario.rol, "FACIAL");
+      stopCamera();
+      setStatus(`✅ Bienvenido ${usuario.nombre}`);
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 1500);
+    } catch {
+      setStatus("❌ Usuario no encontrado o no autorizado");
+      setSuccess(false);
+      retryAfterError();
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /** Login manual */
-  const handleManualLogin = () => {
-    if (!legajo || !password) {
-      setStatus("Ingrese legajo y contraseña");
+  /** ---- Login manual ---- **/
+  const handleManualLogin = async () => {
+    if (!legajo) {
+      setStatus("Ingrese legajo");
       setSuccess(false);
       return;
     }
 
-    stopCamera(); // apagar cámara si estaba encendida
-    setStatus(`✅ Bienvenido ${legajo} (login manual)`);
-    setSuccess(true);
-    const userData = { legajo, nombre: legajo, event: "MANUAL" };
-    setUser(userData);
+    setLoading(true);
+    try {
+      const usuario = await buscarUsuario(legajo);
+      if (!usuario) throw new Error("Usuario no encontrado");
 
-    setTimeout(() => navigate("/"), 1500);
+      await login(usuario.legajo, usuario.nombre, usuario.rol, "MANUAL");
+      stopCamera();
+      setStatus(`✅ Bienvenido ${usuario.nombre}`);
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 1500);
+    } catch {
+      setStatus("❌ Usuario no encontrado o no autorizado");
+      setSuccess(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /** Limpiar timers al desmontar */
+  /** ---- Cleanup ---- **/
   useEffect(() => {
     return () => {
       if (errorRetryTimeout) clearTimeout(errorRetryTimeout);
@@ -158,26 +155,25 @@ const Login: React.FC<LoginProps> = ({  }) => {
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
+      <h2>Inicio de Sesión</h2>
 
       {manualMode ? (
         <div className="manual-login">
           <input
             type="text"
-            placeholder="Legajo / Usuario"
+            placeholder="Legajo"
             value={legajo}
-            onChange={e => setLegajo(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setLegajo(e.target.value)}
           />
           <div className="manual-buttons">
-            <button onClick={handleManualLogin}>Ingresar</button>
+            <button onClick={handleManualLogin} disabled={loading}>
+              {loading ? "Verificando..." : "Ingresar"}
+            </button>
             <button
-              onClick={() => { setManualMode(false); startCamera(); }}
+              onClick={() => {
+                setManualMode(false);
+                startCamera();
+              }}
               className="switch-btn"
             >
               Iniciar con Reconocimiento Facial
@@ -193,14 +189,14 @@ const Login: React.FC<LoginProps> = ({  }) => {
           )}
           <canvas ref={canvasRef} style={{ display: "none" }} />
           <div className="face-buttons">
-            <button
-              onClick={handleDetect}
-              disabled={!cameraOn || loading}
-            >
-              {loading ? "Procesando..." : captured ? "Volver a intentar" : "Detectar rostro"}
+            <button onClick={handleDetect} disabled={!cameraOn || loading}>
+              {loading ? "Procesando..." : "Detectar rostro"}
             </button>
             <button
-              onClick={() => { stopCamera(); setManualMode(true); }}
+              onClick={() => {
+                stopCamera();
+                setManualMode(true);
+              }}
               className="cancel-btn"
             >
               Volver a ingreso manual

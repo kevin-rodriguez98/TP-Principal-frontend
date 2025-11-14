@@ -19,39 +19,39 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Router>
       <ModalProvider>
-        <OpProvider>
-          <InsumoProvider>
-            <PanelProvider>
-              <Movimiento_insumo_contextProvider>
-                <Movimiento_producto_contextProvider>
-                  <OrdenProduccionProvider>
-                    <ProductosProvider>
-                      <TiempoProduccionProvider>
-                        <FaceAuthProvider>
-                          <RecetaProvider>
-                            <App />
-                            <ToastContainer
-                              position="bottom-right"
-                              autoClose={2000}
-                              hideProgressBar={false}
-                              newestOnTop={false}
-                              closeOnClick
-                              rtl={false}
-                              pauseOnFocusLoss
-                              draggable
-                              pauseOnHover
-                              theme="dark"
-                            />
-                          </RecetaProvider>
-                        </FaceAuthProvider>
-                      </TiempoProduccionProvider>
-                    </ProductosProvider>
-                  </OrdenProduccionProvider>
-                </Movimiento_producto_contextProvider>
-              </Movimiento_insumo_contextProvider>
-            </PanelProvider>
-          </InsumoProvider>
-        </OpProvider>
+        <FaceAuthProvider>
+          <OpProvider>
+            <InsumoProvider>
+              <PanelProvider>
+                <Movimiento_insumo_contextProvider>
+                  <Movimiento_producto_contextProvider>
+                    <OrdenProduccionProvider>
+                      <ProductosProvider>
+                        <TiempoProduccionProvider>
+                            <RecetaProvider>
+                              <App />
+                              <ToastContainer
+                                position="bottom-right"
+                                autoClose={2000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                                theme="dark"
+                              />
+                            </RecetaProvider>
+                        </TiempoProduccionProvider>
+                      </ProductosProvider>
+                    </OrdenProduccionProvider>
+                  </Movimiento_producto_contextProvider>
+                </Movimiento_insumo_contextProvider>
+              </PanelProvider>
+            </InsumoProvider>
+          </OpProvider>
+       </FaceAuthProvider>
       </ModalProvider>
     </Router>
   </StrictMode>,
