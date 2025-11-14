@@ -11,11 +11,16 @@ const Header = () => {
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
 
   const handleIconClick = () => {
-    if (user) {
-      setIsUserPanelOpen((prev) => !prev); 
+    if (!user) {
+      // 👤 SIN usuario → ir al login
       navigate("/login");
+      return;
+    }
+
+    // 👤 CON usuario → abrir/cerrar panel
+    setIsUserPanelOpen((prev) => !prev);
   };
-};
+
   const handleLogout = () => {
     logout();
     setIsUserPanelOpen(false);
@@ -32,7 +37,6 @@ const Header = () => {
       />
 
       <div className="div-notify">
-        {/* --- Botón de login o usuario --- */}
         <div className="user-slide-container" style={{ position: "relative" }}>
           <button className="btn-login" onClick={handleIconClick}>
             {user ? (
@@ -42,6 +46,7 @@ const Header = () => {
             )}
           </button>
 
+          {/* PANEL SOLO SI HAY USUARIO */}
           {user && (
             <div className={`panel-user ${isUserPanelOpen ? "open" : ""}`}>
               <div className="user-details">
@@ -66,4 +71,3 @@ const Header = () => {
 };
 
 export default Header;
-

@@ -30,6 +30,7 @@ const FaceAuthContext = createContext<FaceAuthContextProps | undefined>(undefine
 
 const API_BASE = "https://reconocimiento-facial-opxl.onrender.com";
 
+// Usuarios mock locales
 const MOCK_USERS: User[] = [
   {
     legajo: "103",
@@ -66,14 +67,17 @@ const MOCK_USERS: User[] = [
 ];
 
 export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
+  // Usuario logueado
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  // Lista de usuarios
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
 
-  const reloadUsers = async () => {
+  // 🔵 Función que recarga usuarios y DEVUELVE los datos (clave para el login)
+  const recargarUsuariosConRetorno = async (): Promise<User[]> => {
     try {
       const res = await fetch(`${API_BASE}/usuarios`);
       if (!res.ok) throw new Error("Error al obtener usuarios remotos");
@@ -93,29 +97,41 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
       const combinados = [
         ...MOCK_USERS,
         ...parsed.filter(
-          (r: { legajo: any; }) => !MOCK_USERS.some((m) => m.legajo === String(r.legajo))
+          (r: any) => !MOCK_USERS.some((m) => m.legajo === String(r.legajo))
         ),
       ];
 
       setUsers(combinados);
+
+      return combinados; // 🔥 Esta es la clave
     } catch (err) {
       console.error("❌ Error al obtener usuarios remotos:", err);
       setUsers(MOCK_USERS);
+      return MOCK_USERS;
     }
+  };
+
+  // Recargar al iniciar
+  const reloadUsers = async () => {
+    await recargarUsuariosConRetorno();
   };
 
   useEffect(() => {
     reloadUsers();
   }, []);
 
+  // Persistencia de usuario
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("rol", user.rol);
     } else {
       localStorage.removeItem("user");
+      localStorage.removeItem("rol");
     }
   }, [user]);
 
+  // 🔵 LOGIN 100% FIXEADO
   const login = async (
     legajo: string,
     nombre?: string,
@@ -124,11 +140,13 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
     rol?: string,
     event: "FACIAL" | "MANUAL" = "MANUAL"
   ) => {
+    // 1) Buscar en usuarios actuales
     let usuario = users.find((u) => u.legajo === legajo);
 
+    // 2) Si no está, recargar lista y buscar de nuevo
     if (!usuario) {
-      await reloadUsers();
-      usuario = users.find((u) => u.legajo === legajo);
+      const nuevosUsuarios = await recargarUsuariosConRetorno();
+      usuario = nuevosUsuarios.find((u) => u.legajo === legajo);
     }
 
     if (!usuario) {
@@ -148,6 +166,7 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("rol", userData.rol);
   };
 
+  // Cerrar sesión
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -155,7 +174,9 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <FaceAuthContext.Provider value={{ user, users, setUser, login, logout, reloadUsers }}>
+    <FaceAuthContext.Provider
+      value={{ user, users, setUser, login, logout, reloadUsers }}
+    >
       {children}
     </FaceAuthContext.Provider>
   );
@@ -163,6 +184,8 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useFaceAuth = () => {
   const context = useContext(FaceAuthContext);
-  if (!context) throw new Error("useFaceAuth must be used within FaceAuthProvider");
+  if (!context)
+    throw new Error("useFaceAuth must be used within FaceAuthProvider");
   return context;
 };
+
