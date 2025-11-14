@@ -48,7 +48,7 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
     return (
         <Box className="timeline-container">
             <Typography variant="subtitle1" sx={{ mb: 1, color: "#15a017ff", fontWeight: 600 }}>
-                Historial de Etapas
+                Trazabilidad de la Órden
             </Typography>
 
             <ul className="timeline compact">

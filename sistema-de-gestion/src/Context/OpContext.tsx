@@ -64,40 +64,27 @@ export function OpProvider({ children }: OpProviderProps) {
         { label: "Gestionar registros", onClick: () => navigate("/PanelGestion/1") },
       ],
     },
-    {
-      label: "Gestión de Producción",
-      icon: "./produccion.png",
-      acciones: [
-        { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
-        { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
-      ],
-    },
-    {
-      label: "Seguimiento de Producción",
-      icon: "./seguimiento.png",
-      acciones: [
-        { label: "Ver avances", onClick: () => navigate("/seguimiento") },
-      ],
-    },
-    {
-      label: "Trazabilidad de Producción",
-      icon: "./calidad.png",
-      acciones: [
-        { label: "Control de calidad", onClick: () => navigate("/trazabilidad") },
-      ],
-    },
-    {
-      label: "Reportes",
-      icon: "./reportes.png",
-      acciones: [
-        { label: "Reportes de asistencia", onClick: () => navigate("/reportes/asistencia") },
-        { label: "Reportes generales", onClick: () => navigate("/reportes/general") },
-      ],
-    },
+     {
+            label: "Gestión de Producción",
+            icon: './produccion.png',
+            acciones: [
+                { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
+                { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
+            ]
+        },
+
+        {
+            label: "Reportes",
+            icon: './reportes.png',
+            acciones: [
+                { label: "Reportes de insumos", onClick: () => navigate("/reportes/insumos") },
+                { label: "Reportes de producción", onClick: () => navigate("/reportes/ordenes") },
+            ]
+        },
     {
       label: "Alta de Usuarios",
       icon: "./usuarios.png",
-      rolesPermitidos: ["GERENTE", "ADMINISTRADOR"], // Solo ellos pueden acceder
+      rolesPermitidos: ["GERENTE", "ADMINISTRADOR"],
       acciones: [
         { label: "Panel de usuarios", onClick: () => navigate("/usuarios") },
       ],
@@ -119,6 +106,7 @@ export function OpProvider({ children }: OpProviderProps) {
 
     return permitidoPorModulo || permitidoPorMapping;
   });
+
 
   return (
     <OpContext.Provider value={{ modulos: modulosFiltrados }}>

@@ -524,30 +524,7 @@ const TablaOrden: React.FC = () => {
         ),
 
         renderRowActions: ({ row }) => {
-            // const { id, codigoProducto, estado, stockProducidoReal } = row.original;
-
             const acciones = [
-                // {
-                //     title: "En Producción",
-                //     icon: "⚙️",
-                //     color: "warning",
-                //     action: () => marcarEnProduccion(Number(id), codigoProducto),
-                //     disabled: estado === ESTADOS.enProduccion || estado === ESTADOS.finalizada || estado === ESTADOS.cancelada
-                // },
-                // {
-                //     title: "Finalizar Orden",
-                //     icon: "✅",
-                //     color: "success",
-                //     action: () => finalizarOrden(id, stockProducidoReal, "Deposito central"),
-                //     disabled: estado === ESTADOS.finalizada || estado === ESTADOS.cancelada || estado === ESTADOS.evaluacion
-                // },
-                // {
-                //     title: "Cancelar Orden",
-                //     icon: "❌",
-                //     color: "error",
-                //     action: () => cancelarOrden(Number(id)),
-                //     disabled: ESTADOS.finalizada === estado || ESTADOS.cancelada === estado || ESTADOS.enProduccion === estado,
-                // },
                 {
                     title: "Detalles",
                     icon: "ℹ️",

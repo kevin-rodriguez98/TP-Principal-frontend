@@ -6,7 +6,7 @@ interface ModalData {
     onConfirm?: () => void;
 }
 
-interface ModalContextType {
+export interface ModalContextType {
     modal: ModalData | null;
     setModal: React.Dispatch<React.SetStateAction<ModalData | null>>;
 }

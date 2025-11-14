@@ -7,6 +7,8 @@ import { useContext } from 'react';
 import { ModalContext } from './components/modal/ModalContext.tsx';
 import Modal from './components/modal/Modal.tsx';
 import PanelUsuarios from './login/PanelUsuarios.tsx';
+import ReportesInsumos from './pages/ReportesInsumos.tsx';
+import ReportesOrdenes from './pages/ReportesOrdenes.tsx';
 
 // URL´s LOCALES
 
@@ -38,6 +40,8 @@ function App() {
         <Route path="/login" element={<FaceLogin />} />
         <Route path="/PanelGestion/:id" element={<PanelGeneral />} />
         <Route path="/usuarios" element={<PanelUsuarios />}/>
+        <Route path="/reportes/insumos" element={<ReportesInsumos />} />
+        <Route path="/reportes/ordenes" element={<ReportesOrdenes />} />
       </Routes>
 
 
