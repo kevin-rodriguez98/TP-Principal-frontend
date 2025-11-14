@@ -64,23 +64,23 @@ export function OpProvider({ children }: OpProviderProps) {
         { label: "Gestionar registros", onClick: () => navigate("/PanelGestion/1") },
       ],
     },
-     {
-            label: "Gestión de Producción",
-            icon: './produccion.png',
-            acciones: [
-                { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
-                { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
-            ]
-        },
+    {
+      label: "Gestión de Producción",
+      icon: './produccion.png',
+      acciones: [
+        { label: "Gestionar Productos", onClick: () => navigate("/PanelGestion/2") },
+        { label: "Gestionar Ordenes", onClick: () => navigate("/PanelGestion/3") },
+      ]
+    },
 
-        {
-            label: "Reportes",
-            icon: './reportes.png',
-            acciones: [
-                { label: "Reportes de insumos", onClick: () => navigate("/reportes/insumos") },
-                { label: "Reportes de producción", onClick: () => navigate("/reportes/ordenes") },
-            ]
-        },
+    {
+      label: "Reportes",
+      icon: './reportes.png',
+      acciones: [
+        { label: "Reportes de insumos", onClick: () => navigate("/reportes/insumos") },
+        { label: "Reportes de producción", onClick: () => navigate("/reportes/ordenes") },
+      ]
+    },
     {
       label: "Alta de Usuarios",
       icon: "./usuarios.png",
