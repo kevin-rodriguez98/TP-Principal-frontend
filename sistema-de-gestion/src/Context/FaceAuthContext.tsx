@@ -26,7 +26,7 @@ interface FaceAuthContextProps {
   reloadUsers: () => Promise<void>;
 }
 
-const FaceAuthContext = createContext<FaceAuthContextProps | undefined>(undefined);
+export const FaceAuthContext = createContext<FaceAuthContextProps | undefined>(undefined);
 
 const API_BASE = "https://reconocimiento-facial-opxl.onrender.com";
 

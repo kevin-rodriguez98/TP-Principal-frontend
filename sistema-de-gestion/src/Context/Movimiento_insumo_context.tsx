@@ -15,7 +15,7 @@ export interface movimiento_insumo {
     lote: string;
     proveedor: string;
     responsable: string;
-    creationUsername: string;
+    fechaHora: Date;
 }
 
 interface Movimiento_insumo_contextType {

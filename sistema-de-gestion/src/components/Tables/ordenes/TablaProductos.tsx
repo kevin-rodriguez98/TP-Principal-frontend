@@ -24,7 +24,7 @@ const TablaProductos: React.FC = () => {
   const [nuevoInsumo, setNuevoInsumo] = useState<Receta>({
     codigoInsumo: "",
     nombreInsumo: "",
-    stockNecesarioInsumo: 1,
+    cantidadNecesaria: 1,
     unidad: ""
   });
 
@@ -56,34 +56,38 @@ const TablaProductos: React.FC = () => {
       {
         accessorKey: "nombre",
         header: "Nombre",
-        enableEditing: (row) => row.original.nombre === "",
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("nombre"),
       },
       {
         accessorKey: "categoria",
         header: "Categoría",
-        enableEditing: (row) => row.original.categoria === "",
         editVariant: "select",
         editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("categoria"),
       },
       {
-        accessorKey: "marca",
-        header: "Marca",
-        enableEditing: (row) => row.original.marca === "",
+        accessorKey: "linea",
+        header: "Línea",
         editVariant: "select",
-        editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
+        editSelectOptions: ["Light", "Entero", "Sin Lactosa", "Descremado", "Otro"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: baseTextFieldProps("marca"),
+        muiEditTextFieldProps: baseTextFieldProps("linea"),
+      },
+      {
+        accessorKey: "presentacion",
+        header: "Presentación",
+        editVariant: "select",
+        editSelectOptions: ["Gramos", "Litros", "Kilos"],
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: baseTextFieldProps("presentacion"),
       },
       {
         accessorKey: "unidad",
         header: "Unidad",
-        enableEditing: (row) => row.original.unidad === "",
         editVariant: "select",
-        editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
+        editSelectOptions: ["Unidades", "Litros ", "Gramos ", "Kilogramos", "Toneladas"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("unidad"),
       },
@@ -91,9 +95,8 @@ const TablaProductos: React.FC = () => {
         accessorKey: "stock",
         header: "Stock",
         enableEditing: false,
-        defaultValue: 0,
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: baseTextFieldProps("stock", { type: "number", required: false}),
+        muiEditTextFieldProps: baseTextFieldProps("stock", { type: "number", required: false }),
       }
     ],
     [validationErrors]
@@ -103,7 +106,8 @@ const TablaProductos: React.FC = () => {
     const errores: Record<string, string> = {};
     if (!producto.nombre?.trim()) errores.nombre = "Nombre requerido";
     if (!producto.categoria?.trim()) errores.categoria = "Categoría requerida";
-    if (!producto.marca?.trim()) errores.marca = "Marca requerida";
+    if (!producto.linea?.trim()) errores.linea = "Línea requerida";
+    if (!producto.presentacion?.trim()) errores.presentacion = "Presentación requerida";
     if (!producto.unidad?.trim()) errores.unidad = "Unidad requerida";
     return errores;
   };
@@ -326,7 +330,7 @@ const TablaProductos: React.FC = () => {
               {recetas.map((insumo) => (
                 <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
                   <Typography variant="body2">
-                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.stockNecesarioInsumo + " " + insumo.unidad}
+                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria + " " + insumo.unidad}
                   </Typography>
                 </li>
 
@@ -342,7 +346,7 @@ const TablaProductos: React.FC = () => {
               color="secondary"
               onClick={() => {
                 setCodigoProducto(row.original.codigo);
-                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", stockNecesarioInsumo: 1, unidad: "gr." });
+                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", cantidadNecesaria: 1, unidad: "gr." });
                 setOpenModalReceta(true);
               }}
             >
@@ -354,7 +358,7 @@ const TablaProductos: React.FC = () => {
               color="secondary"
               disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario > 0}
               onClick={() => {
-                const tiempo = prompt("Ingrese el tiempo de producción (en minutos):");
+                const tiempo = prompt("Ingrese el tiempo de producción (en horas):");
                 if (tiempo) {
                   agregarTiempoProduccion(row.original.codigo, parseInt(tiempo));
                 }
@@ -422,7 +426,7 @@ const TablaProductos: React.FC = () => {
             <option value="">Seleccione un insumo</option>
             {insumos.map((i) => (
               <option key={i.codigo} value={i.codigo}>
-                {i.codigo + " - " + i.nombre}
+                {i.codigo + " - " + i.nombre + " - " + i.marca}
               </option>
             ))}
           </TextField>
@@ -430,16 +434,18 @@ const TablaProductos: React.FC = () => {
           <TextField
             label="Cantidad Necesaria"
             type="number"
-            value={nuevoInsumo.stockNecesarioInsumo}
+            value={nuevoInsumo.cantidadNecesaria}
             onChange={(e) =>
               setNuevoInsumo({
                 ...nuevoInsumo,
-                stockNecesarioInsumo: Number(e.target.value),
+                cantidadNecesaria: Number(e.target.value),
               })
             }
             fullWidth
           />
+
           <TextField
+            select
             label="Unidad"
             type="text"
             value={nuevoInsumo.unidad}
@@ -450,7 +456,16 @@ const TablaProductos: React.FC = () => {
               })
             }
             fullWidth
-          />
+            SelectProps={{ native: true }}
+          >
+              <option value="Unidades"> Unidades </option>
+              <option value="Miligramos"> Miligramos </option>
+              <option value="Gramos"> Gramos </option>
+              <option value="Litros"> Litros </option>
+              <option value="Kilogramos"> Kilogramos </option>
+
+          </TextField>
+        
         </DialogContent>
 
         <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>

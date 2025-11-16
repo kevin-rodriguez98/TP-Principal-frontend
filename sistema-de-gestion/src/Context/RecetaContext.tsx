@@ -5,7 +5,7 @@ import { ModalContext } from "../components/modal/ModalContext";
 
 export interface Receta {
     codigoInsumo: string;
-    stockNecesarioInsumo: number;
+    cantidadNecesaria: number;
     nombreInsumo: string;
     unidad: string;
 }

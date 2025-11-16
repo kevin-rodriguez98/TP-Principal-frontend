@@ -57,8 +57,8 @@ const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "marca",
                 header: "Marca",
-                editVariant: "select",
-                editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
+                // editVariant: "select",
+                // editSelectOptions: ["La Serenísima", "Sancor", "Milkaut", "La Paulina", "Yogurísimo", "Ilolay"],
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: baseTextFieldProps("marca"),
             },
@@ -66,7 +66,7 @@ const TablaInsumos: React.FC = () => {
                 accessorKey: "unidad",
                 header: "Unidad",
                 editVariant: "select",
-                editSelectOptions: ["Unidad", "lts. ", "g. ", "kg. ", "ton. "],
+                editSelectOptions: ["Unidad", "Litros ", "Gramos ", "Kilogramos", "Toneladas"],
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: baseTextFieldProps("unidad"),
             },
@@ -114,10 +114,6 @@ const TablaInsumos: React.FC = () => {
         if (!insumo.categoria?.trim()) errores.categoria = "Categoría requerida";
         if (!insumo.marca?.trim()) errores.marca = "Marca requerida";
         if (!insumo.unidad?.trim()) errores.unidad = "Medida requerida";
-        // const stockNumber = Number(insumo.stock);
-        // if (insumo.stock === undefined || insumo.stock === null || isNaN(stockNumber) || stockNumber <= 0) {
-        //     errores.stock = "Stock debe ser un número válido mayor a 0";
-        // }
         const umbralNumber = Number(insumo.umbralMinimoStock);
         if (insumo.umbralMinimoStock === undefined || insumo.umbralMinimoStock === null || isNaN(umbralNumber) || umbralNumber <= 0) {
             errores.umbralMinimoStock = "Umbral mínimo debe ser un número válido mayor a 0";

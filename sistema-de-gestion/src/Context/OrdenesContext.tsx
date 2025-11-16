@@ -33,7 +33,7 @@ export interface OrdenProduccion {
   etapa: string;
   nota: string;
 
-  creationUsername: string;
+  responsable: string;
   fechaCreacion: string;
   stockProducidoReal: number;
   tiempoEstimado?: number;
@@ -114,7 +114,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       }
       const data = await response.json();
       setOrdenes(data);
-      console.log("ORDENES:", data);
     } catch (err: any) {
       setError(err.message);
       if (!modal) {

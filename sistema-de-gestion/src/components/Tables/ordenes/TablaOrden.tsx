@@ -8,6 +8,7 @@ import CeldaEstado from "./CeldaEstado";
 import CeldaEtapa from "./CeldaEtapa";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
+import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -29,6 +30,7 @@ export const COLORES_ESTADOS: Record<string, string> = {
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error, notificarEtapa, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
+    const { user } = useContext(FaceAuthContext)!;
     const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
@@ -48,7 +50,7 @@ const TablaOrden: React.FC = () => {
     const opcionesProductos = useMemo(() =>
         productos.map((p) => ({
             value: p.codigo,
-            label: `${p.codigo} - ${p.nombre} - ${p.marca}`,
+            label: `${p.codigo} - ${p.nombre} - ${p.linea}`,
         })), [productos]);
 
 
@@ -73,7 +75,7 @@ const TablaOrden: React.FC = () => {
                         const producto = productos.find((p) => p.codigo === codigo);
                         row._valuesCache.codigoProducto = codigo;
                         row._valuesCache.productoRequerido = producto?.nombre || "";
-                        row._valuesCache.marca = producto?.marca || "";
+                        row._valuesCache.marca = producto?.linea || "";
                         table.setCreatingRow({
                             ...row,
                             _valuesCache: { ...row._valuesCache },
@@ -173,14 +175,10 @@ const TablaOrden: React.FC = () => {
                 Cell: ({ row }) => row.original.presentacion || "—",
             },
             {
-                accessorKey: "creationUsername",
+                accessorKey: "responsable",
                 header: "Responsable",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: "admin" },
-                Cell: ({ row }) =>
-                    row.original.fechaCreacion
-                        ? new Date(row.original.fechaCreacion).toLocaleString()
-                        : "—",
+                muiEditTextFieldProps: { value: `${user?.legajo }` },
             },
             {
                 accessorKey: "fechaCreacion",
@@ -254,7 +252,7 @@ const TablaOrden: React.FC = () => {
             density: 'compact',
             columnVisibility: {
                 stockRequerido: false,
-                creationUsername: false,
+                responsable: false,
                 fechaCreacion: false,
                 tiempoEstimado: false,
                 fechaEntrega: false,
@@ -340,7 +338,7 @@ const TablaOrden: React.FC = () => {
                         <Typography variant="subtitle2" color="primary">
                             Responsable
                         </Typography>
-                        <Typography>{row.original.creationUsername}</Typography>
+                        <Typography>{row.original.responsable}</Typography>
                     </Box>
                 </Box>
 

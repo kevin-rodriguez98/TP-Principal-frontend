@@ -4,6 +4,7 @@ import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitl
 import { Movimiento_insumo_context, type movimiento_insumo } from "../../../Context/Movimiento_insumo_context";
 import SinResultados from "../../estaticos/SinResultados";
 import { InsumoContext } from "../../../Context/InsumoContext";
+import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -11,6 +12,7 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 export const TablaInsumos: React.FC = () => {
     const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
     const { insumos } = useContext(InsumoContext)!;
+    const { user } = useContext(FaceAuthContext)!;
 
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const limpiarError = (campo: string) =>
@@ -49,6 +51,7 @@ export const TablaInsumos: React.FC = () => {
                         row._valuesCache.nombre = insumo?.nombre || "";
                         row._valuesCache.marca = insumo?.marca || "";
                         row._valuesCache.categoria = insumo?.categoria || "";
+                        row._valuesCache.unidad = insumo?.unidad || "";
 
                         table.setCreatingRow({
                             ...row,
@@ -95,7 +98,7 @@ export const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "marca",
                 header: "Marca",
-                enableEditing: false, // solo lectura
+                enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: ({ row }) => ({
                     value: row._valuesCache.marca
@@ -105,9 +108,10 @@ export const TablaInsumos: React.FC = () => {
             {
                 accessorKey: "unidad",
                 header: "Unidad",
-                editVariant: "select",
-                editSelectOptions: ["unidad", "miligramos", "gramos", "litros", "kilogramos", "toneladas"],
-                muiEditTextFieldProps: baseTextFieldProps("unidad",),
+                enableEditing: false,
+                muiEditTextFieldProps: ({ row }) => ({
+                    value: row._valuesCache.unidad
+                }),
             },
             {
                 accessorKey: "stock",
@@ -124,6 +128,18 @@ export const TablaInsumos: React.FC = () => {
                 header: "Proveedor",
                 muiEditTextFieldProps: baseTextFieldProps("proveedor"),
             },
+            {
+                accessorKey: "responsable",
+                header: "Responsable",
+                enableEditing: false,
+                muiEditTextFieldProps: { value: `${user?.legajo}` },
+            },
+            {
+                accessorKey: "fechaHora",
+                header: "Fecha Ingreso",
+                enableEditing: false,
+                muiEditTextFieldProps: { value: new Date().toLocaleString() },
+            },
         ],
         [validationErrors]
     );
@@ -131,7 +147,6 @@ export const TablaInsumos: React.FC = () => {
     const validar = (registro: Partial<movimiento_insumo>) => {
         const errores: Record<string, string> = {};
         if (!registro.codigo?.trim()) errores.codigo = "Codigo insumo requerido";
-        if (!registro.unidad?.trim()) errores.unidad = "Medida requerida";
         if (!registro.lote?.trim()) errores.lote = "Lote requerido";
         if (!registro.proveedor?.trim()) errores.proveedor = "Proveedor requerido";
         const stockNumber = Number(registro.stock);
@@ -163,9 +178,9 @@ export const TablaInsumos: React.FC = () => {
         enableColumnResizing: true,
         columnResizeMode: 'onEnd',
         defaultColumn: {
-            minSize: 80, //allow columns to get smaller than default
-            maxSize: 900, //allow columns to get larger than default
-            size: 150, //make columns wider by default
+            minSize: 80,
+            maxSize: 900,
+            size: 150,
             grow: 1,
             enableResizing: true,
         },
@@ -196,7 +211,6 @@ export const TablaInsumos: React.FC = () => {
         enableGlobalFilter: true,
         editDisplayMode: "modal",
         enableExpandAll: false,
-        // enableColumnOrdering: true,
         getRowId: (row) => String(row.id),
         onCreatingRowCancel: () => setValidationErrors({}),
         onCreatingRowSave: handleCreateRegistro,
@@ -240,7 +254,7 @@ export const TablaInsumos: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Responsable
                     </Typography>
-                    <Typography>{row.original.creationUsername}</Typography>
+                    <Typography>{row.original.responsable}</Typography>
                 </Box>
             </Box >
         ),

@@ -64,13 +64,17 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
 
             if (!response.ok)
                 await handleFetchError(response, "Error al registrar el tiempo de producción");
-
             toast.success("⏱️ Tiempo de producción registrado correctamente");
+            setModal({
+                tipo: "success",
+                mensaje: "Tiempo de producción registrado correctamente",
+            });
             await obtenerTiemposProduccion();
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
+
         }
     };
 
@@ -105,24 +109,6 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
             setIsLoading(false);
         }
     };
-
-    // const obtenerTiempoProduccionUnitario = async (codigo: string): Promise<number | null> => {
-    //     setIsLoading(true);
-    //     try {
-    //         const response = await fetch(`${URLEst}/obtener-tiempo-unitario?codigoProducto=${codigo}`);
-
-    //         if (!response.ok)
-    //             await handleFetchError(response, "Error al obtener el tiempo de producción");
-
-    //         const data = await response.json();
-    //         return typeof data === "number" ? data : data?.tiempoPorUnidad ?? null;
-    //     } catch (error) {
-    //         console.error(error);
-    //         return null;
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
 
     // ⏱️ Calcular tiempo estimado total
     const calcularTiempoEstimado = async (codigoProducto: string, cantidad: number): Promise<number | null> => {

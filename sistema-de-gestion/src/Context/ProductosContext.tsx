@@ -7,7 +7,7 @@ export interface Producto {
   codigo: string;
   nombre: string;
   categoria: string;
-  marca: string;
+  linea: string;
   unidad: string;
   stock: number;
   envasado: string;
@@ -165,6 +165,8 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       },
     });
   };
+
+  
 
   const obtenerSiguienteCodigo = () => {
     if (productos.length === 0) return "P001";

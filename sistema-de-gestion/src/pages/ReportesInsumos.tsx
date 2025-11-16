@@ -124,7 +124,7 @@ return (
             <Card titulo="Distribución de Categorías (%)">
                 <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
-                        <Pie data={stockPorCategoria} dataKey="stock" outerRadius={70} label>
+                        <Pie data={stockPorCategoria}  nameKey="categoria" dataKey="stock" outerRadius={70} label>
                             {stockPorCategoria.map((_, i) => (
                                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
                             ))}
