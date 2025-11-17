@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import {
   Box, Button, DialogActions, DialogContent, DialogTitle,
-  Typography, CircularProgress
+  Typography, CircularProgress,
+  Paper
 } from "@mui/material";
 
 import * as XLSX from "xlsx";
@@ -265,37 +266,33 @@ const TablaUsuarios: React.FC = () => {
     );
   }
 
-  return (
-
-    <Box
-      className="tabla-wrapper"
+return (
+  <Box
+    sx={{
+      width: "100%",
+      minHeight: "100vh",
+      bgcolor: "background.default",
+      display: "flex",
+      justifyContent: "center",
+      backgroundColor: "transparent",
+      p: 4,
+    }}
+  >
+    <Paper
+      elevation={3}
       sx={{
         width: "100%",
-        minHeight: "100vh",
-        backgroundColor: "transparent",
-
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-
-        p: 2,
+        maxWidth: "1400px",
+        borderRadius: 2,
+        p: 3,
+        backgroundColor: "#1e1e1e",
       }}
     >
-      <Box
-        sx={{
-          width: "85%",
-          maxWidth: "1200px",
-          backgroundColor: "#121212",
-          borderRadius: 2,
-          p: 3,
-          boxShadow: "0px 0px 20px rgba(0,0,0,0.4)",
-        }}
-      >
-        <MaterialReactTable table={table} />
-      </Box>
-    </Box>
+      <MaterialReactTable table={table} />
+    </Paper>
+  </Box>
+);
 
-  );
 
 };
 

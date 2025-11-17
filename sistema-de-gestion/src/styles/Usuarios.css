@@ -74,7 +74,7 @@
 } */
 
 /* ======== BOTONES ======== */
-.MuiButton-containedPrimary {
+/* .MuiButton-containedPrimary {
   background-color: #00bcd4 !important;
   color: white !important;
   font-weight: 600 !important;
@@ -92,7 +92,7 @@
 }
 .MuiButton-outlined:hover {
   background-color: rgba(0, 188, 212, 0.1);
-}
+} */
 
 /* ======== VIDEO & CAPTURA ======== */
 video {
