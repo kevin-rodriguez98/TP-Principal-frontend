@@ -1,283 +1,302 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  CircularProgress,
-  Table,
-  TableHead,
-  TableRow,
-  TableBody,
-  Paper,
-  Tabs,
-  Tab,
-  TableContainer,
-  MenuItem,
-  TableCell,
-  Grid,
+  Box, Button, DialogActions, DialogContent, DialogTitle,
+  Typography, CircularProgress
 } from "@mui/material";
-import * as XLSX from "xlsx";
-import "../styles/Usuarios.css";
-import { useFaceAuth } from "../Context/FaceAuthContext";
 
-const API_BASE = "https://reconocimiento-facial-opxl.onrender.com";
+import * as XLSX from "xlsx";
+import {
+  MaterialReactTable,
+  MRT_EditActionButtons,
+  useMaterialReactTable,
+  type MRT_ColumnDef,
+} from "material-react-table";
+
+import { useFaceAuth } from "../Context/FaceAuthContext";
+import { useUsuarios, type Empleado } from "../Context/UsuarioContext";
+import SinResultados from "../components/estaticos/SinResultados";
+import '../styles/tablas.css'
+import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+
+
+const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
-const UsuariosPanel: React.FC = () => {
-  const [tab, setTab] = useState(0);
-  const [usuarios, setUsuarios] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [nuevoUsuario, setNuevoUsuario] = useState({
-    legajo: "",
-    nombre: "",
-    apellido: "",
-    email: "",
-    rol: "",
+
+const TablaUsuarios: React.FC = () => {
+  const { empleados, cargando, agregarEmpleado, error, isLoading } = useUsuarios();
+  const { login, logout, user } = useFaceAuth();
+  const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+  const navigate = useNavigate();
+  const limpiarError = (campo: string) =>
+    setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+
+  const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+    required: true,
+    error: !!validationErrors[campo],
+    helperText: validationErrors[campo] ? (
+      <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+    ) : null,
+    onFocus: () => limpiarError(campo),
+    ...extraProps,
   });
 
-  const { user, login, logout } = useFaceAuth(); 
 
-  /** ---- Alta de usuario ---- **/
-  const handleAlta = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/usuarios`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevoUsuario),
-      });
 
-      if (!res.ok) throw new Error("Error al registrar usuario");
+  /** ------------------------------------------------------------------
+   * COLUMNAS DE LA TABLA
+   * ------------------------------------------------------------------ */
+  const columns = useMemo<MRT_ColumnDef<Empleado>[]>(() => [
+    {
+      accessorKey: "legajo",
+      header: "Legajo",
+      muiTableHeadCellProps: ESTILOS_CABECERA,
+      muiEditTextFieldProps: baseTextFieldProps("legajo"),
+    },
+    {
+      accessorKey: "nombre",
+      header: "Nombre",
+      muiTableHeadCellProps: ESTILOS_CABECERA,
+      muiEditTextFieldProps: baseTextFieldProps("nombre"),
+    },
+    {
+      accessorKey: "apellido",
+      header: "Apellido",
+      muiTableHeadCellProps: ESTILOS_CABECERA,
+      muiEditTextFieldProps: baseTextFieldProps("apellido"),
+    },
+    {
+      accessorKey: "area",
+      header: "Área",
+      muiTableHeadCellProps: ESTILOS_CABECERA,
+      muiEditTextFieldProps: baseTextFieldProps("area"),
+    },
+    {
+      accessorKey: "rol",
+      header: "Rol",
+      editVariant: "select",
+      editSelectOptions: roles,
+      muiTableHeadCellProps: ESTILOS_CABECERA,
+      muiEditTextFieldProps: baseTextFieldProps("rol"),
+    },
+  ], [validationErrors]);
 
-      alert("✅ Usuario creado correctamente");
-      setNuevoUsuario({
-        legajo: "",
-        nombre: "",
-        apellido: "",
-        email: "",
-        rol: "",
-      });
-      await cargarUsuarios();
-      setTab(0);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error al registrar usuario");
-    } finally {
-      setLoading(false);
+  /** ------------------------------------------------------------------
+ * GUARDAR NUEVO EMPLEADO
+ * ------------------------------------------------------------------ */
+  const handleGuardar = async ({ values, table }: any) => {
+    const errores = validarUsuario(values);
+    if (Object.keys(errores).length) {
+      setValidationErrors(errores);
+      return;
     }
+
+    setValidationErrors({});
+    console.log(values)
+    await agregarEmpleado(values);
+    table.setCreatingRow(null);
   };
 
-  /** ---- Cargar lista ---- **/
-  const cargarUsuarios = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/usuarios`);
-      const data = await res.json();
-
-      if (Array.isArray(data)) {
-        setUsuarios(data);
-      } else if (Array.isArray(data.usuarios)) {
-        setUsuarios(data.usuarios);
-      } else {
-        console.error("Formato inesperado de respuesta:", data);
-        setUsuarios([]);
-      }
-    } catch (error) {
-      console.error("Error al obtener usuarios:", error);
-      alert("Error al obtener usuarios");
-    } finally {
-      setLoading(false);
-    }
+  /** ------------------------------------------------------------------
+   * LOGIN SIMULADO
+   * ------------------------------------------------------------------ */
+  const handleLoginSimulado = async (u: Empleado) => {
+    await login(u.legajo, `${u.nombre} ${u.apellido}`);
+    alert(`👤 Usuario autenticado: ${u.nombre} ${u.apellido}`);
   };
 
-  /** ---- Descargar Excel ---- **/
+  /** ------------------------------------------------------------------
+   * EXPORTACIÓN EXCEL
+   * ------------------------------------------------------------------ */
   const exportarExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(usuarios);
+    const ws = XLSX.utils.json_to_sheet(empleados);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
     XLSX.writeFile(wb, "usuarios.xlsx");
   };
 
-  /** ---- Simular autenticación facial ---- **/
-  const handleLoginSimulado = async (u: any) => {
-    await login(u.legajo, `${u.nombre} ${u.apellido}`);
-    alert(`👤 Usuario autenticado: ${u.nombre} ${u.apellido}`);
+  /** ------------------------------------------------------------------
+ * VALIDACIÓN
+ * ------------------------------------------------------------------ */
+  const validarUsuario = (u: Partial<Empleado>) => {
+    const errores: Record<string, string> = {};
+    if (!u.legajo?.trim()) errores.legajo = "Legajo requerido";
+    if (!u.nombre?.trim()) errores.nombre = "Nombre requerido";
+    if (!u.apellido?.trim()) errores.apellido = "Apellido requerido";
+    if (!u.area?.trim()) errores.area = "Área requerida";
+    if (!u.rol?.trim()) errores.rol = "Rol requerido";
+    return errores;
   };
 
-  useEffect(() => {
-    if (tab === 0) cargarUsuarios();
-  }, [tab]);
+  /** ------------------------------------------------------------------
+   * CONFIGURACIÓN DE LA TABLA
+   * ------------------------------------------------------------------ */
+  const table = useMaterialReactTable({
+    columns,
+    data: empleados,
+    createDisplayMode: "modal",
+    enableRowActions: true,
+    enableGlobalFilter: true,
+    editDisplayMode: "modal",
+    enableEditing: true,
+    positionActionsColumn: "last",
+    initialState: {
+      pagination: {
+        pageSize: 10,
+        pageIndex: 0
+      },
+      density: "compact",
+    },
+    muiTableContainerProps: {
+      className: "tabla-container",
+    },
+    muiTableBodyCellProps: {
+      className: "tabla-body-cell",
+    },
+    muiTableHeadCellProps: {
+      className: "tabla-head-cell",
+    },
+    muiTablePaperProps: {
+      className: "tabla-paper",
+    },
+    muiTableProps: {
+      className: "tabla",
+    },
+    getRowId: (row) => row.legajo,
+
+    // Crear nuevo usuario
+    onCreatingRowSave: handleGuardar,
+    onCreatingRowCancel: () => setValidationErrors({}),
+    onEditingRowCancel: () => setValidationErrors({}),
+
+    // Modal de creación
+    renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
+      <>
+        <DialogTitle
+          variant="h5"
+          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+        >
+          Nuevo Usuario
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 2,
+            padding: 2,
+          }}
+        >
+          {internalEditComponents}
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <MRT_EditActionButtons table={table} row={row} />
+        </DialogActions>
+      </>
+    ),
+
+    /** ---- BOTONES SUPERIORES ---- */
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box display="flex" gap={2} alignItems="center" width="100%">
+        <Button
+          onClick={() => navigate("/")}
+          variant="contained"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            backgroundColor: "#2b2b2b",
+            color: "#fff",
+            borderRadius: "30px",
+            padding: "8px 16px",
+            textTransform: "none",
+            fontWeight: "bold",
+            "&:hover": { backgroundColor: "#444" },
+          }}
+        >
+          <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
+        </Button>
+
+
+        <Button variant="contained" color="success" onClick={() => table.setCreatingRow(true)}>
+          Nuevo Usuario
+        </Button>
+
+        <Button variant="contained" onClick={exportarExcel}>
+          Descargar Listado
+        </Button>
+
+        <Box marginLeft="auto">
+          {user ? (
+            <>
+              <Typography color="green">👤 Sesión activa: {user.nombre}</Typography>
+              <Button color="error" onClick={logout}>Cerrar sesión</Button>
+            </>
+          ) : (
+            <Typography color="text.secondary">⚪ Sin usuario autenticado</Typography>
+          )}
+        </Box>
+      </Box>
+    ),
+
+    renderRowActions: ({ row }) => (
+      <Button variant="outlined" onClick={() => handleLoginSimulado(row.original)}>
+        Iniciar Sesión
+      </Button>
+    ),
+
+    renderEmptyRowsFallback: () =>
+      error ? (
+        <SinResultados mensaje="El servidor no está disponible. Intenta más tarde." />
+      ) : (
+        <SinResultados mensaje="No hay usuarios disponibles." />
+      ),
+
+    state: { isLoading },
+  });
+
+  if (cargando) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box p={4}>
-      <Box mb={2} textAlign="right">
-        {user ? (
-          <>
-            <Typography variant="subtitle1">
-              👤 Sesión activa: {user.nombre} (Legajo {user.legajo})
-            </Typography>
-            <Button color="error" onClick={logout}>
-              Cerrar sesión
-            </Button>
-          </>
-        ) : (
-          <Typography variant="subtitle1" color="text.secondary">
-            ⚪ No hay usuario autenticado
-          </Typography>
-        )}
+
+    <Box
+      className="tabla-wrapper"
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        backgroundColor: "transparent",
+
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+
+        p: 2,
+      }}
+    >
+      <Box
+        sx={{
+          width: "85%",
+          maxWidth: "1200px",
+          backgroundColor: "#121212",
+          borderRadius: 2,
+          p: 3,
+          boxShadow: "0px 0px 20px rgba(0,0,0,0.4)",
+        }}
+      >
+        <MaterialReactTable table={table} />
       </Box>
-
-      <Paper sx={{ mb: 3 }}>
-        <Tabs
-          value={tab}
-          onChange={(_e, v) => setTab(v)}
-          indicatorColor="primary"
-          textColor="primary"
-          centered
-        >
-          <Tab label="Ver Usuarios" />
-          <Tab label="Alta de Usuario" />
-        </Tabs>
-      </Paper>
-
-      {tab === 0 && (
-        <>
-          <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-            <div>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={exportarExcel}
-                disabled={!usuarios.length}
-              >
-                Descargar Listado
-              </Button>
-            </div>
-          </Grid>
-
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Legajo</TableCell>
-                    <TableCell>Nombre</TableCell>
-                    <TableCell>Apellido</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Rol</TableCell>
-                    <TableCell align="center">Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {usuarios.map((u, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{u.legajo}</TableCell>
-                      <TableCell>{u.nombre}</TableCell>
-                      <TableCell>{u.apellido}</TableCell>
-                      <TableCell>{u.email}</TableCell>
-                      <TableCell>{u.rol}</TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleLoginSimulado(u)}
-                        >
-                          Iniciar sesión
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </>
-      )}
-
-      {tab === 1 && (
-        <Box maxWidth={400} mx="auto">
-          <form onSubmit={handleAlta}>
-            <TextField
-              fullWidth
-              label="Legajo"
-              value={nuevoUsuario.legajo}
-              onChange={(e) =>
-                setNuevoUsuario({ ...nuevoUsuario, legajo: e.target.value })
-              }
-              required
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Nombre"
-              value={nuevoUsuario.nombre}
-              onChange={(e) =>
-                setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })
-              }
-              required
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Apellido"
-              value={nuevoUsuario.apellido}
-              onChange={(e) =>
-                setNuevoUsuario({ ...nuevoUsuario, apellido: e.target.value })
-              }
-              required
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={nuevoUsuario.email}
-              onChange={(e) =>
-                setNuevoUsuario({ ...nuevoUsuario, email: e.target.value })
-              }
-              required
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              select
-              label="Rol"
-              value={nuevoUsuario.rol}
-              onChange={(e) =>
-                setNuevoUsuario({ ...nuevoUsuario, rol: e.target.value })
-              }
-              required
-              margin="normal"
-            >
-              <MenuItem value="">
-                <em>Seleccionar rol...</em>
-              </MenuItem>
-              {roles.map((r) => (
-                <MenuItem key={r} value={r}>
-                  {r}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              fullWidth
-              sx={{ mt: 3 }}
-              disabled={loading}
-            >
-              {loading ? "Guardando..." : "Guardar Usuario"}
-            </Button>
-          </form>
-        </Box>
-      )}
     </Box>
+
   );
+
 };
 
-export default UsuariosPanel;
+export default TablaUsuarios;

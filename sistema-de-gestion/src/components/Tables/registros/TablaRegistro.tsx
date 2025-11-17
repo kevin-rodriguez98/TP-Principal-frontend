@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
-import TablaInsumos from "./TablaIngreso";
-import TablaProductosEgreso from "./TablaEgreso";
+import  TablaIngreso  from "./TablaIngreso";
+import TablaEgreso from "./TablaEgreso";
 
 const TablaRegistro: React.FC = () => {
     const [tabActiva, setTabActiva] = useState(0);
@@ -88,8 +88,8 @@ const TablaRegistro: React.FC = () => {
                     borderRadius: "0 0 16px 16px",
                 }}
             >
-                {tabActiva === 0 && <TablaInsumos />}
-                {tabActiva === 1 && <TablaProductosEgreso />}
+                {tabActiva === 0 && <TablaIngreso />}
+                {tabActiva === 1 && <TablaEgreso />}
             </Box>
         </Paper>
     );

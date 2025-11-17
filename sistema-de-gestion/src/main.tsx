@@ -13,6 +13,7 @@ import { ProductosProvider } from './Context/ProductosContext';
 import { FaceAuthProvider } from './Context/FaceAuthContext';
 import { RecetaProvider } from './Context/RecetaContext';
 import { ModalProvider } from './components/modal/ModalContext';
+import { UsuarioProvider } from './Context/UsuarioContext';
 import { TiempoProduccionProvider } from './Context/TiempoProduccionContext';
 
 createRoot(document.getElementById('root')!).render(
@@ -20,14 +21,15 @@ createRoot(document.getElementById('root')!).render(
     <Router>
       <ModalProvider>
         <FaceAuthProvider>
-          <OpProvider>
-            <InsumoProvider>
-              <PanelProvider>
-                <Movimiento_insumo_contextProvider>
-                  <Movimiento_producto_contextProvider>
-                    <OrdenProduccionProvider>
-                      <ProductosProvider>
-                        <TiempoProduccionProvider>
+          <UsuarioProvider>
+            <OpProvider>
+              <InsumoProvider>
+                <PanelProvider>
+                  <Movimiento_insumo_contextProvider>
+                    <Movimiento_producto_contextProvider>
+                      <OrdenProduccionProvider>
+                        <ProductosProvider>
+                          <TiempoProduccionProvider>
                             <RecetaProvider>
                               <App />
                               <ToastContainer
@@ -43,15 +45,16 @@ createRoot(document.getElementById('root')!).render(
                                 theme="dark"
                               />
                             </RecetaProvider>
-                        </TiempoProduccionProvider>
-                      </ProductosProvider>
-                    </OrdenProduccionProvider>
-                  </Movimiento_producto_contextProvider>
-                </Movimiento_insumo_contextProvider>
-              </PanelProvider>
-            </InsumoProvider>
-          </OpProvider>
-       </FaceAuthProvider>
+                          </TiempoProduccionProvider>
+                        </ProductosProvider>
+                      </OrdenProduccionProvider>
+                    </Movimiento_producto_contextProvider>
+                  </Movimiento_insumo_contextProvider>
+                </PanelProvider>
+              </InsumoProvider>
+            </OpProvider>
+          </UsuarioProvider>
+        </FaceAuthProvider>
       </ModalProvider>
     </Router>
   </StrictMode>,

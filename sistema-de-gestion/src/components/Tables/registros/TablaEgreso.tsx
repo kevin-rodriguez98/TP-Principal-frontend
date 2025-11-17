@@ -7,7 +7,7 @@ import { ProductosContext } from "../../../Context/ProductosContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
-const TablaProductosEgreso: React.FC = () => {
+const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const { productos } = useContext(ProductosContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
@@ -28,7 +28,7 @@ const TablaProductosEgreso: React.FC = () => {
     const opcionesProductos = useMemo(() =>
         productos.map((p) => ({
             value: p.codigo,
-            label: `${p.codigo} - ${p.nombre} - ${p.marca}`,
+            label: `${p.codigo} - ${p.nombre} - ${p.linea}`,
         })), [productos]);
 
 
@@ -56,7 +56,7 @@ const TablaProductosEgreso: React.FC = () => {
                         const producto = productos.find((p) => p.codigo === codigo);
                         row._valuesCache.codigo = codigo;
                         row._valuesCache.nombre = producto?.nombre || "";
-                        row._valuesCache.marca = producto?.marca || "";
+                        row._valuesCache.marca = producto?.linea || "";
                         table.setCreatingRow({
                             ...row,
                             _valuesCache: { ...row._valuesCache },
@@ -289,7 +289,7 @@ const TablaProductosEgreso: React.FC = () => {
     return <MaterialReactTable table={tabla_movimiento_egreso} />;
 };
 
-export default TablaProductosEgreso;
+export default TablaEgreso;
 
 
 

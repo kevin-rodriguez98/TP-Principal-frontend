@@ -9,7 +9,7 @@ import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
-export const TablaInsumos: React.FC = () => {
+const TablaIngreso: React.FC = () => {
     const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
     const { insumos } = useContext(InsumoContext)!;
     const { user } = useContext(FaceAuthContext)!;
@@ -370,8 +370,6 @@ export const TablaInsumos: React.FC = () => {
     },
     );
 
-
-
     if (isLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
@@ -384,4 +382,4 @@ export const TablaInsumos: React.FC = () => {
 
 };
 
-export default TablaInsumos;
+export default TablaIngreso;

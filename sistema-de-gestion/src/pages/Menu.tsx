@@ -7,7 +7,7 @@ import "../styles/Menu.css";
 
 const Menu = () => {
     return (
-        <div className='menu-container '>
+        <div className='menu-container'>
             <Header />
             <main>
                 <HomeOperaciones />

@@ -6,7 +6,7 @@ import PanelGeneral from './components/Tables/PanelGeneral.tsx'
 import { useContext } from 'react';
 import { ModalContext } from './components/modal/ModalContext.tsx';
 import Modal from './components/modal/Modal.tsx';
-import PanelUsuarios from './login/PanelUsuarios.tsx';
+import PanelUsuarios from './pages/PanelUsuarios.tsx';
 import ReportesInsumos from './pages/ReportesInsumos.tsx';
 import ReportesOrdenes from './pages/ReportesOrdenes.tsx';
 
@@ -30,6 +30,7 @@ export const URL_egresos = "https://tp-principal-backend.onrender.com/movimiento
 export const URL_productos = "https://tp-principal-backend.onrender.com/productos";
 export const URL_estimacion = "https://tp-principal-backend.onrender.com/tiempo-produccion";
 export const URL_recetas = "https://tp-principal-backend.onrender.com/recetas";
+export const URL_empleados = "https://tp-principal-backend.onrender.com/empleados";
 
 function App() {
   const { modal, setModal } = useContext(ModalContext)!;
