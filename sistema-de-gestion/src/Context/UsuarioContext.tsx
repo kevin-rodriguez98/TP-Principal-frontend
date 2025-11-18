@@ -22,6 +22,7 @@ interface UsuarioContextType {
     isLoading: boolean;
     error: string | null;
     agregarEmpleado: (empleado: Empleado) => Promise<void>;
+    eliminarEmpleado: (legajo: string) => Promise<void>;
 }
 
 const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined);
@@ -31,18 +32,19 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
     const [cargando, setCargando] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    
+
     useEffect(() => {
         cargarEmpleados();
-    }, []);
+    }, [empleados]);
 
     /** ----------------------------------------------------------
      * CARGAR EMPLEADOS
-     * -----------------------------------------------------------*/
+     * ----------------------------------------------------------*/
     const cargarEmpleados = async () => {
         try {
             setCargando(true);
-            const res = await fetch(`${URL}`);
+            const res = await fetch(`${URL}/otener-empleados`);
+
             if (!res.ok) throw new Error("Error al cargar empleados");
 
             const data = await res.json();
@@ -56,31 +58,56 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
 
     /** ----------------------------------------------------------
      * AGREGAR EMPLEADO
-     * -----------------------------------------------------------*/
+     * ----------------------------------------------------------*/
     const agregarEmpleado = async (nuevo: Empleado) => {
         try {
             setIsLoading(true);
 
-            const res = await fetch(
-                `${URL}/agregar-empleado`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(nuevo),
-                }
-            );
+            const res = await fetch(`${URL}/agregar-empleado`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(nuevo),
+            });
 
             if (!res.ok) throw new Error("Error al crear empleado");
 
             const empleadoGuardado: Empleado = await res.json();
 
-            // lo agregamos a la lista
             setEmpleados((prev) => [...prev, empleadoGuardado]);
 
             toast.success("Empleado agregado correctamente");
         } catch (err: any) {
             toast.error(err.message);
             setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    /** ----------------------------------------------------------
+     * ELIMINAR EMPLEADO
+     * ----------------------------------------------------------*/
+    const eliminarEmpleado = async (legajo: string) => {
+        try {
+            setIsLoading(true);
+
+            const res = await fetch(`${URL}/eliminar-empleado/${legajo}`, {
+                method: "POST",
+            });
+
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || "Error al eliminar empleado");
+            }
+
+            // Actualizamos el estado local
+            setEmpleados((prev) =>
+                prev.filter((emp) => emp.legajo !== legajo)
+            );
+
+            toast.success(`Empleado eliminado (legajo: ${legajo})`);
+        } catch (err: any) {
+            toast.error(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -94,6 +121,7 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
                 isLoading,
                 error,
                 agregarEmpleado,
+                eliminarEmpleado,
             }}
         >
             {children}

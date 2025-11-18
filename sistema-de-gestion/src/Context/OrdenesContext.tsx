@@ -11,11 +11,10 @@ export interface Insumo {
   cantidad: string;
 }
 
-interface HistorialEtapa {
-  id: number;
-  etapa: string;
-  fecha: string;
-  nota?: string;
+interface Etapa {
+  idOrden: number;
+  legajo: string;
+  estado: string;
 }
 
 export interface OrdenProduccion {

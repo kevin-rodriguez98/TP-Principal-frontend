@@ -8,6 +8,11 @@ export interface movimiento_producto {
     cantidad: number;
     tipo: string;
     destino: string;
+    categoria: string;
+    marca: string;
+    unidad: string;
+    lote: string;
+    nombre: string;
 }
 
 interface Movimiento_productoContextType {
