@@ -30,7 +30,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 const TablaUsuarios: React.FC = () => {
   const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado } = useUsuarios();
-  const { login, logout, user } = useFaceAuth();
+  const { logout, user } = useFaceAuth();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
   const limpiarError = (campo: string) =>
@@ -105,10 +105,10 @@ const TablaUsuarios: React.FC = () => {
   /** ------------------------------------------------------------------
    * LOGIN SIMULADO
    * ------------------------------------------------------------------ */
-  const handleLoginSimulado = async (u: Empleado) => {
-    await login(u.legajo, `${u.nombre} ${u.apellido}`);
-    alert(`👤 Usuario autenticado: ${u.nombre} ${u.apellido}`);
-  };
+  // const handleLoginSimulado = async (u: Empleado) => {
+  //   await login(u.legajo, `${u.nombre} ${u.apellido}`);
+  //   alert(`👤 Usuario autenticado: ${u.nombre} ${u.apellido}`);
+  // };
 
   /** ------------------------------------------------------------------
    * EXPORTACIÓN EXCEL

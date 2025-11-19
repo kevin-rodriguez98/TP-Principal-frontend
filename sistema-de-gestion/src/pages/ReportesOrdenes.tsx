@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { OrdenesContext } from "../Context/OrdenesContext";
+import { OrdenesContext, estados } from "../Context/OrdenesContext";
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer,
@@ -46,7 +46,7 @@ const ReportesOrdenes = () => {
             const mes = meses[fecha.getMonth()];
             if (!mes) return;
             agrupado[mes].produccion += o.stockProducidoReal || 0;
-            if (o.estado === "CANCELADA" || o.estado === "EVALUACIÓN") agrupado[mes].errores += 1;
+            if (o.estado === estados.cancelada || o.estado === estados.evaluacion) agrupado[mes].errores += 1;
         });
 
         return Object.values(agrupado);
@@ -54,10 +54,10 @@ const ReportesOrdenes = () => {
 
     const resumenEstados = useMemo(() => {
         const total = ordenes.length;
-        const enProduccion = ordenes.filter(o => o.estado === "EN_PRODUCCION").length;
-        const finalizadas = ordenes.filter(o => o.estado === "FINALIZADA_ENTREGADA").length;
-        const canceladas = ordenes.filter(o => o.estado === "CANCELADA").length;
-        const evaluacion = ordenes.filter(o => o.estado === "EVALUACIÓN").length;
+        const enProduccion = ordenes.filter(o => o.estado === estados.enProduccion).length;
+        const finalizadas = ordenes.filter(o => o.estado === estados.finalizada).length;
+        const canceladas = ordenes.filter(o => o.estado === estados.cancelada).length;
+        const evaluacion = ordenes.filter(o => o.estado === estados.evaluacion).length;
 
         return {
             total, enProduccion, finalizadas, canceladas,
@@ -81,9 +81,9 @@ const ReportesOrdenes = () => {
         }));
     }, [ordenes]);
 
-    const totalCanceladas = ordenes.filter(o => o.estado === "CANCELADA").length;
-    const totalProduccion = ordenes.filter(o => o.estado === "EN_PRODUCCION").length;
-    const totalFinalizadas = ordenes.filter(o => o.estado === "FINALIZADA_ENTREGADA").length;
+    const totalCanceladas = ordenes.filter(o => o.estado === estados.cancelada).length;
+    const totalProduccion = ordenes.filter(o => o.estado === estados.enProduccion).length;
+    const totalFinalizadas = ordenes.filter(o => o.estado === estados.finalizada).length;
 
     return (
         <div

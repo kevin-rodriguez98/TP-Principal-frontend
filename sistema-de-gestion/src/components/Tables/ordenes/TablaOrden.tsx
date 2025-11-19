@@ -17,7 +17,7 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 
 const TablaOrden: React.FC = () => {
-    const { ordenes, isLoading, handleAddOrden, error, notificarEtapa, finalizarOrden, agregarNota} = useContext(OrdenesContext)!;
+    const { ordenes, isLoading, handleAddOrden, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
     const { user } = useContext(FaceAuthContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
@@ -121,7 +121,7 @@ const TablaOrden: React.FC = () => {
                         legajo={user?.legajo ? user?.legajo : ""}
                         notificarEtapa={notificarEtapa}
                         agregarNota={agregarNota}
-                        // visible={row.original.estado === estados.enProduccion}
+                    // visible={row.original.estado === estados.enProduccion}
                     />
                 ),
             },
@@ -160,6 +160,7 @@ const TablaOrden: React.FC = () => {
                 header: "Responsable",
                 enableEditing: false,
                 muiEditTextFieldProps: { value: `${user?.legajo}` },
+                Cell: ({ row }) => row.original.responsable || "—",
             },
             {
                 accessorKey: "fechaCreacion",
@@ -200,6 +201,8 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado && values.estado.trim() !== "" ? values.estado : estados.evaluacion,
+            responsable: values.responsable && values.responsable.trim() !== "" ? values.responsable : "100",
+            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
         };
 
         setValidationErrors({});
@@ -302,12 +305,12 @@ const TablaOrden: React.FC = () => {
                         </Typography>
                         <Typography>{row.original.stockRequerido}</Typography>
                     </Box>
-                    {/* <Box>
+                    <Box>
                         <Typography variant="subtitle2" color="primary">
                             Fecha entrega
                         </Typography>
                         <Typography>{row.original.fechaEntrega}</Typography>
-                    </Box> */}
+                    </Box>
                     <Box>
                         <Typography variant="subtitle2" color="primary">
                             Lote
@@ -318,7 +321,19 @@ const TablaOrden: React.FC = () => {
                         <Typography variant="subtitle2" color="primary">
                             Responsable
                         </Typography>
-                        <Typography>{row.original.responsable}</Typography>
+                        <Typography>{row.original.legajo} - {row.original.responsableApellido} {row.original.responsableNombre}</Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Fecha creación
+                        </Typography>
+                        <Typography>{row.original.fechaCreacion}</Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            stock producido
+                        </Typography>
+                        <Typography>{row.original.stockProducidoReal}</Typography>
                     </Box>
                 </Box>
 

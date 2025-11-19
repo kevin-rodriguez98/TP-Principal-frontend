@@ -34,17 +34,21 @@ export interface OrdenProduccion {
   productoRequerido: string;
   marca: string;
   stockRequerido: number;
-  fechaEntrega: Date;
+  fechaEntrega: string;
 
   estado: Estado;
   lote: string;
-  responsable: string;
   presentacion: string;
+  
+  responsable: string;
+  legajo: string;
+  responsableNombre: string;
+  responsableApellido: string;
 
   // envasado: string;
   nota: string;
-  // fechaCreacion: string;
-  // stockProducidoReal: number;
+  fechaCreacion: string;
+  stockProducidoReal: number;
   // tiempoEstimado?: number;
 }
 
@@ -58,7 +62,12 @@ export interface OrdenProduccionAgregarRequest {
   lote: string;
   envasado: string;
   presentacion: string;
+
+
   responsable: string;
+
+
+  legajo: string;
 }
 
 
@@ -71,16 +80,16 @@ export interface ordenFinalizadaRequest {
 
 
 export interface HistorialItem {
-    etapa: string;
-    fechaCambio: string;
-    empleado: {
-        id: number;
-        legajo: string;
-        nombre: string;
-        apellido: string;
-        area: string;
-        rol: string;
-    };
+  etapa: string;
+  fechaCambio: string;
+  empleado: {
+    id: number;
+    legajo: string;
+    nombre: string;
+    apellido: string;
+    area: string;
+    rol: string;
+  };
 }
 
 
@@ -158,7 +167,14 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       }
       const data = await response.json();
       console.log(data)
-      setOrdenes(data);
+
+      const ordenesConEmpleado = data.map((orden: any) => ({
+        ...orden,
+        responsableNombre: orden.empleado?.nombre || "",
+        responsableApellido: orden.empleado?.apellido || "",
+        legajo: orden.empleado?.legajo || "",
+      }));
+      setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
       setError(err.message);
       if (!modal) {
@@ -258,11 +274,11 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       await obtenerOrdenes();
 
     } catch (err) {
-    console.error("notificar-etapa - error catch:", err);
-    setModal({
-      tipo: "error",
-      mensaje: "No se pudo actualizar la etapa de la orden.",
-    });
+      console.error("notificar-etapa - error catch:", err);
+      setModal({
+        tipo: "error",
+        mensaje: "No se pudo actualizar la etapa de la orden.",
+      });
     }
   };
 
