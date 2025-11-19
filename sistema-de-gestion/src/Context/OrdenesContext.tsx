@@ -17,13 +17,14 @@ export const estados = {
   evaluacion: "EVALUACION",
 } as const;
 
-export const etapas_prduccion = {
+export const etapas_produccion = {
   coccion: "Cocción",
-  enfriado: "Enfriado",
-  almacenamiento: "Almacenamiento",
   pasteurizacion: "Pasteurización",
+  enfriado: "Enfriado",
   envasado: "Envasado",
+  almacenamiento: "Almacenamiento",
 } as const;
+
 
 export type Estado = typeof estados[keyof typeof estados];
 
@@ -35,21 +36,22 @@ export interface OrdenProduccion {
   marca: string;
   stockRequerido: number;
   fechaEntrega: string;
-
   estado: Estado;
   lote: string;
   presentacion: string;
-  
-  responsable: string;
+
   legajo: string;
+  legajoEmpleado: string;
   responsableNombre: string;
   responsableApellido: string;
 
-  // envasado: string;
+
+  etapa: string;
   nota: string;
   fechaCreacion: string;
   stockProducidoReal: number;
-  // tiempoEstimado?: number;
+  tiempoEstimado?: number;
+  // envasado: string;
 }
 
 export interface OrdenProduccionAgregarRequest {
@@ -58,13 +60,9 @@ export interface OrdenProduccionAgregarRequest {
   stockRequerido: number;
   codigoProducto: string;
   fechaEntrega: Date;
-  estado?: string; // opcional
+  estado?: string;
   lote: string;
-  envasado: string;
   presentacion: string;
-
-
-  responsable: string;
 
 
   legajo: string;
@@ -97,7 +95,7 @@ export interface HistorialItem {
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
   setOrdenes: React.Dispatch<React.SetStateAction<OrdenProduccion[]>>;
-  handleAddOrden: (orden: OrdenProduccion) => Promise<void>;
+  handleAddOrden: (orden: OrdenProduccionAgregarRequest) => Promise<void>;
   obtenerOrdenes: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -172,7 +170,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
-        legajo: orden.empleado?.legajo || "",
+        legajoEmpleado: orden.empleado?.legajo || "",
       }));
       setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
@@ -192,7 +190,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   // ===============================
   // ➕ Agregar una nueva orden
   // ===============================
-  const handleAddOrden = async (orden: OrdenProduccion): Promise<void> => {
+  const handleAddOrden = async (orden: OrdenProduccionAgregarRequest): Promise<void> => {
     setError(null);
     try {
       const response = await fetch(`${URL}/agregar`, {
@@ -269,8 +267,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         await handleFetchError(response, "No se pudo notificar la nueva etapa.");
         return;
       }
+      (data.isEstado) ? toast.success(`¡Se ha cambiado el estado a ${data.estado}!`) :
+        toast.success(`¡Se ha cambiado la etapa a ${data.estado}!`);
 
-      toast.info(`Etapa actualizada a ${data.estado}`);
       await obtenerOrdenes();
 
     } catch (err) {

@@ -18,7 +18,7 @@ const TablaProductos: React.FC = () => {
   const { insumosProducto, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
   const { insumos } = useContext(InsumoContext)!;
   const { user } = useContext(FaceAuthContext)!;
-  const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
+  const { obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [openModalReceta, setOpenModalReceta] = useState(false);
@@ -360,7 +360,7 @@ const TablaProductos: React.FC = () => {
 
               ))}
               <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-                Tiempo de produccion unitario: {tiempoProduccionUnitario.tiempoProduccion} hs.
+                Tiempo de produccion unitario: {tiempoProduccionUnitario?.tiempoPreparacion} hs.
               </Typography>
             </Box>
           )}
@@ -380,12 +380,12 @@ const TablaProductos: React.FC = () => {
           <Tooltip title="Agregar tiempo de producción">
             <IconButton
               color="secondary"
-              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario.tiempoProduccion > 0}
+              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario.tiempoPreparacion > 0}
               onClick={() => {
-                const tiempo = prompt("Ingrese el tiempo de producción (en horas):");
-                if (tiempo) {
-                  agregarTiempoProduccion(row.original.codigo, parseInt(tiempo));
-                }
+                // const tiempo = prompt("Ingrese el tiempo de producción (en horas):");
+                // if (tiempo) {
+                //   agregarTiempoProduccion(tiempo);
+                // }
               }}
             >
               ⏱️

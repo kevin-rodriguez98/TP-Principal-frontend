@@ -2,7 +2,7 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion, estados } from "../../../Context/OrdenesContext";
-// import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import CeldaEstado from "./CeldaEstado";
 import CeldaEtapa from "./CeldaEtapa";
@@ -13,12 +13,10 @@ import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
-
-
-
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
+    const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const { user } = useContext(FaceAuthContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
@@ -103,7 +101,7 @@ const TablaOrden: React.FC = () => {
                     <CeldaEstado
                         idOrden={row.original.id}
                         estado={row.original.estado}
-                        legajo={user?.legajo ? user?.legajo : ""}
+                        legajo={user?.legajo ? user?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         finalizarOrden={finalizarOrden}
                     />
@@ -117,8 +115,9 @@ const TablaOrden: React.FC = () => {
                 Cell: ({ row }) => (
                     <CeldaEtapa
                         idOrden={row.original.id}
-                        etapa={row.original.estado}
-                        legajo={user?.legajo ? user?.legajo : ""}
+                        etapa={row.original.etapa}
+                        estadoActual={row.original.estado}
+                        legajo={user?.legajo ? user?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         agregarNota={agregarNota}
                     // visible={row.original.estado === estados.enProduccion}
@@ -156,11 +155,11 @@ const TablaOrden: React.FC = () => {
                 Cell: ({ row }) => row.original.presentacion || "—",
             },
             {
-                accessorKey: "responsable",
+                accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
                 muiEditTextFieldProps: { value: `${user?.legajo}` },
-                Cell: ({ row }) => row.original.responsable || "—",
+                Cell: ({ row }) => row.original.legajo || "—",
             },
             {
                 accessorKey: "fechaCreacion",
@@ -168,12 +167,6 @@ const TablaOrden: React.FC = () => {
                 enableEditing: false,
                 muiEditTextFieldProps: { value: new Date().toLocaleString() },
             },
-            // {
-            //     accessorKey: "tiempoEstimado",
-            //     header: "Tiempo estimado",
-            //     enableEditing: false,
-            //     Cell: ({ row }) => row.original.tiempoEstimado ?? "—",
-            // },
         ],
         [validationErrors]
     );
@@ -201,8 +194,9 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado && values.estado.trim() !== "" ? values.estado : estados.evaluacion,
-            responsable: values.responsable && values.responsable.trim() !== "" ? values.responsable : "100",
-            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
+            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : user?.legajo,
+            envasado: "",
+
         };
 
         setValidationErrors({});
@@ -232,7 +226,7 @@ const TablaOrden: React.FC = () => {
             density: 'compact',
             columnVisibility: {
                 stockRequerido: false,
-                responsable: false,
+                legajo: false,
                 fechaCreacion: false,
                 tiempoEstimado: false,
                 fechaEntrega: false,
@@ -267,81 +261,98 @@ const TablaOrden: React.FC = () => {
         onCreatingRowSave: handleCrearOrden,
         onEditingRowCancel: () => setValidationErrors({}),
 
-        renderDetailPanel: ({ row }) => (
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 3,
-                    p: 2,
-                    backgroundColor: "#2b2b2bff",
-                    borderRadius: "10px",
-                    color: "#fff",
-                }}
-            >
-                <Box sx={{ display: "flex", gap: 6 }}>
-                    {/* <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Tiempo estimado de Producción
-                        </Typography>
-                        {row.original.tiempoEstimado ? (
-                            <Typography>{row.original.tiempoEstimado}</Typography>
-                        ) : (
-                            <IconButton
-                                title="Calcular tiempo"
-                                color="info"
-                                onClick={() =>
-                                    calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido)
-                                }
-                            >
-                                ⏱️
-                            </IconButton>
-                        )}
-                    </Box> */}
+        renderDetailPanel: ({ row }) => {
+            const [tiempoEstimado, setTiempoEstimado] = useState<number | null>(row.original.tiempoEstimado || null);
+            const [calculando, setCalculando] = useState(false);
 
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Stock Requerido
-                        </Typography>
-                        <Typography>{row.original.stockRequerido}</Typography>
+            const handleCalcularTiempo = async () => {
+                setCalculando(true);
+                const resultado = await calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido);
+                if (resultado !== null) {
+                    setTiempoEstimado(resultado);
+                    // Actualizamos directamente row.original para reflejarlo en la tabla
+                    row.original.tiempoEstimado = resultado;
+                }
+                setCalculando(false);
+            };
+
+            return (
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                        p: 2,
+                        backgroundColor: "#2b2b2bff",
+                        borderRadius: "10px",
+                        color: "#fff",
+                    }}
+                >
+                    <Box sx={{ display: "flex", gap: 6 }}>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Tiempo estimado de Producción
+                            </Typography>
+                            {tiempoEstimado ? (
+                                <Typography>{tiempoEstimado} h</Typography>
+                            ) : (
+                                <IconButton
+                                    title="Calcular tiempo"
+                                    color="info"
+                                    onClick={handleCalcularTiempo}
+                                    disabled={calculando}
+                                >
+                                    ⏱️
+                                </IconButton>
+                            )}
+                        </Box>
+
+                        {/* Resto de los datos */}
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Stock Requerido
+                            </Typography>
+                            <Typography>{row.original.stockRequerido}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Fecha entrega
+                            </Typography>
+                            <Typography>{row.original.fechaEntrega}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Lote
+                            </Typography>
+                            <Typography>{row.original.lote}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Responsable
+                            </Typography>
+                            <Typography>{row.original.legajo} - {row.original.responsableApellido} {row.original.responsableNombre}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Fecha creación
+                            </Typography>
+                            <Typography>{row.original.fechaCreacion}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle2" color="primary">
+                                Stock producido
+                            </Typography>
+                            <Typography>{row.original.stockProducidoReal}</Typography>
+                        </Box>
                     </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Fecha entrega
-                        </Typography>
-                        <Typography>{row.original.fechaEntrega}</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Lote
-                        </Typography>
-                        <Typography>{row.original.lote}</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Responsable
-                        </Typography>
-                        <Typography>{row.original.legajo} - {row.original.responsableApellido} {row.original.responsableNombre}</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            Fecha creación
-                        </Typography>
-                        <Typography>{row.original.fechaCreacion}</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="subtitle2" color="primary">
-                            stock producido
-                        </Typography>
-                        <Typography>{row.original.stockProducidoReal}</Typography>
+
+                    <Box sx={{ mt: 2 }}>
+                        <HistorialEtapas ordenId={row.original.id} />
                     </Box>
                 </Box>
+            );
+        },
 
-                <Box sx={{ mt: 2 }}>
-                    <HistorialEtapas ordenId={row.original.id} />
-                </Box>
-            </Box>
-        ),
 
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => {
             const camposRequeridos = [

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { FormControl, MenuItem, Select, IconButton, Modal, Box, TextField } from "@mui/material";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { etapas_prduccion } from "../../../Context/OrdenesContext";
+import { etapas_produccion, estados } from "../../../Context/OrdenesContext";
 
 interface Props {
     idOrden: number;
     etapa: string;
+    estadoActual: string;
     legajo: string;
     notificarEtapa: (req: {
         idOrden: number;
@@ -15,6 +16,7 @@ interface Props {
     }) => Promise<void>;
     agregarNota: (id: number, nota: string) => Promise<void>;
 }
+
 
 const styleModal = {
     position: "absolute" as "absolute",
@@ -31,6 +33,7 @@ const styleModal = {
 const CeldaEtapa: React.FC<Props> = ({
     idOrden,
     etapa,
+    estadoActual,
     legajo,
     notificarEtapa,
     agregarNota
@@ -69,7 +72,8 @@ const CeldaEtapa: React.FC<Props> = ({
                 {/* SELECT DE ETAPA */}
                 <FormControl variant="standard" sx={{ minWidth: 160 }}>
                     <Select
-                        value={etapa}
+                        value={etapa || ""} // si etapa es undefined, asigna ""
+                        disabled={estadoActual !== estados.enProduccion}
                         onChange={onChange}
                         sx={{
                             background: "#1e1e1e",
@@ -79,31 +83,16 @@ const CeldaEtapa: React.FC<Props> = ({
                             border: `1px solid`,
                         }}
                         MenuProps={{
-                            PaperProps: {
-                                sx: { backgroundColor: "#222", borderRadius: "10px" },
-                            },
+                            PaperProps: { sx: { backgroundColor: "#222", borderRadius: "10px" } },
                         }}
                     >
-                        <MenuItem value={etapas_prduccion.coccion} sx={{ color: "dodgerblue" }}>
-                            Cocción
-                        </MenuItem>
-
-                        <MenuItem value={etapas_prduccion.pasteurizacion} sx={{ color: "gold" }}>
-                            Pasteurización
-                        </MenuItem>
-
-                        <MenuItem value={etapas_prduccion.enfriado} sx={{ color: "crimson" }}>
-                            Enfriado
-                        </MenuItem>
-
-                        <MenuItem value={etapas_prduccion.envasado} sx={{ color: "limegreen" }}>
-                            Envasado
-                        </MenuItem>
-
-                        <MenuItem value={etapas_prduccion.almacenamiento} sx={{ color: "limegreen" }}>
-                            Almacenamiento
-                        </MenuItem>
+                        {Object.values(etapas_produccion).map((et) => (
+                            <MenuItem key={et} value={et}>
+                                {et.charAt(0).toUpperCase() + et.slice(1)} {/* Primera letra mayúscula */}
+                            </MenuItem>
+                        ))}
                     </Select>
+
                 </FormControl>
 
                 {/* ÍCONO PARA AGREGAR NOTA */}

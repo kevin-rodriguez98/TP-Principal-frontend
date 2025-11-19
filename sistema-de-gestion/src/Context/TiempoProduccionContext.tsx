@@ -5,16 +5,23 @@ import { URL_estimacion as URLEst } from "../App";
 
 export interface TiempoProduccion {
     codigoProducto: string;
-    tiempoProduccion: number;
-    unidad: string;
-    cantidad: number;
+    tiempoPreparacion: number;
+    tiempoCiclo: number;
+    maximoTanda: number;
+}
+
+export interface TiempoProduccionUnitario {
+    tiempoPreparacion: number;
+    tiempoCiclo: number;
+    tiempoTotal: number;
+    cantidadMaximaTanda: number;
 }
 
 interface TiempoProduccionContextType {
     tiemposProduccion: TiempoProduccion[];
-    tiempoProduccionUnitario: TiempoProduccion;
+    tiempoProduccionUnitario: TiempoProduccionUnitario | null;
     isLoading: boolean;
-    agregarTiempoProduccion: (codigoProducto: string, tiempoPorUnidad: number) => Promise<void>;
+    agregarTiempoProduccion: (data: TiempoProduccion) => Promise<void>;
     obtenerTiemposProduccion: () => Promise<void>;
     obtenerTiempoProduccionUnitario: (codigoProducto: string) => Promise<void>;
     calcularTiempoEstimado: (codigoProducto: string, cantidad: number) => Promise<number | null>;
@@ -28,55 +35,42 @@ interface TiempoProduccionProviderProps {
 
 export function TiempoProduccionProvider({ children }: TiempoProduccionProviderProps) {
     const [tiemposProduccion, setTiemposProduccion] = useState<TiempoProduccion[]>([]);
-    const [tiempoProduccionUnitario, setTiempoProduccionUnitario] = useState<TiempoProduccion>({ codigoProducto: "", tiempoProduccion: 0, unidad: "", cantidad: 0 });
+    const [tiempoProduccionUnitario, setTiempoProduccionUnitario] = useState<TiempoProduccionUnitario | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { setModal } = useContext(ModalContext)!;
 
-    // ✅ Función centralizada para manejar errores HTTP
     const handleFetchError = async (response: Response, defaultMessage: string) => {
         let errorMessage = defaultMessage;
         try {
             const data = await response.json();
             if (data?.message) errorMessage = data.message;
-        } catch {
-            /* no-op */
-        }
-
+        } catch {}
         if (response.status === 500) {
-            setModal({
-                tipo: "error",
-                mensaje: errorMessage,
-            });
+            setModal({ tipo: "error", mensaje: errorMessage });
         } else {
             toast.error(errorMessage);
         }
-
         throw new Error(errorMessage);
     };
 
     // ➕ Agregar tiempo de producción
-    const agregarTiempoProduccion = async (codigoProducto: string, tiempoPorUnidad: number) => {
+    const agregarTiempoProduccion = async (data: TiempoProduccion) => {
         setIsLoading(true);
         try {
             const response = await fetch(`${URLEst}/agregar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ codigoProducto, tiempoPorUnidad }),
+                body: JSON.stringify(data),
             });
+            if (!response.ok) await handleFetchError(response, "Error al registrar el tiempo de producción");
 
-            if (!response.ok)
-                await handleFetchError(response, "Error al registrar el tiempo de producción");
             toast.success("⏱️ Tiempo de producción registrado correctamente");
-            setModal({
-                tipo: "success",
-                mensaje: "Tiempo de producción registrado correctamente",
-            });
+            setModal({ tipo: "success", mensaje: "Tiempo de producción registrado correctamente" });
             await obtenerTiemposProduccion();
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
-
         }
     };
 
@@ -84,8 +78,7 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
     const obtenerTiemposProduccion = async () => {
         try {
             const response = await fetch(`${URLEst}/obtener`);
-            if (!response.ok)
-                await handleFetchError(response, "Error al obtener tiempos de producción");
+            if (!response.ok) await handleFetchError(response, "Error al obtener tiempos de producción");
 
             const data = await response.json();
             setTiemposProduccion(data);
@@ -95,15 +88,13 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
     };
 
     // 🔍 Obtener el tiempo unitario de un producto
-    const obtenerTiempoProduccionUnitario = async (codigo: string) => {
+    const obtenerTiempoProduccionUnitario = async (codigoProducto: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${URLEst}/obtener-tiempo-unitario?codigoProducto=${codigo}`);
+            const response = await fetch(`${URLEst}/obtener-tiempo-unitario?codigoProducto=${codigoProducto}`);
+            if (!response.ok) await handleFetchError(response, "Error al obtener el tiempo unitario");
 
-            if (!response.ok)
-                await handleFetchError(response, "Error al obtener el tiempo de producción");
-
-            const data = await response.json();
+            const data: TiempoProduccionUnitario = await response.json();
             setTiempoProduccionUnitario(data);
         } catch (error) {
             console.error(error);
@@ -116,12 +107,12 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
     const calcularTiempoEstimado = async (codigoProducto: string, cantidad: number): Promise<number | null> => {
         try {
             const response = await fetch(`${URLEst}/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`);
-            if (!response.ok)
-                await handleFetchError(response, "Error al calcular el tiempo estimado");
+            if (!response.ok) await handleFetchError(response, "Error al calcular el tiempo estimado");
 
             const data = await response.json();
-            toast.info(`🕒 Tiempo estimado: ${data.tiempoEstimado} horas`);
-            return data.tiempoEstimado;
+            // asumiendo que el backend devuelve { tiempoTotal: 123 }
+            toast.info(`🕒 Tiempo estimado: ${data.tiempoTotal} horas`);
+            return data.tiempoTotal ?? null;
         } catch {
             toast.error("❌ No se pudo calcular el tiempo estimado");
             return null;

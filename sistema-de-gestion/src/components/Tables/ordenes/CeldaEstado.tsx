@@ -1,18 +1,10 @@
 import { useState } from "react";
-import {
-    FormControl,
-    Select,
-    MenuItem,
-    Modal,
-    Box,
-    TextField,
-    Button,
-} from "@mui/material";
+import { FormControl, Select, MenuItem, Modal, Box, TextField, Button } from "@mui/material";
 import { estados, type Etapa, type ordenFinalizadaRequest } from "../../../Context/OrdenesContext";
 
 interface Props {
     idOrden: number;
-    estado: string;
+    estado: (typeof estados)[keyof typeof estados];
     legajo: string;
     notificarEtapa: (etapa: Etapa) => Promise<void>;
     finalizarOrden: (orden: ordenFinalizadaRequest) => Promise<void>;
@@ -44,7 +36,6 @@ const CeldaEstado: React.FC<Props> = ({
     notificarEtapa,
     finalizarOrden,
 }) => {
-
     const [openModal, setOpenModal] = useState(false);
     const [destino, setDestino] = useState("Almacen");
     const [cantidad, setCantidad] = useState("");
@@ -57,7 +48,10 @@ const CeldaEstado: React.FC<Props> = ({
     };
 
     const confirmarFinalizacion = async () => {
-        if (!cantidad) return;
+        if (!cantidad || Number(cantidad) <= 0) {
+            alert("Ingrese una cantidad válida");
+            return;
+        }
 
         await finalizarOrden({
             ordenId: idOrden,
@@ -72,6 +66,12 @@ const CeldaEstado: React.FC<Props> = ({
     const onChange = async (e: any) => {
         const nuevo = e.target.value;
 
+        // Validaciones según estado
+        if (estado === estados.evaluacion && ![estados.enProduccion, estados.cancelada].includes(nuevo)) return;
+        if (estado === estados.enProduccion && ![estados.finalizada, estados.cancelada].includes(nuevo)) return;
+        if ([estados.finalizada, estados.cancelada].includes(estado as typeof estados.finalizada)) return;
+
+
         if (nuevo === estados.finalizada) {
             abrirModal();
             return;
@@ -84,14 +84,7 @@ const CeldaEstado: React.FC<Props> = ({
                 estado: nuevo,
                 isEstado: true,
             });
-
-            await notificarEtapa({
-                idOrden,
-                legajo,
-                estado: "coccion",
-                isEstado: false,
-            });
-            return;
+            return
         }
 
         await notificarEtapa({
@@ -102,47 +95,57 @@ const CeldaEstado: React.FC<Props> = ({
         });
     };
 
+
     return (
         <>
-            <FormControl variant="standard" sx={{ minWidth: 160 }}>
-                <Select
-                    value={estado}
-                    onChange={onChange}
-                    disabled={estado === estados.finalizada || estado === estados.cancelada}
-                    sx={{
-                        background: "#1e1e1e",
-                        color: colorEstado[estado],
-                        fontWeight: 700,
-                        px: 1.2,
-                        borderRadius: "6px",
-                        border: `1px solid ${colorEstado[estado]}`,
-                        "& .MuiSvgIcon-root": {
-                            color: colorEstado[estado],
-                        },
-                    }}
-                    MenuProps={{
-                        PaperProps: {
-                            sx: { backgroundColor: "#222", borderRadius: "10px" },
-                        },
-                    }}
-                >
-                    <MenuItem value={estados.evaluacion} sx={{ color: "dodgerblue" }}>
-                        Evaluación
-                    </MenuItem>
+<FormControl variant="standard" sx={{ minWidth: 160 }}>
+    <Select
+        value={estado}
+        onChange={onChange}
+        sx={{
+            background: "#1e1e1e",
+            color: colorEstado[estado],
+            fontWeight: 700,
+            px: 1.2,
+            borderRadius: "6px",
+            border: `1px solid ${colorEstado[estado]}`,
+            "& .MuiSvgIcon-root": { color: colorEstado[estado] },
+        }}
+        MenuProps={{
+            PaperProps: { sx: { backgroundColor: "#222", borderRadius: "10px" } },
+        }}
+    >
+        <MenuItem
+            value={estados.evaluacion}
+            disabled={estado !== estados.cancelada} // habilitado solo si la orden está cancelada
+        >
+            Evaluación
+        </MenuItem>
 
-                    <MenuItem value={estados.enProduccion} sx={{ color: "gold" }}>
-                        En Producción
-                    </MenuItem>
+        <MenuItem
+            value={estados.enProduccion}
+            disabled={estado !== estados.evaluacion} // habilitado solo desde evaluación
+        >
+            En Producción
+        </MenuItem>
 
-                    <MenuItem value={estados.cancelada} sx={{ color: "crimson" }}>
-                        Cancelada
-                    </MenuItem>
+        <MenuItem
+            value={estados.finalizada}
+            disabled={estado !== estados.enProduccion} // habilitado solo desde en producción
+        >
+            Finalizada
+        </MenuItem>
 
-                    <MenuItem value={estados.finalizada} sx={{ color: "limegreen" }}>
-                        Finalizada
-                    </MenuItem>
-                </Select>
-            </FormControl>
+        <MenuItem
+            value={estados.cancelada}
+            disabled={estado === estados.finalizada} // deshabilitado si ya está finalizada
+        >
+            Cancelada
+        </MenuItem>
+    </Select>
+</FormControl>
+
+
 
             {/* MODAL FINALIZAR ORDEN */}
             <Modal open={openModal} onClose={cerrarModal}>
