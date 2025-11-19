@@ -61,7 +61,7 @@ const ReportesInsumos = () => {
     // 🔹 3. Ingresos por responsable
     const ingresosPorResponsable = Object.entries(
         movimiento_insumos.reduce((acc: any, mov) => {
-            acc[mov.responsable] = (acc[mov.responsable] || 0) + 1;
+            acc[mov.legajo] = (acc[mov.legajo] || 0) + 1;
             return acc;
         }, {})
     ).map(([responsable, cantidad]) => ({ responsable, cantidad }));

@@ -8,14 +8,16 @@ import { InsumoContext } from "../../../Context/InsumoContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SinResultados from "../../estaticos/SinResultados";
+import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
-  const { recetas, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
+  const { insumosProducto, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
   const { insumos } = useContext(InsumoContext)!;
+  const { user } = useContext(FaceAuthContext)!;
   const { agregarTiempoProduccion, obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
@@ -46,6 +48,12 @@ const TablaProductos: React.FC = () => {
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
     () => [
+      {
+        accessorKey: "id",
+        header: "ID",
+        enableEditing: false,
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+      },
       {
         accessorKey: "codigo",
         header: "Código",
@@ -78,10 +86,8 @@ const TablaProductos: React.FC = () => {
       {
         accessorKey: "presentacion",
         header: "Presentación",
-        editVariant: "select",
-        editSelectOptions: ["Gramos", "Litros", "Kilos"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: baseTextFieldProps("presentacion"),
+        muiEditTextFieldProps: baseTextFieldProps("presentacion", { type: "number" }),
       },
       {
         accessorKey: "unidad",
@@ -97,7 +103,22 @@ const TablaProductos: React.FC = () => {
         enableEditing: false,
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("stock", { type: "number", required: false }),
-      }
+      },
+      {
+        accessorKey: "fechaCreacion",
+        header: "Fecha",
+        enableEditing: false,
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+      },
+      {
+        accessorKey: "legajoResponsable",
+        header: "Responsable",
+        enableEditing: false,
+        muiTableHeadCellProps: ESTILOS_CABECERA,
+        muiEditTextFieldProps: { value: `${user?.legajo}` },
+        Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
+
+      },
     ],
     [validationErrors]
   );
@@ -126,7 +147,10 @@ const TablaProductos: React.FC = () => {
       ? values.codigo
       : obtenerSiguienteCodigo();
 
-    const nuevoProducto: Producto = { ...values, codigo, stock: 0 };
+    const nuevoProducto: Producto = {
+      ...values, codigo, stock: 0,
+      legajoResponsable: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
+    };
     await handleAddProducto(nuevoProducto);
 
     table.setCreatingRow(null);
@@ -323,11 +347,11 @@ const TablaProductos: React.FC = () => {
             🧾 Receta para {row.original.nombre}
           </Typography>
 
-          {recetas.length === 0 ? (
+          {insumosProducto.length === 0 ? (
             <Typography>No hay receta disponible.</Typography>
           ) : (
             <Box component="ul" sx={{ listStyle: "none", pl: 0, m: 0 }}>
-              {recetas.map((insumo) => (
+              {insumosProducto.map((insumo) => (
                 <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
                   <Typography variant="body2">
                     <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria + " " + insumo.unidad}
@@ -336,7 +360,7 @@ const TablaProductos: React.FC = () => {
 
               ))}
               <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-                Tiempo de produccion unitario: {tiempoProduccionUnitario} hs.
+                Tiempo de produccion unitario: {tiempoProduccionUnitario.tiempoProduccion} hs.
               </Typography>
             </Box>
           )}
@@ -356,7 +380,7 @@ const TablaProductos: React.FC = () => {
           <Tooltip title="Agregar tiempo de producción">
             <IconButton
               color="secondary"
-              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario > 0}
+              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario.tiempoProduccion > 0}
               onClick={() => {
                 const tiempo = prompt("Ingrese el tiempo de producción (en horas):");
                 if (tiempo) {
@@ -458,14 +482,14 @@ const TablaProductos: React.FC = () => {
             fullWidth
             SelectProps={{ native: true }}
           >
-              <option value="Unidades"> Unidades </option>
-              <option value="Miligramos"> Miligramos </option>
-              <option value="Gramos"> Gramos </option>
-              <option value="Litros"> Litros </option>
-              <option value="Kilogramos"> Kilogramos </option>
+            <option value="Unidades"> Unidades </option>
+            <option value="Miligramos"> Miligramos </option>
+            <option value="Gramos"> Gramos </option>
+            <option value="Litros"> Litros </option>
+            <option value="Kilogramos"> Kilogramos </option>
 
           </TextField>
-        
+
         </DialogContent>
 
         <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>

@@ -129,7 +129,7 @@ const TablaIngreso: React.FC = () => {
                 muiEditTextFieldProps: baseTextFieldProps("proveedor"),
             },
             {
-                accessorKey: "responsable",
+                accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
                 muiEditTextFieldProps: { value: `${user?.legajo}` },
@@ -138,7 +138,7 @@ const TablaIngreso: React.FC = () => {
                 accessorKey: "fechaHora",
                 header: "Fecha Ingreso",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: new Date().toLocaleString() },
+                muiTableHeadCellProps: ESTILOS_CABECERA,
             },
         ],
         [validationErrors]
@@ -166,6 +166,7 @@ const TablaIngreso: React.FC = () => {
         const nuevaOrden = {
             ...values,
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "INGRESO",
+            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
         };
         setValidationErrors({});
         await handleAdd_Movimiento_insumo(nuevaOrden);
@@ -201,7 +202,7 @@ const TablaIngreso: React.FC = () => {
                 unidad: false,
                 stock: false,
                 lote: false,
-                responsable: false,
+                legajo: false,
                 proveedor: false,
             },
         },
@@ -254,7 +255,7 @@ const TablaIngreso: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Responsable
                     </Typography>
-                    <Typography>{row.original.responsable}</Typography>
+                    <Typography>{row.original.legajo} - {row.original.responsableApellido} {row.original.responsableNombre}</Typography>
                 </Box>
             </Box >
         ),

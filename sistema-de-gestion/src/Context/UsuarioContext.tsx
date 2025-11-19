@@ -1,10 +1,4 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    useEffect,
-    type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode, } from "react";
 import { toast } from "react-toastify";
 import { URL_empleados as URL } from "../App";
 
@@ -35,7 +29,7 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         cargarEmpleados();
-    }, [empleados]);
+    }, []);
 
     /** ----------------------------------------------------------
      * CARGAR EMPLEADOS
@@ -43,7 +37,7 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
     const cargarEmpleados = async () => {
         try {
             setCargando(true);
-            const res = await fetch(`${URL}/otener-empleados`);
+            const res = await fetch(`${URL}/obtener-empleados`);
 
             if (!res.ok) throw new Error("Error al cargar empleados");
 

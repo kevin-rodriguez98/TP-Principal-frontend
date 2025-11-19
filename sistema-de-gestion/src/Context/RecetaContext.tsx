@@ -11,8 +11,8 @@ export interface Receta {
 }
 
 interface RecetaContextType {
-    recetas: Receta[];
-    setRecetas: React.Dispatch<React.SetStateAction<Receta[]>>;
+    insumosProducto: Receta[];
+    setInsumosProducto: React.Dispatch<React.SetStateAction<Receta[]>>;
     obtenerInsumosNecesarios: (codigoProducto: string, cantidad: number) => Promise<void>;
     agregarInsumoAReceta: (codigoProducto:string,  insumo: Receta) => Promise<void>;
     isLoading: boolean;
@@ -22,7 +22,7 @@ export const RecetaContext = createContext<RecetaContextType | undefined>(undefi
 
 export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
     const { setModal } = useContext(ModalContext)!;
-    const [recetas, setRecetas] = useState<Receta[]>([]);
+    const [insumosProducto, setInsumosProducto] = useState<Receta[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     // ⚙️ Función reutilizable para manejar errores HTTP
@@ -66,7 +66,8 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
             );
             if (!response.ok) await handleFetchError(response, "Error al obtener insumos necesarios");
             const data = await response.json();
-            setRecetas(data);
+            console.log(data)
+            setInsumosProducto(data);
         } catch (error) {
             console.error(error);
             toast.error("Error al obtener insumos necesarios");
@@ -78,8 +79,8 @@ export const RecetaProvider = ({ children }: { children: React.ReactNode }) => {
     return (
         <RecetaContext.Provider
             value={{
-                recetas,
-                setRecetas,
+                insumosProducto,
+                setInsumosProducto,
                 obtenerInsumosNecesarios,
                 agregarInsumoAReceta,
                 isLoading,

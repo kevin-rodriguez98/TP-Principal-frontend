@@ -3,19 +3,30 @@ import { toast } from 'react-toastify';
 import { URL_ordenes as URL } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
 
-
-export interface Insumo {
-  codigo: string;
-  nombre: string;
-  unidad: string;
-  cantidad: string;
-}
-
-interface Etapa {
+export interface Etapa {
   idOrden: number;
   legajo: string;
   estado: string;
+  isEstado: boolean;
 }
+
+export const estados = {
+  cancelada: "CANCELADA",
+  enProduccion: "EN_PRODUCCION",
+  finalizada: "FINALIZADA",
+  evaluacion: "EVALUACION",
+} as const;
+
+export const etapas_prduccion = {
+  coccion: "Cocción",
+  enfriado: "Enfriado",
+  almacenamiento: "Almacenamiento",
+  pasteurizacion: "Pasteurización",
+  envasado: "Envasado",
+} as const;
+
+export type Estado = typeof estados[keyof typeof estados];
+
 
 export interface OrdenProduccion {
   id: number,
@@ -23,20 +34,56 @@ export interface OrdenProduccion {
   productoRequerido: string;
   marca: string;
   stockRequerido: number;
-  fechaEntrega: string;
-  estado: "EVALUACIÓN" | "CANCELADA" | "EN_PRODUCCION" | "FINALIZADA_ENTREGADA";
-  lote: string;
+  fechaEntrega: Date;
 
+  estado: Estado;
+  lote: string;
+  responsable: string;
+  presentacion: string;
+
+  // envasado: string;
+  nota: string;
+  // fechaCreacion: string;
+  // stockProducidoReal: number;
+  // tiempoEstimado?: number;
+}
+
+export interface OrdenProduccionAgregarRequest {
+  productoRequerido: string;
+  marca: string;
+  stockRequerido: number;
+  codigoProducto: string;
+  fechaEntrega: Date;
+  estado?: string; // opcional
+  lote: string;
   envasado: string;
   presentacion: string;
-  etapa: string;
-  nota: string;
-
   responsable: string;
-  fechaCreacion: string;
-  stockProducidoReal: number;
-  tiempoEstimado?: number;
 }
+
+
+export interface ordenFinalizadaRequest {
+  ordenId: number;
+  stockProducidoReal: number;
+  destino: string;
+  legajo: string;
+}
+
+
+export interface HistorialItem {
+    etapa: string;
+    fechaCambio: string;
+    empleado: {
+        id: number;
+        legajo: string;
+        nombre: string;
+        apellido: string;
+        area: string;
+        rol: string;
+    };
+}
+
+
 
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
@@ -47,14 +94,12 @@ interface OrdenContextType {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  marcarEnProduccion: (id: number, codigoProducto: string) => Promise<void>;
-  finalizarOrden: (id: number, stockProducidoReal?: number, destino?: string) => Promise<void>;
-  cancelarOrden: (id: number) => Promise<void>;
-  notificarEtapa: (id: number, nuevaEtapa: string) => Promise<void>;
+  finalizarOrden: (orden: ordenFinalizadaRequest) => Promise<void>;
+  notificarEtapa: (data: Etapa) => Promise<void>;
   agregarNota: (id: number, nota: string) => Promise<void>;
-  obtenerHistorialEtapas: (id: number) => Promise<HistorialEtapa[]>
-  historial: HistorialEtapa[];
-  setHistorial: React.Dispatch<React.SetStateAction<HistorialEtapa[]>>;
+  obtenerHistorialEtapas: (id: number) => Promise<HistorialItem[]>
+  historial: Etapa[];
+  setHistorial: React.Dispatch<React.SetStateAction<Etapa[]>>;
 
 }
 export const OrdenesContext = createContext<OrdenContextType | undefined>(undefined);
@@ -67,7 +112,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [historial, setHistorial] = useState<HistorialEtapa[]>([]);
+  const [historial, setHistorial] = useState<Etapa[]>([]);
   let count = 0;
 
   useEffect(() => {
@@ -112,6 +157,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
       }
       const data = await response.json();
+      console.log(data)
       setOrdenes(data);
     } catch (err: any) {
       setError(err.message);
@@ -147,7 +193,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const nuevaOrden = await response.json();
       setOrdenes(prev => [...prev, nuevaOrden]);
       toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
-      
+
     } catch {
       setModal({
         tipo: "error",
@@ -156,43 +202,19 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  // ===============================
-  // ⚙️ Marcar como EN PRODUCCIÓN
-  // ===============================
-  const marcarEnProduccion = async (id: number, codigoProducto: string) => {
-    try {
-      const response = await fetch(
-        `${URL}/marcar-en-produccion/${id}?codigoProducto=${codigoProducto}`,
-        { method: "PUT" }
-      );
-
-      if (!response.ok) {
-        await handleFetchError(response, "No se pudo marcar la orden en producción.");
-        return;
-      }
-
-      toast.success(`Orden ${id} marcada como EN PRODUCCIÓN`);
-      notificarEtapa(id, "Cocción");
-      await obtenerOrdenes();
-    } catch {
-      setModal({
-        tipo: "error",
-        mensaje: "No se pudo marcar la orden en producción.",
-      });
-    }
-  };
 
   // ===============================
   // ✅ Finalizar orden
   // ===============================
-  const finalizarOrden = async (id: number, stockProducidoReal?: number, destino?: string) => {
-    if (!destino) return;
-
+  const finalizarOrden = async (orden: ordenFinalizadaRequest) => {
     try {
-      const response = await fetch(
-        `${URL}/finalizar/${id}?cantidadProducida=${stockProducidoReal}&destino=${encodeURIComponent(destino)}`,
-        { method: "PUT" }
-      );
+      const response = await fetch(`${URL}/finalizar`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orden),
+      });
 
       if (!response.ok) {
         await handleFetchError(response, "No se pudo finalizar la orden.");
@@ -203,8 +225,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         tipo: "success",
         mensaje: "Orden finalizada correctamente.",
       });
+
       await obtenerOrdenes();
-    } catch {
+    } catch (error) {
       setModal({
         tipo: "error",
         mensaje: "No se pudo finalizar la orden.",
@@ -212,53 +235,37 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  // ===============================
-  // ❌ Cancelar orden
-  // ===============================
-  const cancelarOrden = async (id: number) => {
-    try {
-      const response = await fetch(`${URL}/cancelar/${id}`, { method: "PUT" });
 
-      if (!response.ok) {
-        await handleFetchError(response, "No se pudo cancelar la orden.");
-        return;
-      }
-
-      toast.success(`Orden ${id} cancelada correctamente`);
-      await obtenerOrdenes();
-    } catch {
-      setModal({
-        tipo: "error",
-        mensaje: "No se pudo cancelar la orden.",
-      });
-    }
-  };
 
   // ===============================
   // 📨 Notificar nueva etapa
   // ===============================
-  const notificarEtapa = async (id: number, nuevaEtapa: string) => {
+  const notificarEtapa = async (data: Etapa) => {
     try {
-      const response = await fetch(`${URL}/notificar-etapa/${id}`, {
+      const response = await fetch(`${URL}/notificar-etapa`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: nuevaEtapa,
+        body: JSON.stringify(data),
       });
 
+      console.log(response)
       if (!response.ok) {
         await handleFetchError(response, "No se pudo notificar la nueva etapa.");
         return;
       }
 
-      toast.info(`Etapa actualizada a ${nuevaEtapa}`);
+      toast.info(`Etapa actualizada a ${data.estado}`);
       await obtenerOrdenes();
-    } catch {
-      setModal({
-        tipo: "error",
-        mensaje: "No se pudo actualizar la etapa de la orden.",
-      });
+
+    } catch (err) {
+    console.error("notificar-etapa - error catch:", err);
+    setModal({
+      tipo: "error",
+      mensaje: "No se pudo actualizar la etapa de la orden.",
+    });
     }
   };
+
 
   // ===============================
   // 📝 Agregar nota a la orden
@@ -289,7 +296,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   // ===============================
   // 📜 Obtener historial de etapas
   // ===============================
-  const obtenerHistorialEtapas = async (id: number): Promise<HistorialEtapa[]> => {
+  const obtenerHistorialEtapas = async (id: number): Promise<HistorialItem[]> => {
     try {
       const response = await fetch(`${URL}/${id}/historial-etapas`);
       if (!response.ok) {
@@ -320,15 +327,12 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         setIsLoading,
         error,
         setError,
-        marcarEnProduccion,
         finalizarOrden,
-        cancelarOrden,
         notificarEtapa,
         agregarNota,
         obtenerHistorialEtapas,
         historial,
         setHistorial
-
       }}
     >
       {children}

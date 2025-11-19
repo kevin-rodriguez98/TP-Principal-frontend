@@ -2,7 +2,9 @@ import React, { useState, useMemo } from "react";
 import {
   Box, Button, DialogActions, DialogContent, DialogTitle,
   Typography, CircularProgress,
-  Paper
+  Paper,
+  Tooltip,
+  IconButton
 } from "@mui/material";
 
 import * as XLSX from "xlsx";
@@ -19,6 +21,7 @@ import SinResultados from "../components/estaticos/SinResultados";
 import '../styles/tablas.css'
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -26,7 +29,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 
 const TablaUsuarios: React.FC = () => {
-  const { empleados, cargando, agregarEmpleado, error, isLoading } = useUsuarios();
+  const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado } = useUsuarios();
   const { login, logout, user } = useFaceAuth();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
@@ -94,10 +97,10 @@ const TablaUsuarios: React.FC = () => {
     }
 
     setValidationErrors({});
-    console.log(values)
     await agregarEmpleado(values);
     table.setCreatingRow(null);
   };
+
 
   /** ------------------------------------------------------------------
    * LOGIN SIMULADO
@@ -243,9 +246,16 @@ const TablaUsuarios: React.FC = () => {
     ),
 
     renderRowActions: ({ row }) => (
-      <Button variant="outlined" onClick={() => handleLoginSimulado(row.original)}>
-        Iniciar Sesión
-      </Button>
+      <Box sx={{ display: "flex", gap: "1rem" }}>
+        {/* <Button variant="outlined" onClick={() => handleLoginSimulado(row.original)}>
+          Iniciar Sesión
+        </Button> */}
+        <Tooltip title="Eliminar">
+          <IconButton color="error" onClick={async () =>  await eliminarEmpleado(row.original.legajo)}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
     ),
 
     renderEmptyRowsFallback: () =>
@@ -266,32 +276,32 @@ const TablaUsuarios: React.FC = () => {
     );
   }
 
-return (
-  <Box
-    sx={{
-      width: "100%",
-      minHeight: "100vh",
-      bgcolor: "background.default",
-      display: "flex",
-      justifyContent: "center",
-      backgroundColor: "transparent",
-      p: 4,
-    }}
-  >
-    <Paper
-      elevation={3}
+  return (
+    <Box
       sx={{
         width: "100%",
-        maxWidth: "1400px",
-        borderRadius: 2,
-        p: 3,
-        backgroundColor: "#1e1e1e",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        display: "flex",
+        justifyContent: "center",
+        backgroundColor: "transparent",
+        p: 4,
       }}
     >
-      <MaterialReactTable table={table} />
-    </Paper>
-  </Box>
-);
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          maxWidth: "1400px",
+          borderRadius: 2,
+          p: 3,
+          backgroundColor: "#1e1e1e",
+        }}
+      >
+        <MaterialReactTable table={table} />
+      </Paper>
+    </Box>
+  );
 
 
 };

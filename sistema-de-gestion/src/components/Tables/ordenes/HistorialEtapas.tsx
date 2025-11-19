@@ -7,14 +7,18 @@ interface HistorialEtapasProps {
     ordenId: number;
 }
 
-interface Etapa {
-    id: number;
+interface HistorialItem {
     etapa: string;
-    fecha: string;
+    fechaCambio: string;
+    empleado: {
+        legajo: string;
+        nombre: string;
+        apellido: string;
+    };
 }
 
 const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
-    const [historial, setHistorial] = useState<Etapa[]>([]);
+    const [historial, setHistorial] = useState<HistorialItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     const { obtenerHistorialEtapas, ordenes } = useContext(OrdenesContext)!;
@@ -25,24 +29,11 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
         fetchHistorial();
     }, []);
 
-    // const fetchHistorial = async () => {
-    //     const data = await obtenerHistorialEtapas(ordenId);
-    //     setHistorial(data);
-    //     setLoading(false);
-    // };
-
     const fetchHistorial = async () => {
         const data = await obtenerHistorialEtapas(ordenId);
-
-        const conFechasDummy = data.map((e: Etapa) => ({
-            ...e,
-            fecha: e.fecha || new Date().toISOString()
-        }));
-
-        setHistorial(conFechasDummy);
+        setHistorial(data || []);
         setLoading(false);
     };
-
 
     if (loading)
         return (
@@ -61,22 +52,27 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
     return (
         <Box className="timeline-container">
             <Typography variant="subtitle1" sx={{ mb: 1, color: "#15a017ff", fontWeight: 600 }}>
-                Trazabilidad de la Órden
+                Trazabilidad de la Orden
             </Typography>
 
             <ul className="timeline compact">
-                {historial.map((etapa) => (
-                    <li key={etapa.id} className="timeline-item">
-                        <div className={`timeline-marker ${etapa.etapa.toLowerCase()}`}></div>
+                {historial.map((item, i) => (
+                    <li key={i} className="timeline-item">
+                        <div
+                            className={`timeline-marker ${item.etapa.toLowerCase()}`}
+                        ></div>
+
                         <div className="timeline-content">
                             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                {etapa.etapa.replaceAll("_", " ")}
+                                {item.etapa.replaceAll("_", " ")}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: "#ccc" }}>
-                                {etapa.fecha
-                                    ? new Date(etapa.fecha).toLocaleString()
-                                    : new Date().toLocaleString()} - Usuario
 
+                            <Typography variant="caption" sx={{ color: "#ccc" }}>
+                                {item.fechaCambio}
+                                {" — "}
+                                {item.empleado
+                                    ? `${item.empleado.nombre} ${item.empleado.apellido} (Legajo: ${item.empleado.legajo})`
+                                    : "Empleado desconocido"}
                             </Typography>
                         </div>
                     </li>

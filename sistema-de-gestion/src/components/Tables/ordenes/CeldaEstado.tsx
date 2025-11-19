@@ -1,168 +1,203 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     FormControl,
     Select,
     MenuItem,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
+    Modal,
+    Box,
     TextField,
+    Button,
 } from "@mui/material";
-import { ESTADOS, COLORES_ESTADOS } from "./TablaOrden"; // Ajustá la ruta según donde tengas tus constantes
+import { estados, type Etapa, type ordenFinalizadaRequest } from "../../../Context/OrdenesContext";
 
-interface CeldaEstadoProps {
-    row: any;
-    marcarEnProduccion: (id: number, codigoProducto: string) => Promise<void>;
-    finalizarOrden: (id: number, stockProducidoReal: number, destino: string) => Promise<void>;
-    cancelarOrden: (id: number) => Promise<void>;
+interface Props {
+    idOrden: number;
+    estado: string;
+    legajo: string;
+    notificarEtapa: (etapa: Etapa) => Promise<void>;
+    finalizarOrden: (orden: ordenFinalizadaRequest) => Promise<void>;
 }
 
-const CeldaEstado: React.FC<CeldaEstadoProps> = ({
-    row,
-    marcarEnProduccion,
+const colorEstado: Record<string, string> = {
+    [estados.evaluacion]: "dodgerblue",
+    [estados.enProduccion]: "gold",
+    [estados.finalizada]: "limegreen",
+    [estados.cancelada]: "crimson",
+};
+
+const styleModal = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "#1e1e1e",
+    borderRadius: "12px",
+    boxShadow: 24,
+    p: 3,
+};
+
+const CeldaEstado: React.FC<Props> = ({
+    idOrden,
+    estado,
+    legajo,
+    notificarEtapa,
     finalizarOrden,
-    cancelarOrden,
 }) => {
-    const [estado, setEstado] = useState(row.original.estado || ESTADOS.evaluacion);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [finalizarOpen, setFinalizarOpen] = useState(false);
-    const [nuevoEstado, setNuevoEstado] = useState<string | null>(null);
-    const [stockReal, setStockReal] = useState<number>(0);
-    const [destino, setDestino] = useState<string>("Depósito Central");
 
-    const bg = COLORES_ESTADOS[estado] || "gray";
-    const { id, codigoProducto } = row.original;
+    const [openModal, setOpenModal] = useState(false);
+    const [destino, setDestino] = useState("Almacen");
+    const [cantidad, setCantidad] = useState("");
 
-    // Validaciones
-    const puedeMarcarProduccion =
-        estado !== ESTADOS.enProduccion && estado !== ESTADOS.finalizada && estado !== ESTADOS.cancelada;
-    const puedeFinalizar =
-        estado !== ESTADOS.finalizada && estado !== ESTADOS.cancelada && estado !== ESTADOS.evaluacion;
-    const puedeCancelar =
-        estado !== ESTADOS.finalizada && estado !== ESTADOS.cancelada && estado !== ESTADOS.enProduccion;
-
-    const handleCambiarEstado = (nuevo: string) => {
-        setNuevoEstado(nuevo);
-        setConfirmOpen(true);
-    };
-
-    const confirmarCambio = async () => {
-        if (!nuevoEstado) return;
-        setConfirmOpen(false);
-
-        try {
-            switch (nuevoEstado) {
-                case ESTADOS.enProduccion:
-                    if (puedeMarcarProduccion) await marcarEnProduccion(Number(id), codigoProducto);
-                    setEstado(ESTADOS.enProduccion);
-                    break;
-
-                case ESTADOS.finalizada:
-                    if (puedeFinalizar) setFinalizarOpen(true);
-                    break;
-
-                case ESTADOS.cancelada:
-                    if (puedeCancelar) await cancelarOrden(Number(id));
-                    setEstado(ESTADOS.cancelada);
-                    break;
-            }
-        } catch (error) {
-            console.error("Error al cambiar el estado:", error);
-        }
+    const abrirModal = () => setOpenModal(true);
+    const cerrarModal = () => {
+        setOpenModal(false);
+        setCantidad("");
+        setDestino("Almacen");
     };
 
     const confirmarFinalizacion = async () => {
-        try {
-            await finalizarOrden(Number(id), stockReal, destino);
-            setEstado(ESTADOS.finalizada);
-            setFinalizarOpen(false);
-        } catch (error) {
-            console.error("Error al finalizar la orden:", error);
+        if (!cantidad) return;
+
+        await finalizarOrden({
+            ordenId: idOrden,
+            stockProducidoReal: Number(cantidad),
+            destino,
+            legajo,
+        });
+
+        cerrarModal();
+    };
+
+    const onChange = async (e: any) => {
+        const nuevo = e.target.value;
+
+        if (nuevo === estados.finalizada) {
+            abrirModal();
+            return;
         }
+
+        if (nuevo === estados.enProduccion) {
+            await notificarEtapa({
+                idOrden,
+                legajo,
+                estado: nuevo,
+                isEstado: true,
+            });
+
+            await notificarEtapa({
+                idOrden,
+                legajo,
+                estado: "coccion",
+                isEstado: false,
+            });
+            return;
+        }
+
+        await notificarEtapa({
+            idOrden,
+            legajo,
+            estado: nuevo,
+            isEstado: true,
+        });
     };
 
     return (
         <>
-            <FormControl
-                variant="standard"
-                sx={{
-                    minWidth: 160,
-                    background: bg,
-                    color: bg === "gold" ? "black" : "white",
-                    borderRadius: "8px",
-                    px: 1.5,
-                    py: 0.5,
-                }}
-            >
+            <FormControl variant="standard" sx={{ minWidth: 160 }}>
                 <Select
                     value={estado}
-                    onChange={(e) => handleCambiarEstado(e.target.value)}
+                    onChange={onChange}
+                    disabled={estado === estados.finalizada || estado === estados.cancelada}
                     sx={{
-                        color: "inherit",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        "& .MuiSelect-icon": { color: "inherit" },
+                        background: "#1e1e1e",
+                        color: colorEstado[estado],
+                        fontWeight: 700,
+                        px: 1.2,
+                        borderRadius: "6px",
+                        border: `1px solid ${colorEstado[estado]}`,
+                        "& .MuiSvgIcon-root": {
+                            color: colorEstado[estado],
+                        },
+                    }}
+                    MenuProps={{
+                        PaperProps: {
+                            sx: { backgroundColor: "#222", borderRadius: "10px" },
+                        },
                     }}
                 >
-                    <MenuItem value={ESTADOS.evaluacion}>Evaluación🔍</MenuItem>
-                    <MenuItem value={ESTADOS.enProduccion} disabled={!puedeMarcarProduccion}>
-                        En Producción⚙️
+                    <MenuItem value={estados.evaluacion} sx={{ color: "dodgerblue" }}>
+                        Evaluación
                     </MenuItem>
-                    <MenuItem value={ESTADOS.finalizada} disabled={!puedeFinalizar}>
-                        Finalizada✅
+
+                    <MenuItem value={estados.enProduccion} sx={{ color: "gold" }}>
+                        En Producción
                     </MenuItem>
-                    <MenuItem value={ESTADOS.cancelada} disabled={!puedeCancelar}>
-                        Cancelada❌
+
+                    <MenuItem value={estados.cancelada} sx={{ color: "crimson" }}>
+                        Cancelada
+                    </MenuItem>
+
+                    <MenuItem value={estados.finalizada} sx={{ color: "limegreen" }}>
+                        Finalizada
                     </MenuItem>
                 </Select>
             </FormControl>
 
-            {/* Modal de confirmación general */}
-            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-                <DialogTitle>Confirmar cambio</DialogTitle>
-                <DialogContent>
-                    ¿Seguro que deseas cambiar el estado a{" "}
-                    <strong style={{ color: COLORES_ESTADOS[nuevoEstado || ""] }}>{nuevoEstado}</strong>?
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setConfirmOpen(false)}>Cancelar</Button>
-                    <Button onClick={confirmarCambio} variant="contained">
-                        Confirmar
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {/* MODAL FINALIZAR ORDEN */}
+            <Modal open={openModal} onClose={cerrarModal}>
+                <Box sx={styleModal}>
+                    <h3 style={{ marginBottom: "15px" }}>Finalizar Orden</h3>
 
-            {/* Modal de finalización */}
-            <Dialog open={finalizarOpen} onClose={() => setFinalizarOpen(false)}>
-                <DialogTitle>Finalizar orden de producción</DialogTitle>
-                <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
                     <TextField
-                        label="Stock producido real"
-                        type="number"
                         fullWidth
-                        value={stockReal}
-                        onChange={(e) => setStockReal(Number(e.target.value))}
-                    />
-                    <TextField
-                        label="Destino de almacenamiento"
-                        fullWidth
+                        select
+                        label="Destino"
                         value={destino}
                         onChange={(e) => setDestino(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setFinalizarOpen(false)}>Cancelar</Button>
-                    <Button
-                        onClick={confirmarFinalizacion}
-                        variant="contained"
-                        disabled={!stockReal || destino.trim() === ""}
+                        sx={{
+                            mb: 2,
+                            label: { color: "#aaa" },
+                            "& .MuiSelect-select": { color: "white" },
+                            "& .MuiOutlinedInput-root": {
+                                "& fieldset": { borderColor: "#555" },
+                                "&:hover fieldset": { borderColor: "#888" },
+                            },
+                        }}
                     >
-                        Confirmar
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                        <MenuItem value="Almacen">Almacén</MenuItem>
+                        <MenuItem value="Venta directa">Venta directa</MenuItem>
+                        <MenuItem value="Descarte">Descarte</MenuItem>
+                    </TextField>
+
+                    <TextField
+                        fullWidth
+                        type="number"
+                        label="Cantidad producida"
+                        value={cantidad}
+                        onChange={(e) => setCantidad(e.target.value)}
+                        sx={{
+                            mb: 3,
+                            input: { color: "white" },
+                            label: { color: "#aaa" },
+                            "& .MuiOutlinedInput-root": {
+                                "& fieldset": { borderColor: "#555" },
+                                "&:hover fieldset": { borderColor: "#888" },
+                            },
+                        }}
+                    />
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                        <Button variant="outlined" color="error" onClick={cerrarModal}>
+                            Cancelar
+                        </Button>
+
+                        <Button variant="contained" onClick={confirmarFinalizacion}>
+                            Confirmar
+                        </Button>
+                    </div>
+                </Box>
+            </Modal>
         </>
     );
 };

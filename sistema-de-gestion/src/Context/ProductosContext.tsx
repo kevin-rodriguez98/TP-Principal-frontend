@@ -4,14 +4,23 @@ import { ModalContext } from "../components/modal/ModalContext";
 import { URL_productos as URL } from "../App";
 
 export interface Producto {
+  id: string;
   codigo: string;
   nombre: string;
   categoria: string;
   linea: string;
   unidad: string;
   stock: number;
-  envasado: string;
-  presentacion: string; 
+  presentacion: string;
+  legajoResponsable: string;
+
+  lote: string;
+  fechaCreacion: Date;
+
+
+  legajo: string;
+  responsableNombre: string;
+  responsableApellido: string;
 }
 
 interface ProductoContextType {
@@ -80,7 +89,13 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       if (!response.ok) await handleFetchError(response, "Error al obtener los productos");
 
       const data = await response.json();
-      setProductos(data);
+      const listaTransformada = data.map((item: any) => ({
+        ...item.producto,                 // todos los campos del movimiento
+        legajo: item.empleado?.legajo || "",
+        responsableNombre: item.empleado?.nombre || "",
+        responsableApellido: item.empleado?.apellido || "",
+      }));
+      setProductos(listaTransformada);
     } catch {
       setError("❌ No se pudo conectar con el servidor de productos.");
       setProductos([]);
@@ -166,7 +181,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
     });
   };
 
-  
+
 
   const obtenerSiguienteCodigo = () => {
     if (productos.length === 0) return "P001";

@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography} from "@mui/material";
-import { OrdenesContext, type OrdenProduccion } from "../../../Context/OrdenesContext";
-import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
+import { OrdenesContext, type OrdenProduccion, estados } from "../../../Context/OrdenesContext";
+// import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import CeldaEstado from "./CeldaEstado";
 import CeldaEtapa from "./CeldaEtapa";
@@ -12,26 +12,14 @@ import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
-export const ESTADOS = {
-    cancelada: "CANCELADA",
-    enProduccion: "EN_PRODUCCION",
-    finalizada: "FINALIZADA_ENTREGADA",
-    evaluacion: "EVALUACIÓN",
-} as const;
 
-export const COLORES_ESTADOS: Record<string, string> = {
-    [ESTADOS.cancelada]: "red",
-    [ESTADOS.enProduccion]: "gold",
-    [ESTADOS.finalizada]: "green",
-    [ESTADOS.evaluacion]: "dodgerblue",
-};
+
 
 
 const TablaOrden: React.FC = () => {
-    const { ordenes, isLoading, handleAddOrden, marcarEnProduccion, finalizarOrden, cancelarOrden, error, notificarEtapa, agregarNota } = useContext(OrdenesContext)!;
+    const { ordenes, isLoading, handleAddOrden, error, notificarEtapa, finalizarOrden, agregarNota} = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
     const { user } = useContext(FaceAuthContext)!;
-    const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
     const limpiarError = (campo: string) =>
@@ -113,10 +101,11 @@ const TablaOrden: React.FC = () => {
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 Cell: ({ row }) => (
                     <CeldaEstado
-                        row={row}
-                        marcarEnProduccion={marcarEnProduccion}
+                        idOrden={row.original.id}
+                        estado={row.original.estado}
+                        legajo={user?.legajo ? user?.legajo : ""}
+                        notificarEtapa={notificarEtapa}
                         finalizarOrden={finalizarOrden}
-                        cancelarOrden={cancelarOrden}
                     />
                 ),
             },
@@ -127,9 +116,12 @@ const TablaOrden: React.FC = () => {
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 Cell: ({ row }) => (
                     <CeldaEtapa
-                        row={row}
-                        agregarNota={agregarNota}
+                        idOrden={row.original.id}
+                        etapa={row.original.estado}
+                        legajo={user?.legajo ? user?.legajo : ""}
                         notificarEtapa={notificarEtapa}
+                        agregarNota={agregarNota}
+                        // visible={row.original.estado === estados.enProduccion}
                     />
                 ),
             },
@@ -152,17 +144,6 @@ const TablaOrden: React.FC = () => {
                     type: "date",
                     InputLabelProps: { shrink: true },
                 }),
-                Cell: ({ row }) => row.original.fechaEntrega || "—",
-            },
-            {
-                accessorKey: "envasado",
-                header: "Envasado",
-                enableEditing: true,
-                editVariant: "select",
-                editSelectOptions: ["Plástico", "Vidrio", "Sachet", "Cartón"],
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("envasado"),
-                Cell: ({ row }) => row.original.envasado || "—",
             },
             {
                 accessorKey: "presentacion",
@@ -178,24 +159,20 @@ const TablaOrden: React.FC = () => {
                 accessorKey: "responsable",
                 header: "Responsable",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: `${user?.legajo }` },
+                muiEditTextFieldProps: { value: `${user?.legajo}` },
             },
             {
                 accessorKey: "fechaCreacion",
                 header: "Fecha creación",
                 enableEditing: false,
                 muiEditTextFieldProps: { value: new Date().toLocaleString() },
-                Cell: ({ row }) =>
-                    row.original.fechaCreacion
-                        ? new Date(row.original.fechaCreacion).toLocaleString()
-                        : "—",
             },
-            {
-                accessorKey: "tiempoEstimado",
-                header: "Tiempo estimado",
-                enableEditing: false,
-                Cell: ({ row }) => row.original.tiempoEstimado ?? "—",
-            },
+            // {
+            //     accessorKey: "tiempoEstimado",
+            //     header: "Tiempo estimado",
+            //     enableEditing: false,
+            //     Cell: ({ row }) => row.original.tiempoEstimado ?? "—",
+            // },
         ],
         [validationErrors]
     );
@@ -206,10 +183,9 @@ const TablaOrden: React.FC = () => {
         if (!o.codigoProducto?.trim()) err.codigoProducto = "El código es requerido";
         if (!o.lote?.trim()) err.lote = "El lote es requerido";
         if (!o.presentacion?.trim()) err.presentacion = "La presentación es requerida";
-        if (!o.envasado?.trim()) err.envasado = "El tipo de envasado es requerido";
         if (!o.stockRequerido && o.stockRequerido !== 0)
             err.stockRequerido = "El stock planeado es requerido";
-        if (!o.fechaEntrega?.trim()) err.fechaEntrega = "La fecha de entrega es requerida";
+        if (!o.fechaEntrega) err.fechaEntrega = "La fecha de entrega es requerida";
         return err;
     };
 
@@ -223,14 +199,15 @@ const TablaOrden: React.FC = () => {
         // 🔹 Forzar valor por defecto
         const nuevaOrden = {
             ...values,
-            estado: values.estado && values.estado.trim() !== "" ? values.estado : "EVALUACIÓN",
-            etapa: values.etapa && values.etapa.trim() !== "" ? values.etapa : "Cocción",
+            estado: values.estado && values.estado.trim() !== "" ? values.estado : estados.evaluacion,
         };
 
         setValidationErrors({});
         await handleAddOrden(nuevaOrden);
         table.setCreatingRow(null);
     };
+
+
 
     const tabla = useMaterialReactTable({
         columns,
@@ -300,22 +277,7 @@ const TablaOrden: React.FC = () => {
                 }}
             >
                 <Box sx={{ display: "flex", gap: 6 }}>
-                    {[
-                        ["Stock Requerido", row.original.stockRequerido],
-                        ["Stock producido", row.original.stockProducidoReal],
-                        ["Fecha creación", row.original.fechaCreacion],
-                        ["Fecha entrega", row.original.fechaEntrega],
-                        ["Lote", row.original.lote],
-                    ].map(([label, value]) => (
-                        <Box key={label}>
-                            <Typography variant="subtitle2" color="primary">
-                                {label}
-                            </Typography>
-                            <Typography>{value || "—"}</Typography>
-                        </Box>
-                    ))}
-
-                    <Box>
+                    {/* <Box>
                         <Typography variant="subtitle2" color="primary">
                             Tiempo estimado de Producción
                         </Typography>
@@ -332,8 +294,26 @@ const TablaOrden: React.FC = () => {
                                 ⏱️
                             </IconButton>
                         )}
-                    </Box>
+                    </Box> */}
 
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Stock Requerido
+                        </Typography>
+                        <Typography>{row.original.stockRequerido}</Typography>
+                    </Box>
+                    {/* <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Fecha entrega
+                        </Typography>
+                        <Typography>{row.original.fechaEntrega}</Typography>
+                    </Box> */}
+                    <Box>
+                        <Typography variant="subtitle2" color="primary">
+                            Lote
+                        </Typography>
+                        <Typography>{row.original.lote}</Typography>
+                    </Box>
                     <Box>
                         <Typography variant="subtitle2" color="primary">
                             Responsable
@@ -354,7 +334,6 @@ const TablaOrden: React.FC = () => {
                 "stockRequerido",
                 "lote",
                 "fechaEntrega",
-                "envasado",
                 "presentacion"
             ];
 
@@ -491,35 +470,6 @@ const TablaOrden: React.FC = () => {
             );
         },
 
-        renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
-            <>
-                <DialogTitle
-                    variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-                >
-                    Editar Orden
-                </DialogTitle>
-
-                <DialogContent
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 2,
-                        padding: 2,
-                    }}
-                >
-                    {internalEditComponents}
-                </DialogContent>
-                <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-                    <MRT_EditActionButtons
-                        table={table}
-                        row={row}
-                        // variant="contained"
-                        color="primary"
-                    />
-                </DialogActions>
-            </>
-        ),
 
         renderRowActions: ({ row }) => {
             const acciones = [

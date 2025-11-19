@@ -5,12 +5,14 @@ import { URL_estimacion as URLEst } from "../App";
 
 export interface TiempoProduccion {
     codigoProducto: string;
-    tiempoPorUnidad: number;
+    tiempoProduccion: number;
+    unidad: string;
+    cantidad: number;
 }
 
 interface TiempoProduccionContextType {
     tiemposProduccion: TiempoProduccion[];
-    tiempoProduccionUnitario: number;
+    tiempoProduccionUnitario: TiempoProduccion;
     isLoading: boolean;
     agregarTiempoProduccion: (codigoProducto: string, tiempoPorUnidad: number) => Promise<void>;
     obtenerTiemposProduccion: () => Promise<void>;
@@ -26,7 +28,7 @@ interface TiempoProduccionProviderProps {
 
 export function TiempoProduccionProvider({ children }: TiempoProduccionProviderProps) {
     const [tiemposProduccion, setTiemposProduccion] = useState<TiempoProduccion[]>([]);
-    const [tiempoProduccionUnitario, setTiempoProduccionUnitario] = useState<number>(0);
+    const [tiempoProduccionUnitario, setTiempoProduccionUnitario] = useState<TiempoProduccion>({ codigoProducto: "", tiempoProduccion: 0, unidad: "", cantidad: 0 });
     const [isLoading, setIsLoading] = useState(false);
     const { setModal } = useContext(ModalContext)!;
 
