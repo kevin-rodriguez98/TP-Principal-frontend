@@ -4,6 +4,7 @@ import { URL_egresos as URL } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
 
 export interface movimiento_producto {
+    id: number;
     codigoProducto: string;
     cantidad: number;
     tipo: string;
@@ -13,7 +14,9 @@ export interface movimiento_producto {
     unidad: string;
     lote: string;
     nombre: string;
+    legajo: string;
 }
+
 
 interface Movimiento_productoContextType {
     movimiento_productos: movimiento_producto[];
@@ -65,7 +68,15 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
             if (!response.ok) await handleFetchError(response, "Error al obtener los movimientos.");
 
             const data = await response.json();
-            setMovimiento_productos(data);
+            console.log(data)
+
+
+                        const listaTransformada = data.map((item: any) => ({
+                ...item.movimientos,                 // todos los campos del movimiento
+                responsableNombre: item.empleado?.nombre || "",
+                responsableApellido: item.empleado?.apellido || "",
+            }));
+            setMovimiento_productos(listaTransformada);
         } catch (err: any) {
             console.error("❌ Error al obtener movimientos:", err);
             setError(err.message);

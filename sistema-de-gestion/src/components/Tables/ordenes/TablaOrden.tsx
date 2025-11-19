@@ -84,7 +84,7 @@ const TablaOrden: React.FC = () => {
             },
             {
                 accessorKey: "marca",
-                header: "Marca",
+                header: "Linea",
                 enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
                 muiEditTextFieldProps: ({ row }) => ({

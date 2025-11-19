@@ -67,12 +67,18 @@ const TablaIngreso: React.FC = () => {
                     const tipo = row.original.tipo || "INGRESO";
                     const codigo = row.original.codigo;
                     const color = "#ffff00ff";
+
+                    const nombre = row.original.nombre || "";
+                    const marca = row.original.marca || "";
                     return (
-                        <span style={{ color, fontWeight: "bold" }}>
-                            {tipo} {codigo}
-                        </span>
+                        <Tooltip title={`${nombre} - ${marca}`} arrow>
+                            <span style={{ color, fontWeight: "bold", cursor: "pointer" }}>
+                                {tipo} {codigo}
+                            </span>
+                        </Tooltip>
                     );
                 },
+
             },
             {
                 accessorKey: "nombre",

@@ -164,7 +164,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
       }
       const data = await response.json();
-      console.log(data)
+      // console.log(data)
 
       const ordenesConEmpleado = data.map((orden: any) => ({
         ...orden,

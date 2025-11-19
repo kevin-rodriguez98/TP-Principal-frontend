@@ -4,6 +4,7 @@ import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitl
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
 import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
+import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
@@ -11,7 +12,7 @@ const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const { productos } = useContext(ProductosContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-
+    const { user } = useContext(FaceAuthContext)!;
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
 
@@ -32,64 +33,106 @@ const TablaEgreso: React.FC = () => {
         })), [productos]);
 
 
-    const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(
-        () => [
-            {
-                accessorKey: "id",
-                header: "ID",
-                enableEditing: false,
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-            },
-            {
-                accessorKey: "codigoProducto",
-                header: "Producto",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                editVariant: "select",
-                editSelectOptions: opcionesProductos,
-                muiEditTextFieldProps: ({ row, table }) => ({
-                    required: true,
-                    error: !!validationErrors.codigoProducto,
-                    helperText: validationErrors.codigoProducto,
-                    onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
-                    onChange: (e) => {
-                        const codigo = e.target.value;
-                        const producto = productos.find((p) => p.codigo === codigo);
-                        row._valuesCache.codigo = codigo;
-                        row._valuesCache.nombre = producto?.nombre || "";
-                        row._valuesCache.marca = producto?.linea || "";
-                        table.setCreatingRow({
-                            ...row,
-                            _valuesCache: { ...row._valuesCache },
-                            original: { ...row.original, ...row._valuesCache },
-                        });
-                    },
-                }),
-                Cell: ({ row }) => {
-                    const tipo = row.original.tipo || "EGRESO";
-                    const codigo = row.original.codigoProducto;
-                    const color = "#00d0ffff";
-                    return (
-                        <span style={{ color, fontWeight: "bold" }}>
+    const columns = useMemo<MRT_ColumnDef<movimiento_producto>[]>(() => [
+        {
+            accessorKey: "id",
+            header: "ID",
+            enableEditing: false,
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+        },
+        {
+            accessorKey: "codigoProducto",
+            header: "Producto",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            editVariant: "select",
+            editSelectOptions: opcionesProductos,
+            muiEditTextFieldProps: ({ row, table }) => ({
+                required: true,
+                error: !!validationErrors.codigoProducto,
+                helperText: validationErrors.codigoProducto,
+                onFocus: () => setValidationErrors({ ...validationErrors, codigoProducto: undefined }),
+                onChange: (e) => {
+                    const codigo = e.target.value;
+                    const producto = productos.find((p) => p.codigo === codigo);
+                    row._valuesCache.codigoProducto = codigo;
+                    row._valuesCache.nombre = producto?.nombre || "";
+                    row._valuesCache.marca = producto?.linea || "";
+                    row._valuesCache.categoria = producto?.categoria || "";
+                    row._valuesCache.unidad = producto?.unidad || "";
+                    table.setCreatingRow({
+                        ...row,
+                        _valuesCache: { ...row._valuesCache },
+                        original: { ...row.original, ...row._valuesCache },
+                    });
+                },
+            }),
+            Cell: ({ row }) => {
+                const tipo = row.original.tipo || "EGRESO";
+                const codigo = row.original.codigoProducto;
+                const nombre = row.original.nombre || "";
+                const marca = row.original.marca || "";
+                const color = "#00d0ffff";
+
+                return (
+                    <Tooltip title={`${nombre} - ${marca}`} arrow>
+                        <span style={{ color, fontWeight: "bold", cursor: "pointer" }}>
                             {tipo} {codigo}
                         </span>
-                    );
-                },
+                    </Tooltip>
+                );
             },
-            {
-                accessorKey: "cantidad",
-                header: "Cantidad",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("cantidad",),
-            },
-            {
-                accessorKey: "destino",
-                header: "Destino",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("destino",),
-            },
-        ],
-        [validationErrors]
-    );
+
+        },
+        {
+            accessorKey: "categoria",
+            header: "Categoría",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: ({ row }) => ({
+                value: row._valuesCache.categoria
+            }),
+        },
+        {
+            accessorKey: "marca",
+            header: "Linea",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: ({ row }) => ({
+                value: row._valuesCache.marca
+            }),
+        },
+        {
+            accessorKey: "unidad",
+            header: "Unidad",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: ({ row }) => ({
+                value: row._valuesCache.unidad
+            }),
+        },
+        {
+            accessorKey: "cantidad",
+            header: "Cantidad",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: baseTextFieldProps("cantidad"),
+        },
+        {
+            accessorKey: "destino",
+            header: "Destino",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: baseTextFieldProps("destino"),
+        },
+        // {
+        //     accessorKey: "lote",
+        //     header: "Lote",
+        //     muiTableHeadCellProps: ESTILOS_CABECERA,
+        //     muiEditTextFieldProps: baseTextFieldProps("lote"),
+        // },
+        {
+            accessorKey: "legajo",
+            header: "Responsable",
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: { value: `${user?.legajo}` },
+        },
+    ], [validationErrors, productos]);
+
 
     const validarCamposRegistro = (registro: Partial<movimiento_producto>) => {
         const errores: Record<string, string> = {};
@@ -112,6 +155,7 @@ const TablaEgreso: React.FC = () => {
         const nuevaOrden = {
             ...values,
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "EGRESO",
+            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
 
         };
 
@@ -152,8 +196,14 @@ const TablaEgreso: React.FC = () => {
                 pageIndex: 0
             },
             density: 'compact',
+            columnVisibility: {
+                unidad: false,
+                cantidad: false,
+                lote: false,
+                legajo: false,
+            },
         },
-        getRowId: (row) => row.codigoProducto,
+        getRowId: (row) => String(row.id),
         onCreatingRowCancel: () => setValidationErrors({}),
         onCreatingRowSave: handleAdd,
         renderDetailPanel: ({ row }) => (
