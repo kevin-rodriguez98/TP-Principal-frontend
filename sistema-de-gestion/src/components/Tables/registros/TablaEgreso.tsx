@@ -5,6 +5,7 @@ import { Movimiento_producto_context, type movimiento_producto } from "../../../
 import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
+import { useToUpper } from "../../../hooks/useToUpper";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
@@ -13,6 +14,10 @@ const TablaEgreso: React.FC = () => {
     const { productos } = useContext(ProductosContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const { user } = useContext(FaceAuthContext)!;
+
+    const { toUpperObject } = useToUpper();
+
+    
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
 
@@ -71,10 +76,11 @@ const TablaEgreso: React.FC = () => {
                 const codigo = row.original.codigoProducto;
                 const nombre = row.original.nombre || "";
                 const marca = row.original.marca || "";
+                const categoria = row.original.categoria || "";
                 const color = "#00d0ffff";
 
                 return (
-                    <Tooltip title={`${nombre} - ${marca}`} arrow>
+                    <Tooltip title={`${nombre} - ${marca} - ${categoria}`} arrow>
                         <span style={{ color, fontWeight: "bold", cursor: "pointer" }}>
                             {tipo} {codigo}
                         </span>
@@ -86,6 +92,7 @@ const TablaEgreso: React.FC = () => {
         {
             accessorKey: "categoria",
             header: "Categoría",
+            enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
             muiEditTextFieldProps: ({ row }) => ({
                 value: row._valuesCache.categoria
@@ -94,17 +101,10 @@ const TablaEgreso: React.FC = () => {
         {
             accessorKey: "marca",
             header: "Linea",
+            enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
             muiEditTextFieldProps: ({ row }) => ({
                 value: row._valuesCache.marca
-            }),
-        },
-        {
-            accessorKey: "unidad",
-            header: "Unidad",
-            muiTableHeadCellProps: ESTILOS_CABECERA,
-            muiEditTextFieldProps: ({ row }) => ({
-                value: row._valuesCache.unidad
             }),
         },
         {
@@ -113,6 +113,27 @@ const TablaEgreso: React.FC = () => {
             muiTableHeadCellProps: ESTILOS_CABECERA,
             muiEditTextFieldProps: baseTextFieldProps("cantidad"),
         },
+        {
+            accessorKey: "unidad",
+            header: "Unidad",
+            enableEditing: false,
+            muiTableHeadCellProps: ESTILOS_CABECERA,
+            muiEditTextFieldProps: ({ row }) => ({
+                value: row._valuesCache.unidad
+            }),
+            Cell: ({ row }) => {
+                const producto = productos.find((p) => p.codigo === row.original.codigoProducto);
+                const presentacion = producto?.presentacion;
+                const unidad = producto?.unidad;
+                return (
+                    <span style={{ color: "yellow", fontWeight: "bold", cursor: "pointer" }}>
+                        {presentacion} {unidad}
+                    </span>
+
+                );
+            },
+        },
+
         {
             accessorKey: "destino",
             header: "Destino",
@@ -128,8 +149,16 @@ const TablaEgreso: React.FC = () => {
         {
             accessorKey: "legajo",
             header: "Responsable",
+            enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
             muiEditTextFieldProps: { value: `${user?.legajo}` },
+            Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
+        },
+        {
+            accessorKey: "fechaHora",
+            header: "Fecha Ingreso",
+            enableEditing: false,
+            muiTableHeadCellProps: ESTILOS_CABECERA,
         },
     ], [validationErrors, productos]);
 
@@ -159,10 +188,13 @@ const TablaEgreso: React.FC = () => {
 
         };
 
+        const valoresEnMayus = toUpperObject(nuevaOrden);
+
         setValidationErrors({});
-        await handleAdd_Movimiento_producto(nuevaOrden);
+        await handleAdd_Movimiento_producto(valoresEnMayus);
         table.setCreatingRow(null);
     }
+
 
 
     const tabla_movimiento_egreso = useMaterialReactTable({
@@ -172,7 +204,7 @@ const TablaEgreso: React.FC = () => {
         columnResizeMode: 'onEnd',
         positionExpandColumn: 'last',
         enableRowActions: true,
-        positionActionsColumn: 'last',
+        positionActionsColumn: 'first',
         enableGlobalFilter: true,
         editDisplayMode: "modal",
         enableExpandAll: false,
@@ -195,12 +227,16 @@ const TablaEgreso: React.FC = () => {
                 pageSize: 10,
                 pageIndex: 0
             },
+            sorting: [{ id: "id", desc: true }],
             density: 'compact',
             columnVisibility: {
-                unidad: false,
-                cantidad: false,
-                lote: false,
+                // unidad: false,
+                // lote: false,
+                // destino: false,
+                categoria: false,
+                marca: false,
                 legajo: false,
+                fechaHora: false,
             },
         },
         getRowId: (row) => String(row.id),
@@ -219,16 +255,40 @@ const TablaEgreso: React.FC = () => {
             >
                 <Box>
                     <Typography variant="subtitle2" color="primary">
-                        Stock
+                        Producto
+                    </Typography>
+                    <Typography>{row.original.nombre} {row.original.categoria} {row.original.marca}</Typography>
+                </Box>
+                {/* <Box>
+                    <Typography variant="subtitle2" color="primary">
+                        Cantidad
                     </Typography>
                     <Typography>{row.original.cantidad}</Typography>
                 </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">
+                        unidad
+                    </Typography>
+                    <Typography>{row.original.unidad}</Typography>
+                </Box> */}
+                <Box>
+                    <Typography variant="subtitle2" color="primary">
+                        Fecha
+                    </Typography>
+                    <Typography>{row.original.fechaHora}</Typography>
+                </Box>
+                <Box>
+                    <Typography variant="subtitle2" color="primary">
+                        Responsable
+                    </Typography>
+                    <Typography>legajo: {row.original.legajo} - {row.original.responsableApellido} {row.original.responsableNombre}</Typography>
+                </Box>
+                {/* <Box>
+                    <Typography variant="subtitle2" color="primary">
                         Destino
                     </Typography>
                     <Typography>{row.original.destino}</Typography>
-                </Box>
+                </Box> */}
             </Box >
         ),
 

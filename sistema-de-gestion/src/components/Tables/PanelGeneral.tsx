@@ -7,9 +7,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
 import Tabla from "./insumos/Tabla";
 import TablaOrden from "./ordenes/TablaOrden";
-import TablaProductos from "./ordenes/TablaProductos";
 import TablaRegistro from "./registros/TablaRegistro";
 import { useFaceAuth } from "../../Context/FaceAuthContext";
+import TablaProductos from "./Productos/TablaProductos";
 
 
 

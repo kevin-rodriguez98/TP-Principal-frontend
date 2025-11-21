@@ -15,7 +15,7 @@ export interface Producto {
   legajoResponsable: string;
 
   lote: string;
-  fechaCreacion: Date;
+  fechaCreacion: string;
 
 
   legajo: string;
@@ -131,28 +131,41 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
   };
 
   // ✏️ Editar producto
-  const handleEditProducto = async (producto: Producto): Promise<void> => {
-    setError(null);
-    try {
-      const response = await fetch(`${URL}/editar/${producto.codigo}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(producto),
-      });
+const handleEditProducto = async (producto: Producto): Promise<void> => {
+  setError(null);
 
-      if (!response.ok)
-        await handleFetchError(response, "Error al editar el producto");
+const cambios = {
+  nombre: producto.nombre,
+  categoria: producto.categoria,
+  marca: producto.linea, // o producto.marca según tu modelo
+  unidad: producto.unidad,
+  presentacion: producto.presentacion,
+};
 
-      const productoActualizado = await response.json();
-      setProductos((prev) =>
-        prev.map((p) => (p.codigo === producto.codigo ? productoActualizado : p))
-      );
 
-      toast.success(`¡Producto ${producto.nombre} actualizado correctamente!`);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+  try {
+    const response = await fetch(`${URL}/editar/${producto.codigo}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cambios),
+    });
+
+    if (!response.ok)
+      await handleFetchError(response, "Error al editar el producto");
+
+    const productoActualizado = await response.json();
+
+    // actualizar estado
+    setProductos((prev) =>
+      prev.map((p) => (p.codigo === producto.codigo ? productoActualizado : p))
+    );
+
+    toast.success(`¡Producto ${producto.nombre} actualizado correctamente!`);
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
+
 
   // 🗑️ Eliminar producto con modal global
   const handleDeleteProducto = (codigo: string) => {
@@ -180,6 +193,7 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       },
     });
   };
+
 
 
 

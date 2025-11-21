@@ -10,6 +10,7 @@ import PanelUsuarios from './pages/PanelUsuarios.tsx';
 import ReportesInsumos from './pages/ReportesInsumos.tsx';
 import ReportesOrdenes from './pages/ReportesOrdenes.tsx';
 
+
 // URL´s LOCALES
 
 // export const URL_ordenes = "http://localhost:8080/orden-produccion";
@@ -19,7 +20,6 @@ import ReportesOrdenes from './pages/ReportesOrdenes.tsx';
 // export const URL_productos = "http://localhost:8080/productos";
 // export const URL_estimacion = "http://localhost:8080/tiempo-produccion";
 // export const URL_recetas = "http://localhost:8080/recetas";
-
 
 // URL´s SERVER
 

@@ -4,6 +4,7 @@ import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer,
 } from "recharts";
+import ReportExport from "../components/estaticos/ReportExport";
 
 const COLORS = ["#15a017ff", "#f4b400", "#f44336", "#2196f3"];
 
@@ -24,6 +25,31 @@ const ReportesOrdenes = () => {
         });
         return Object.values(resumen);
     }, [ordenes]);
+
+    const ordenesUltimos30Dias = useMemo(() => {
+        const hoy = new Date();
+        const hace30dias = new Date();
+        hace30dias.setDate(hoy.getDate() - 30);
+
+        const resumen: Record<string, number> = {};
+
+        ordenes.forEach((o) => {
+            const fecha = new Date(o.fechaCreacion);
+            if (fecha >= hace30dias) {
+                const dia = fecha.toLocaleDateString("es-AR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                });
+                resumen[dia] = (resumen[dia] || 0) + 1;
+            }
+        });
+
+        return Object.entries(resumen).map(([dia, cantidad]) => ({
+            dia,
+            cantidad,
+        }));
+    }, [ordenes]);
+
 
     const produccionPorMarca = useMemo(() => {
         const resumen: Record<string, number> = {};
@@ -95,127 +121,149 @@ const ReportesOrdenes = () => {
                 boxSizing: "border-box",
             }}
         >
-            {/* --- Resumen superior --- */}
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: "20px",
-                    flexWrap: "wrap",
-                    background: "#1a1a1a",
-                    padding: "20px",
-                    borderRadius: "12px",
-                }}
-            >
-                <ResumenCardDark titulo="En Producción" valor={totalProduccion} color="#f4b400" />
-                <ResumenCardDark titulo="Canceladas" valor={totalCanceladas} color="#f44336" />
-                <ResumenCardDark titulo="Finalizadas" valor={totalFinalizadas} color="#15a017ff" />
-            </div>
 
-            {/* --- Contenedor de gráficos --- */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                    gap: "25px",
-                    marginTop: "30px",
-                }}
-            >
-                <Card titulo="Producción Mensual">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <LineChart data={produccionMensual1}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                            <XAxis dataKey="mes" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                            <Legend />
-                            <Line type="monotone" dataKey="produccion" stroke="#15a017" strokeWidth={2} />
-                            <Line type="monotone" dataKey="errores" stroke="#f44336" strokeWidth={2} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </Card>
+            <ReportExport
+                filename="Reporte_produccion"
+                exportId="reporte-produccion"
+                csvData={ordenes}
+            />
 
-                <Card titulo="Órdenes por Estado">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={resumenEstados.data}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                            <XAxis dataKey="name" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                            <Bar dataKey="value">
-                                <Cell fill="#15a017" />
-                                <Cell fill="#f4b400" />
-                                <Cell fill="#f44336" />
-                                <Cell fill="#2196f3" />
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </Card>
+            <div id="reporte-produccion">
+                {/* --- Resumen superior --- */}
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "20px",
+                        flexWrap: "wrap",
+                        background: "#1a1a1a",
+                        padding: "20px",
+                        borderRadius: "12px",
+                    }}
+                >
+                    <ResumenCardDark titulo="En Producción" valor={totalProduccion} color="#f4b400" />
+                    <ResumenCardDark titulo="Canceladas" valor={totalCanceladas} color="#f44336" />
+                    <ResumenCardDark titulo="Finalizadas" valor={totalFinalizadas} color="#15a017ff" />
+                </div>
 
-                <Card titulo="Distribución de Estados (%)">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <PieChart>
-                            <Pie
-                                data={resumenEstados.data}
-                                dataKey="value"
-                                outerRadius={80}
-                                label
-                            >
-                                {resumenEstados.data.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
+                {/* --- Contenedor de gráficos --- */}
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+                        gap: "25px",
+                        marginTop: "30px",
+                    }}
+                >
+                    <Card titulo="Producción Mensual">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <LineChart data={produccionMensual1}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                <XAxis dataKey="mes" stroke="#ccc" />
+                                <YAxis stroke="#ccc" />
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Legend />
+                                <Line type="monotone" dataKey="produccion" stroke="#15a017" strokeWidth={2} />
+                                <Line type="monotone" dataKey="errores" stroke="#f44336" strokeWidth={2} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </Card>
 
-                <Card titulo="Producción por Producto">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={produccionPorProducto}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                            <XAxis dataKey="producto" stroke="#ccc" tick={{ fontSize: 10 }} />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                            <Bar dataKey="cantidad" fill="#15a017" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </Card>
+                    <Card titulo="Órdenes de los Últimos 30 Días">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <LineChart data={ordenesUltimos30Dias}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                <XAxis dataKey="dia" stroke="#ccc" />
+                                <YAxis stroke="#ccc" allowDecimals={false} />
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Line type="monotone" dataKey="cantidad" stroke="#2196f3" strokeWidth={2} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </Card>
 
-                <Card titulo="Producción Mensual por Estado">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={produccionMensual}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                            <XAxis dataKey="mes" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                            <Legend />
-                            <Bar dataKey="CANCELADA" stackId="a" fill="#f44336" />
-                            <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#f4b400" />
-                            <Bar dataKey="FINALIZADA_ENTREGADA" stackId="a" fill="#15a017" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </Card>
 
-                <Card titulo="Producción por Marca">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <PieChart>
-                            <Pie
-                                data={produccionPorMarca}
-                                dataKey="cantidad"
-                                nameKey="marca"
-                                outerRadius={80}
-                                label
-                            >
-                                {produccionPorMarca.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
+                    <Card titulo="Órdenes por Estado">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart data={resumenEstados.data}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                <XAxis dataKey="name" stroke="#ccc" />
+                                <YAxis stroke="#ccc" />
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Bar dataKey="value">
+                                    <Cell fill="#15a017" />
+                                    <Cell fill="#f4b400" />
+                                    <Cell fill="#f44336" />
+                                    <Cell fill="#2196f3" />
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    <Card titulo="Distribución de Estados (%)">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <PieChart>
+                                <Pie
+                                    data={resumenEstados.data}
+                                    dataKey="value"
+                                    outerRadius={80}
+                                    label
+                                >
+                                    {resumenEstados.data.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    <Card titulo="Producción por Producto">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart data={produccionPorProducto}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                <XAxis dataKey="producto" stroke="#ccc" tick={{ fontSize: 10 }} />
+                                <YAxis stroke="#ccc" />
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Bar dataKey="cantidad" fill="#15a017" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    <Card titulo="Producción Mensual por Estado">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <BarChart data={produccionMensual}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                                <XAxis dataKey="mes" stroke="#ccc" />
+                                <YAxis stroke="#ccc" />
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Legend />
+                                <Bar dataKey="CANCELADA" stackId="a" fill="#f44336" />
+                                <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#f4b400" />
+                                <Bar dataKey="FINALIZADA_ENTREGADA" stackId="a" fill="#15a017" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    <Card titulo="Producción por Marca">
+                        <ResponsiveContainer width="100%" height={220}>
+                            <PieChart>
+                                <Pie
+                                    data={produccionPorMarca}
+                                    dataKey="cantidad"
+                                    nameKey="marca"
+                                    outerRadius={80}
+                                    label
+                                >
+                                    {produccionPorMarca.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </Card>
+                </div>
             </div>
         </div>
     );

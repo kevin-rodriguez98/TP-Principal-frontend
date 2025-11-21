@@ -3,12 +3,15 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Edit
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
 import { RecetaContext, type Receta } from "../../../Context/RecetaContext";
-import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
+import { TiempoProduccionContext, type TiempoProduccion } from "../../../Context/TiempoProduccionContext";
 import { InsumoContext } from "../../../Context/InsumoContext";
+import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SinResultados from "../../estaticos/SinResultados";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
+import { useToUpper } from "../../../hooks/useToUpper";
+
+
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -18,17 +21,31 @@ const TablaProductos: React.FC = () => {
   const { insumosProducto, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
   const { insumos } = useContext(InsumoContext)!;
   const { user } = useContext(FaceAuthContext)!;
-  const { obtenerTiempoProduccionUnitario, tiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
+  const { obtenerTiempoProduccionUnitario, agregarTiempoProduccion, tiempoProduccion } = useContext(TiempoProduccionContext)!;
   const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [codigoProducto, setCodigoProducto] = useState("");
+  const [cantidad, setCantidad] = useState(0);
   const [nuevoInsumo, setNuevoInsumo] = useState<Receta>({
     codigoInsumo: "",
     nombreInsumo: "",
     cantidadNecesaria: 1,
     unidad: ""
   });
+  const [openModalTiempos, setOpenModalTiempos] = useState(false);
+  const { toUpperObject } = useToUpper();
+  const [openModalAgregarTiempo, setOpenModalAgregarTiempo] = useState(false);
+  const [nuevoTiempo, setNuevoTiempo] = useState<TiempoProduccion>({
+    codigoProducto: "",
+    tiempoPreparacion: 0,
+    tiempoCiclo: 0,
+    maximoTanda: 1,
+  });
+  const [openInfoModal, setOpenInfoModal] = useState(false);
+  const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
+
+
 
 
   const limpiarError = (campo: string) =>
@@ -120,7 +137,7 @@ const TablaProductos: React.FC = () => {
 
       },
     ],
-    [validationErrors]
+    [validationErrors, productos]
   );
 
   const validarProducto = (producto: Partial<Producto>) => {
@@ -128,7 +145,9 @@ const TablaProductos: React.FC = () => {
     if (!producto.nombre?.trim()) errores.nombre = "Nombre requerido";
     if (!producto.categoria?.trim()) errores.categoria = "Categoría requerida";
     if (!producto.linea?.trim()) errores.linea = "Línea requerida";
-    if (!producto.presentacion?.trim()) errores.presentacion = "Presentación requerida";
+    if (producto.presentacion === undefined || producto.presentacion === null)
+      errores.presentacion = "Presentación requerida";
+
     if (!producto.unidad?.trim()) errores.unidad = "Unidad requerida";
     return errores;
   };
@@ -141,8 +160,6 @@ const TablaProductos: React.FC = () => {
     }
 
     setValidationErrors({});
-    // await handleAddProducto(values);
-
     const codigo = values.codigo && values.codigo.trim() !== ""
       ? values.codigo
       : obtenerSiguienteCodigo();
@@ -151,7 +168,9 @@ const TablaProductos: React.FC = () => {
       ...values, codigo, stock: 0,
       legajoResponsable: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
     };
-    await handleAddProducto(nuevoProducto);
+
+    const valoresEnMayus = toUpperObject(nuevoProducto);
+    await handleAddProducto(valoresEnMayus);
 
     table.setCreatingRow(null);
   };
@@ -162,8 +181,9 @@ const TablaProductos: React.FC = () => {
       setValidationErrors(errores);
       return;
     }
+    const valoresEnMayus = toUpperObject(values);
     setValidationErrors({});
-    await handleEditProducto(values);
+    await handleEditProducto(valoresEnMayus);
     exitEditingMode();
   };
 
@@ -177,7 +197,7 @@ const TablaProductos: React.FC = () => {
     data: productos,
     createDisplayMode: "modal",
     enableRowActions: true,
-    positionActionsColumn: 'last',
+    positionActionsColumn: 'first',
     enableGlobalFilter: true,
     editDisplayMode: "modal",
     enableEditing: true,
@@ -187,7 +207,12 @@ const TablaProductos: React.FC = () => {
         pageSize: 10,
         pageIndex: 0
       },
+      sorting: [{ id: "id", desc: true }],
       density: 'compact',
+      columnVisibility: {
+        fechaCreacion: false,
+        legajoResponsable:false,
+      },
     },
     muiTableContainerProps: {
       className: "tabla-container",
@@ -210,13 +235,16 @@ const TablaProductos: React.FC = () => {
     onEditingRowSave: handleEditarProducto,
     onCreatingRowCancel: () => setValidationErrors({}),
     onEditingRowCancel: () => setValidationErrors({}),
+
     renderRowActions: ({ row }) => (
+
       <Box sx={{ display: "flex", gap: "0.5rem" }}>
         <Tooltip title="Editar">
           <IconButton onClick={() => table.setEditingRow(row)}>
             <EditIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title="Eliminar">
           <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
             <DeleteIcon />
@@ -228,7 +256,6 @@ const TablaProductos: React.FC = () => {
             color="success"
             onClick={async () => {
               await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
-              await obtenerTiempoProduccionUnitario(row.original.codigo);
               setProductoSeleccionado(row.original.codigo);
               row.toggleExpanded();
             }}
@@ -236,6 +263,19 @@ const TablaProductos: React.FC = () => {
             🧾
           </IconButton>
         </Tooltip>
+
+        <Tooltip title="Información">
+          <IconButton
+            color="info"
+            onClick={() => {
+              setProductoInfo(row.original);
+              setOpenInfoModal(true);
+            }}
+          >
+            ℹ️
+          </IconButton>
+        </Tooltip>
+
       </Box>
     ),
 
@@ -335,67 +375,114 @@ const TablaProductos: React.FC = () => {
       return (
         <Box
           sx={{
-            mt: 1,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 1fr", // ← dos columnas iguales
+            gap: 2,
             p: 2,
-            backgroundColor: "#2b2b2b",
+            backgroundColor: "#2b2b2bff",
             borderRadius: "10px",
             color: "#fff",
-            width: "50%",
           }}
         >
-          <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-            🧾 Receta para {row.original.nombre}
-          </Typography>
+          {/* COLUMNA IZQUIERDA - RECETA */}
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: "#1f1f1f",
+              borderRadius: "10px",
+            }}
+          >
+            <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
+              🧾 Receta de {row.original.nombre}
+            </Typography>
 
-          {insumosProducto.length === 0 ? (
-            <Typography>No hay receta disponible.</Typography>
-          ) : (
-            <Box component="ul" sx={{ listStyle: "none", pl: 0, m: 0 }}>
-              {insumosProducto.map((insumo) => (
-                <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
-                  <Typography variant="body2">
-                    <strong>{insumo.nombreInsumo}</strong> — Cantidad: {insumo.cantidadNecesaria + " " + insumo.unidad}
-                  </Typography>
-                </li>
+            {insumosProducto.length === 0 ? (
+              <Typography>No hay receta disponible.</Typography>
+            ) : (
+              <Box component="ul" sx={{ listStyle: "none", pl: 0, m: 0 }}>
+                {insumosProducto.map((insumo) => (
+                  <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
+                    <Typography variant="body2">
+                      <strong>{insumo.nombreInsumo}</strong> — Cantidad:{" "}
+                      {insumo.cantidadNecesaria + " " + insumo.unidad}
+                    </Typography>
+                  </li>
+                ))}
+              </Box>
+            )}
 
-              ))}
-              <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-                Tiempo de produccion unitario: {tiempoProduccionUnitario?.tiempoPreparacion} hs.
-              </Typography>
-            </Box>
-          )}
-
-          <Tooltip title="Agregar Insumo a Receta">
-            <IconButton
-              color="secondary"
-              onClick={() => {
-                setCodigoProducto(row.original.codigo);
-                setNuevoInsumo({ codigoInsumo: "", nombreInsumo: "", cantidadNecesaria: 1, unidad: "gr." });
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{ mt: 2, px: 3 }}
+              onClick={async () => {
+                await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
+                setProductoSeleccionado(row.original.codigo);
+                setCodigoProducto(row.original.codigo)
+                setCantidad(row.original.stock)
                 setOpenModalReceta(true);
               }}
             >
-              ➕
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Agregar tiempo de producción">
-            <IconButton
-              color="secondary"
-              disabled={tiempoProduccionUnitario !== null && tiempoProduccionUnitario.tiempoPreparacion > 0}
-              onClick={() => {
-                // const tiempo = prompt("Ingrese el tiempo de producción (en horas):");
-                // if (tiempo) {
-                //   agregarTiempoProduccion(tiempo);
-                // }
+              Agregar insumo
+            </Button>
+          </Box>
+
+          {/* COLUMNA DERECHA - TIEMPO PRODUCCIÓN */}
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: "#1f1f1f",
+              borderRadius: "10px",
+            }}
+          >
+            <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
+              ⏱️ Tiempo de Producción
+            </Typography>
+
+            <Button
+              variant="contained"
+              color="warning"
+              fullWidth
+              sx={{ mt: 1 }}
+              onClick={async () => {
+                await obtenerTiempoProduccionUnitario(row.original.codigo);
+                setOpenModalTiempos(true);
               }}
             >
-              ⏱️
-            </IconButton>
-          </Tooltip>
+              Ver Tiempo de Producción
+            </Button>
 
+            <Button
+              variant="outlined"
+              color="success"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={async () => {
+                const tiempo = await obtenerTiempoProduccionUnitario(row.original.codigo);
 
+                setNuevoTiempo({
+                  codigoProducto: row.original.codigo,
+                  tiempoPreparacion: tiempo?.tiempoPreparacion ?? 0,
+                  tiempoCiclo: tiempo?.tiempoCiclo ?? 0,
+                  maximoTanda: tiempo?.cantidadMaximaTanda ?? 1,
+                });
+
+                // 3. Abrir modal
+                setOpenModalAgregarTiempo(true);
+              }}
+
+            >
+              Agregar Tiempo de Producción
+            </Button>
+
+          </Box>
         </Box>
       );
     },
+
+
+
 
     state: { isLoading },
   });
@@ -429,11 +516,12 @@ const TablaProductos: React.FC = () => {
             value={codigoProducto}
             disabled
             fullWidth
+            sx={{ mt: 1 }}
+            InputLabelProps={{ shrink: true }}
           />
 
           <TextField
             select
-            // label="Código del Insumo"
             value={nuevoInsumo.codigoInsumo}
             onChange={(e) => {
               const codigo = e.target.value;
@@ -498,15 +586,159 @@ const TablaProductos: React.FC = () => {
             color="primary"
             onClick={async () => {
               await agregarInsumoAReceta(codigoProducto, nuevoInsumo);
+              await obtenerInsumosNecesarios(codigoProducto, cantidad);
+
               setOpenModalReceta(false);
             }}
           >
             Guardar
           </Button>
+
           <Button onClick={() => setOpenModalReceta(false)}>Cancelar</Button>
         </DialogActions>
       </Dialog>
 
+
+      <Dialog
+        open={openModalTiempos}
+        onClose={() => setOpenModalTiempos(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+        >
+          Tiempo de Producción
+        </DialogTitle>
+
+        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
+          <Typography><b>Preparación:</b> {tiempoProduccion?.tiempoPreparacion ?? "-"} Min.</Typography>
+          <Typography><b>Ciclos:</b> {tiempoProduccion?.tiempoCiclo ?? "-"} </Typography>
+          <Typography><b>Tanda Máxima:</b> {tiempoProduccion?.cantidadMaximaTanda ?? "-"}</Typography>
+          <Typography><b>Total:</b> {tiempoProduccion?.tiempoTotal ?? "-"} Min.</Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center" }}>
+          <Button onClick={() => setOpenModalTiempos(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+      {/* Modal para AGREGAR TIEMPO */}
+      <Dialog
+        open={openModalAgregarTiempo}
+        onClose={() => setOpenModalAgregarTiempo(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+        >
+          Registrar Tiempo de Producción
+        </DialogTitle>
+
+        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
+          <TextField
+            label="Código del Producto"
+            value={nuevoTiempo.codigoProducto}
+            disabled
+            fullWidth
+          />
+
+          <TextField
+            label="Tiempo de Preparación (hs)"
+            type="number"
+            value={nuevoTiempo.tiempoPreparacion}
+            onChange={(e) =>
+              setNuevoTiempo({
+                ...nuevoTiempo,
+                tiempoPreparacion: Number(e.target.value),
+              })
+            }
+            fullWidth
+          />
+
+          <TextField
+            label="Tiempo de Ciclo (hs)"
+            type="number"
+            value={nuevoTiempo.tiempoCiclo}
+            onChange={(e) =>
+              setNuevoTiempo({
+                ...nuevoTiempo,
+                tiempoCiclo: Number(e.target.value),
+              })
+            }
+            fullWidth
+          />
+
+          <TextField
+            label="Máximo por Tanda"
+            type="number"
+            value={nuevoTiempo.maximoTanda}
+            onChange={(e) =>
+              setNuevoTiempo({
+                ...nuevoTiempo,
+                maximoTanda: Number(e.target.value),
+              })
+            }
+            fullWidth
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
+          <Button
+            variant="contained"
+            onClick={async () => {
+              // validaciones mínimas
+              if (!nuevoTiempo.codigoProducto) return;
+              await agregarTiempoProduccion(nuevoTiempo);
+              // opcional: actualizar el tiempo mostrado
+              await obtenerTiempoProduccionUnitario(nuevoTiempo.codigoProducto);
+              setOpenModalAgregarTiempo(false);
+            }}
+          >
+            Guardar
+          </Button>
+          <Button onClick={() => setOpenModalAgregarTiempo(false)}>Cancelar</Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+      <Dialog
+        open={openInfoModal}
+        onClose={() => setOpenInfoModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+        >
+          Información del Producto
+        </DialogTitle>
+
+        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
+          {productoInfo && (
+            <>
+              <Typography><b>Código:</b> {productoInfo.codigo}</Typography>
+              <Typography><b>Nombre:</b> {productoInfo.nombre}</Typography>
+              <Typography><b>Categoría:</b> {productoInfo.categoria}</Typography>
+              <Typography><b>Línea:</b> {productoInfo.linea}</Typography>
+              <Typography><b>Presentación:</b> {productoInfo.presentacion} {productoInfo.unidad}</Typography>
+              <Typography><b>Stock:</b> {productoInfo.stock}</Typography>
+              <Typography><b>Fecha Creación:</b> {productoInfo.fechaCreacion}</Typography>
+              <Typography>
+                <b>Responsable:</b> {productoInfo.legajo} - {productoInfo.responsableApellido} {productoInfo.responsableNombre}
+              </Typography>
+            </>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "center" }}>
+          <Button onClick={() => setOpenInfoModal(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
 
     </>
   );

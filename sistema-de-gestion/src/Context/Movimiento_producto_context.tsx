@@ -15,6 +15,10 @@ export interface movimiento_producto {
     lote: string;
     nombre: string;
     legajo: string;
+    fechaHora: string;
+
+    responsableNombre: string;
+    responsableApellido: string;
 }
 
 
@@ -68,11 +72,12 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
             if (!response.ok) await handleFetchError(response, "Error al obtener los movimientos.");
 
             const data = await response.json();
-            console.log(data)
+            // console.log(data)
 
 
-                        const listaTransformada = data.map((item: any) => ({
+            const listaTransformada = data.map((item: any) => ({
                 ...item.movimientos,                 // todos los campos del movimiento
+                legajo: item.empleado?.legajo || "",
                 responsableNombre: item.empleado?.nombre || "",
                 responsableApellido: item.empleado?.apellido || "",
             }));

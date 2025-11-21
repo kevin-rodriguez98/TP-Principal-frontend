@@ -5,14 +5,29 @@ import { Movimiento_insumo_context, type movimiento_insumo } from "../../../Cont
 import SinResultados from "../../estaticos/SinResultados";
 import { InsumoContext } from "../../../Context/InsumoContext";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
+import { useToUpper } from "../../../hooks/useToUpper";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const PROVEEDORES_BASE = [
+    "Molinos Río de la Plata",
+    "Arcor",
+    "Nestlé",
+    "La Serenisima",
+    "Ilolay",
+    "Vacalin",
+    "Proveedores Locales",
+    "Otros"
+];
+
 
 const TablaIngreso: React.FC = () => {
     const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
     const { insumos } = useContext(InsumoContext)!;
     const { user } = useContext(FaceAuthContext)!;
+    const { toUpperObject } = useToUpper();
+    const [esOtroProveedor, setEsOtroProveedor] = useState(false);
+
 
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const limpiarError = (campo: string) =>
@@ -132,13 +147,54 @@ const TablaIngreso: React.FC = () => {
             {
                 accessorKey: "proveedor",
                 header: "Proveedor",
-                muiEditTextFieldProps: baseTextFieldProps("proveedor"),
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                editVariant: "select",
+                editSelectOptions: PROVEEDORES_BASE,
+
+                muiEditTextFieldProps: ({ row, table }) => ({
+                    required: true,
+                    select: !esOtroProveedor, // se vuelve input normal si elige "Otros"
+                    value: row._valuesCache.proveedor || "",
+
+                    onChange: (e) => {
+                        const value = e.target.value;
+                        row._valuesCache.proveedor = value;
+
+                        // si elige "Otros", activar input
+                        if (value === "Otros") {
+                            setEsOtroProveedor(true);
+                            row._valuesCache.proveedor = ""; // limpiar para escribir
+                        } else {
+                            setEsOtroProveedor(false);
+                        }
+
+                        table.setCreatingRow({
+                            ...row,
+                            _valuesCache: { ...row._valuesCache },
+                            original: { ...row.original, ...row._valuesCache },
+                        });
+                    },
+
+                    // Si es “Otros”, convertir en input editable
+                    SelectProps: {
+                        native: false,
+                    },
+
+                    helperText: validationErrors.proveedor,
+                    error: !!validationErrors.proveedor,
+                    onFocus: () => limpiarError("proveedor"),
+                }),
+
+                // Mostrar en la tabla el proveedor tal cual
+                Cell: ({ row }) => row.original.proveedor || "—",
             },
+
             {
                 accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
                 muiEditTextFieldProps: { value: `${user?.legajo}` },
+                Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}` || "—",
             },
             {
                 accessorKey: "fechaHora",
@@ -174,8 +230,10 @@ const TablaIngreso: React.FC = () => {
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "INGRESO",
             legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
         };
+
+        const valoresEnMayus = toUpperObject(nuevaOrden);
         setValidationErrors({});
-        await handleAdd_Movimiento_insumo(nuevaOrden);
+        await handleAdd_Movimiento_insumo(valoresEnMayus);
         table.setCreatingRow(null);
     };
 
@@ -203,18 +261,19 @@ const TablaIngreso: React.FC = () => {
                 pageSize: 10,
                 pageIndex: 0
             },
+            sorting: [{ id: "id", desc: true }],
             density: 'compact',
             columnVisibility: {
                 unidad: false,
                 stock: false,
                 lote: false,
                 legajo: false,
-                proveedor: false,
+                fechaHora: false,
             },
         },
         positionExpandColumn: 'last',
         enableRowActions: true,
-        positionActionsColumn: 'last',
+        positionActionsColumn: 'first',
         enableGlobalFilter: true,
         editDisplayMode: "modal",
         enableExpandAll: false,

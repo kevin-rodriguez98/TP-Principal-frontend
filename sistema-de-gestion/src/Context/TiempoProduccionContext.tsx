@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from "react-toastify";
 import { ModalContext } from "../components/modal/ModalContext";
 import { URL_estimacion as URLEst } from "../App";
@@ -10,21 +10,37 @@ export interface TiempoProduccion {
     maximoTanda: number;
 }
 
-export interface TiempoProduccionUnitario {
+export interface TiempoProduccionResponse {
     tiempoPreparacion: number;
     tiempoCiclo: number;
     tiempoTotal: number;
     cantidadMaximaTanda: number;
+
+    codigo: string;
+
+}
+export interface TiempoProduccionGeneral {
+    tiempoPreparacion: number;
+    tiempoCiclo: number;
+    tiempoTotal: number;
+    cantidaTanda: number;
+
+    codigo: string;
+    nombre: string;
+    categoria: string;
+    linea: string;
+
 }
 
 interface TiempoProduccionContextType {
-    tiemposProduccion: TiempoProduccion[];
-    tiempoProduccionUnitario: TiempoProduccionUnitario | null;
-    isLoading: boolean;
-    agregarTiempoProduccion: (data: TiempoProduccion) => Promise<void>;
+    tiempoProduccion: TiempoProduccionResponse;
+    tiempos: TiempoProduccionGeneral[];
     obtenerTiemposProduccion: () => Promise<void>;
-    obtenerTiempoProduccionUnitario: (codigoProducto: string) => Promise<void>;
-    calcularTiempoEstimado: (codigoProducto: string, cantidad: number) => Promise<number | null>;
+    isLoading: boolean;
+    error: string;
+    agregarTiempoProduccion: (data: TiempoProduccion) => Promise<void>;
+    obtenerTiempoProduccionUnitario: (codigoProducto: string) => Promise<TiempoProduccionResponse | null>;
+
 }
 
 export const TiempoProduccionContext = createContext<TiempoProduccionContextType | undefined>(undefined);
@@ -34,17 +50,29 @@ interface TiempoProduccionProviderProps {
 }
 
 export function TiempoProduccionProvider({ children }: TiempoProduccionProviderProps) {
-    const [tiemposProduccion, setTiemposProduccion] = useState<TiempoProduccion[]>([]);
-    const [tiempoProduccionUnitario, setTiempoProduccionUnitario] = useState<TiempoProduccionUnitario | null>(null);
+    const [tiempoProduccion, setTiemposProduccion] = useState<TiempoProduccionResponse>({
+        codigo: "",
+        tiempoPreparacion: 0,
+        tiempoCiclo: 0,
+        tiempoTotal: 0,
+        cantidadMaximaTanda: 0,
+    });
+
+    const [tiempos, setTiempos] = useState<TiempoProduccionGeneral[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
     const { setModal } = useContext(ModalContext)!;
+
+    useEffect(() => {
+        obtenerTiemposProduccion();
+    }, []);
 
     const handleFetchError = async (response: Response, defaultMessage: string) => {
         let errorMessage = defaultMessage;
         try {
             const data = await response.json();
             if (data?.message) errorMessage = data.message;
-        } catch {}
+        } catch { }
         if (response.status === 500) {
             setModal({ tipo: "error", mensaje: errorMessage });
         } else {
@@ -66,13 +94,38 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
 
             toast.success("⏱️ Tiempo de producción registrado correctamente");
             setModal({ tipo: "success", mensaje: "Tiempo de producción registrado correctamente" });
-            await obtenerTiemposProduccion();
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
         }
     };
+
+    // 🔍 Obtener el tiempo unitario de un producto
+    const obtenerTiempoProduccionUnitario = async (
+        codigoProducto: string
+    ): Promise<TiempoProduccionResponse | null> => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(
+                `${URLEst}/obtener-tiempo-unitario?codigoProducto=${codigoProducto}`
+            );
+
+            if (!response.ok)
+                await handleFetchError(response, "Error al obtener el tiempo unitario");
+
+            const data: TiempoProduccionResponse = await response.json();
+            setTiemposProduccion(data);
+
+            return data; // 🔥 RETORNA EL TIEMPO
+        } catch (error) {
+            console.error(error);
+            return null; // para evitar never
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     // 📋 Obtener todos los tiempos de producción
     const obtenerTiemposProduccion = async () => {
@@ -81,54 +134,35 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
             if (!response.ok) await handleFetchError(response, "Error al obtener tiempos de producción");
 
             const data = await response.json();
-            setTiemposProduccion(data);
+            const listaTransformada = data.map((item: any) => ({
+                ...item,
+
+                codigo: item.producto?.codigo || "",
+                nombre: item.producto?.nombre || "",
+                categoria: item.producto?.categoria || "",
+                linea: item.producto?.linea || "",
+            }));
+            console.log(data)
+            setTiempos(listaTransformada);
         } catch {
             toast.error("❌ No se pudieron obtener los tiempos de producción");
+            setError("❌ No se pudieron obtener los tiempos de producción");
         }
     };
 
-    // 🔍 Obtener el tiempo unitario de un producto
-    const obtenerTiempoProduccionUnitario = async (codigoProducto: string) => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(`${URLEst}/obtener-tiempo-unitario?codigoProducto=${codigoProducto}`);
-            if (!response.ok) await handleFetchError(response, "Error al obtener el tiempo unitario");
 
-            const data: TiempoProduccionUnitario = await response.json();
-            setTiempoProduccionUnitario(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    // ⏱️ Calcular tiempo estimado total
-    const calcularTiempoEstimado = async (codigoProducto: string, cantidad: number): Promise<number | null> => {
-        try {
-            const response = await fetch(`${URLEst}/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`);
-            if (!response.ok) await handleFetchError(response, "Error al calcular el tiempo estimado");
-
-            const data = await response.json();
-            // asumiendo que el backend devuelve { tiempoTotal: 123 }
-            toast.info(`🕒 Tiempo estimado: ${data.tiempoTotal} horas`);
-            return data.tiempoTotal ?? null;
-        } catch {
-            toast.error("❌ No se pudo calcular el tiempo estimado");
-            return null;
-        }
-    };
 
     return (
         <TiempoProduccionContext.Provider
             value={{
-                tiemposProduccion,
-                tiempoProduccionUnitario,
+                tiempoProduccion,
+                tiempos,
                 isLoading,
-                agregarTiempoProduccion,
+                error,
                 obtenerTiemposProduccion,
-                obtenerTiempoProduccionUnitario,
-                calcularTiempoEstimado,
+                agregarTiempoProduccion,
+                obtenerTiempoProduccionUnitario
             }}
         >
             {children}

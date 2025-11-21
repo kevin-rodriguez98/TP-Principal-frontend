@@ -6,6 +6,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../estaticos/SinResultados";
+import { useToUpper } from "../../../hooks/useToUpper";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
@@ -14,7 +15,7 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 const TablaInsumos: React.FC = () => {
     const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error, obtenerSiguienteCodigo } = useContext(InsumoContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-
+    const { toUpperObject } = useToUpper();
 
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
@@ -127,13 +128,16 @@ const TablaInsumos: React.FC = () => {
             setValidationErrors(errores);
             return;
         }
+
+        const valoresEnMayus = toUpperObject(values);
         setValidationErrors({});
-        // 🔹 Agregar el código por defecto si no lo tiene
+
         const codigo = values.codigo && values.codigo.trim() !== ""
             ? values.codigo
             : obtenerSiguienteCodigo();
+
         const nuevoInsumo: Insumo = {
-            ...values,
+            ...valoresEnMayus,
             codigo,
             stock: 0
         };
@@ -148,8 +152,9 @@ const TablaInsumos: React.FC = () => {
             setValidationErrors(errores);
             return;
         }
+        const valoresEnMayus = toUpperObject(values);
         setValidationErrors({});
-        await handleUpdateInsumo(values);
+        await handleUpdateInsumo(valoresEnMayus);
         exitEditingMode();
     };
 
@@ -171,7 +176,7 @@ const TablaInsumos: React.FC = () => {
             enableResizing: true,
         },
         enableRowActions: true,
-        positionActionsColumn: 'last',
+        positionActionsColumn: 'first',
         enableGlobalFilter: true,
         editDisplayMode: "modal",
         enableEditing: true,
@@ -181,6 +186,7 @@ const TablaInsumos: React.FC = () => {
                 pageSize: 10,
                 pageIndex: 0
             },
+            sorting: [{ id: "codigo", desc: true }],
             density: 'compact',
         },
         muiTableContainerProps: {

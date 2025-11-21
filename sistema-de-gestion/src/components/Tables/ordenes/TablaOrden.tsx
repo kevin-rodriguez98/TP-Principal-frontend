@@ -2,24 +2,23 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion, estados } from "../../../Context/OrdenesContext";
-import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import CeldaEstado from "./CeldaEstado";
 import CeldaEtapa from "./CeldaEtapa";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
+import { useToUpper } from "../../../hooks/useToUpper";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaOrden: React.FC = () => {
-    const { ordenes, isLoading, handleAddOrden, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
+    const { ordenes, isLoading, handleAddOrden, generarCodigoLote, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
-    const { calcularTiempoEstimado } = useContext(TiempoProduccionContext)!;
     const { user } = useContext(FaceAuthContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-
+    const { toUpperObject } = useToUpper();
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
 
@@ -62,6 +61,8 @@ const TablaOrden: React.FC = () => {
                         row._valuesCache.codigoProducto = codigo;
                         row._valuesCache.productoRequerido = producto?.nombre || "";
                         row._valuesCache.marca = producto?.linea || "";
+                        row._valuesCache.presentacion = producto?.presentacion || "";
+                        row._valuesCache.lote = generarCodigoLote(codigo) || "";
                         table.setCreatingRow({
                             ...row,
                             _valuesCache: { ...row._valuesCache },
@@ -93,10 +94,33 @@ const TablaOrden: React.FC = () => {
                 Cell: ({ row }) => row.original.marca || "—",
             },
             {
+                accessorKey: "presentacion",
+                header: "Presentación",
+                enableEditing: false,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: ({ row }) => ({
+                    value: row._valuesCache.presentacion
+                }),
+                Cell: ({ row }) => {
+                    const producto = productos.find((p) => p.codigo === row.original.codigoProducto);
+                    const presentacion = producto?.presentacion;
+                    const unidad = producto?.unidad;
+                    return (
+                        <span style={{ color: "yellow", cursor: "pointer" }}>
+                            {presentacion} {unidad}
+                        </span>
+
+                    );
+                },
+            },
+            {
                 accessorKey: "estado",
                 header: "Estado",
                 enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: ({ }) => ({
+                    value: "EVALUACIÓN",
+                }),
                 Cell: ({ row }) => (
                     <CeldaEstado
                         idOrden={row.original.id}
@@ -112,6 +136,9 @@ const TablaOrden: React.FC = () => {
                 header: "Etapa",
                 enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: ({ }) => ({
+                    value: "-",
+                }),
                 Cell: ({ row }) => (
                     <CeldaEtapa
                         idOrden={row.original.id}
@@ -132,8 +159,11 @@ const TablaOrden: React.FC = () => {
             {
                 accessorKey: "lote",
                 header: "Lote",
+                enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("lote"),
+                muiEditTextFieldProps: ({ row }) => ({
+                    value: row._valuesCache.lote
+                }),
                 Cell: ({ row }) => row.original.lote || "—",
             },
             {
@@ -143,16 +173,6 @@ const TablaOrden: React.FC = () => {
                     type: "date",
                     InputLabelProps: { shrink: true },
                 }),
-            },
-            {
-                accessorKey: "presentacion",
-                header: "Presentación",
-                enableEditing: true,
-                editVariant: "select",
-                editSelectOptions: ["Gramos", "Litros", "Kilos"],
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("presentacion"),
-                Cell: ({ row }) => row.original.presentacion || "—",
             },
             {
                 accessorKey: "legajo",
@@ -168,15 +188,14 @@ const TablaOrden: React.FC = () => {
                 muiEditTextFieldProps: { value: new Date().toLocaleString() },
             },
         ],
-        [validationErrors]
+        [validationErrors, ordenes]
     );
 
 
     const validar = (o: Partial<OrdenProduccion>) => {
         const err: Record<string, string> = {};
         if (!o.codigoProducto?.trim()) err.codigoProducto = "El código es requerido";
-        if (!o.lote?.trim()) err.lote = "El lote es requerido";
-        if (!o.presentacion?.trim()) err.presentacion = "La presentación es requerida";
+        // if (!o.lote?.trim()) err.lote = "El lote es requerido";
         if (!o.stockRequerido && o.stockRequerido !== 0)
             err.stockRequerido = "El stock planeado es requerido";
         if (!o.fechaEntrega) err.fechaEntrega = "La fecha de entrega es requerida";
@@ -190,19 +209,19 @@ const TablaOrden: React.FC = () => {
             setValidationErrors(errores);
             return;
         }
-        // 🔹 Forzar valor por defecto
+
         const nuevaOrden = {
             ...values,
-            estado: values.estado && values.estado.trim() !== "" ? values.estado : estados.evaluacion,
-            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : user?.legajo,
-            envasado: "",
-
+            estado: values.estado?.trim() !== "" ? values.estado : estados.evaluacion,
+            legajo: values.legajo?.trim() !== "" ? values.legajo : user?.legajo,
+            lote: generarCodigoLote(values.codigoProducto),
         };
-
+        const valoresEnMayus = toUpperObject(nuevaOrden);
         setValidationErrors({});
-        await handleAddOrden(nuevaOrden);
+        await handleAddOrden(valoresEnMayus);
         table.setCreatingRow(null);
     };
+
 
 
 
@@ -212,7 +231,7 @@ const TablaOrden: React.FC = () => {
         createDisplayMode: "modal",
         editDisplayMode: "row",
         enableRowActions: true,
-        positionActionsColumn: 'last',
+        positionActionsColumn: 'first',
         enableGlobalFilter: true,
         enableEditing: true,
         enableExpandAll: false,
@@ -262,19 +281,6 @@ const TablaOrden: React.FC = () => {
         onEditingRowCancel: () => setValidationErrors({}),
 
         renderDetailPanel: ({ row }) => {
-            const [tiempoEstimado, setTiempoEstimado] = useState<number | null>(row.original.tiempoEstimado || null);
-            const [calculando, setCalculando] = useState(false);
-
-            const handleCalcularTiempo = async () => {
-                setCalculando(true);
-                const resultado = await calcularTiempoEstimado(row.original.codigoProducto, row.original.stockRequerido);
-                if (resultado !== null) {
-                    setTiempoEstimado(resultado);
-                    // Actualizamos directamente row.original para reflejarlo en la tabla
-                    row.original.tiempoEstimado = resultado;
-                }
-                setCalculando(false);
-            };
 
             return (
                 <Box
@@ -293,19 +299,19 @@ const TablaOrden: React.FC = () => {
                             <Typography variant="subtitle2" color="primary">
                                 Tiempo estimado de Producción
                             </Typography>
-                            {tiempoEstimado ? (
-                                <Typography>{tiempoEstimado} h</Typography>
+
+                            {row.original.tiempoEstimado ? (
+                                <>
+                                    <Typography>{row.original.tiempoEstimado} minutos.</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        *Los tiempos son estimativos.
+                                    </Typography>
+                                </>
                             ) : (
-                                <IconButton
-                                    title="Calcular tiempo"
-                                    color="info"
-                                    onClick={handleCalcularTiempo}
-                                    disabled={calculando}
-                                >
-                                    ⏱️
-                                </IconButton>
+                                <Typography>No hay tiempos registrados</Typography>
                             )}
                         </Box>
+
 
                         {/* Resto de los datos */}
                         <Box>
@@ -353,14 +359,11 @@ const TablaOrden: React.FC = () => {
             );
         },
 
-
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => {
             const camposRequeridos = [
                 "codigoProducto",
                 "stockRequerido",
-                "lote",
                 "fechaEntrega",
-                "presentacion"
             ];
 
             const obtenerNombreCampo = (comp: React.ReactNode) => {
@@ -495,7 +498,6 @@ const TablaOrden: React.FC = () => {
                 </>
             );
         },
-
 
         renderRowActions: ({ row }) => {
             const acciones = [
