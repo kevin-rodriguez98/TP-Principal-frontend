@@ -9,6 +9,7 @@ import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
+import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -16,7 +17,7 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, generarCodigoLote, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
-    const { user } = useContext(FaceAuthContext)!;
+    const { usuario } = useUsuarios();
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const { toUpperObject } = useToUpper();
     const limpiarError = (campo: string) =>
@@ -125,7 +126,7 @@ const TablaOrden: React.FC = () => {
                     <CeldaEstado
                         idOrden={row.original.id}
                         estado={row.original.estado}
-                        legajo={user?.legajo ? user?.legajo : "100"}
+                        legajo={usuario?.legajo ? usuario?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         finalizarOrden={finalizarOrden}
                     />
@@ -144,7 +145,7 @@ const TablaOrden: React.FC = () => {
                         idOrden={row.original.id}
                         etapa={row.original.etapa}
                         estadoActual={row.original.estado}
-                        legajo={user?.legajo ? user?.legajo : "100"}
+                        legajo={usuario?.legajo ? usuario?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         agregarNota={agregarNota}
                     // visible={row.original.estado === estados.enProduccion}
@@ -178,7 +179,7 @@ const TablaOrden: React.FC = () => {
                 accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: `${user?.legajo}` },
+                muiEditTextFieldProps: { value: `${usuario?.legajo}` },
                 Cell: ({ row }) => row.original.legajo || "—",
             },
             {
@@ -213,7 +214,7 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado?.trim() !== "" ? values.estado : estados.evaluacion,
-            legajo: values.legajo?.trim() !== "" ? values.legajo : user?.legajo,
+            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
             lote: generarCodigoLote(values.codigoProducto),
         };
         const valoresEnMayus = toUpperObject(nuevaOrden);

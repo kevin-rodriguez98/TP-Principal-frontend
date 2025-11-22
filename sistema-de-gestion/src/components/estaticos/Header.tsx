@@ -11,7 +11,7 @@ const Header = () => {
   const { usuario, logout, modificarPassword } = useUsuarios();
 
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
-  const [mostrarModalPassword, setMostrarModalPassword] = useState(false); // ✅ AGREGADO
+  const [mostrarModalPassword, setMostrarModalPassword] = useState(false);
 
   const handleIconClick = () => {
     if (!usuario) {
@@ -27,7 +27,6 @@ const Header = () => {
     navigate("/login");
   };
 
-  // ✅ FUNCIÓN PARA CAMBIAR CONTRASEÑA
   const manejarCambioPassword = async (actual: string, nueva: string) => {
     if (!usuario) return;
 
@@ -60,7 +59,6 @@ const Header = () => {
             )}
           </button>
 
-          {/* PANEL SOLO SI HAY USUARIO */}
           {usuario && (
             <div className={`panel-user ${isUserPanelOpen ? "open" : ""}`}>
               <div className="user-details">
@@ -70,7 +68,6 @@ const Header = () => {
                 <small>Legajo: {usuario.legajo}</small>
                 <small>Rol: {usuario.rol}</small>
               </div>
-                {/* ✅ BOTÓN CAMBIAR CONTRASEÑA */}
               <button
                 className="btn-change-pass"
                 onClick={() => setMostrarModalPassword(true)}
@@ -91,7 +88,6 @@ const Header = () => {
         <Notificaciones />
       </div>
 
-      {/* ✅ MODAL CAMBIAR CONTRASEÑA */}
       {mostrarModalPassword && (
         <ModalCambiarPassword
           onClose={() => setMostrarModalPassword(false)}

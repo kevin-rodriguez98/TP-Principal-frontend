@@ -33,7 +33,7 @@ const ModalCambiarPassword: React.FC<ModalCambiarPasswordProps> = ({
         <div className="modal-content">
 
           <FaLock className="modal-icon" color="#8b5cf6" />
-          <h3 className="modal-title">Cambiar contraseña</h3>
+          <h3 className="modal-title"color="#000000ff">Cambiar contraseña</h3>
 
           <div className="modal-inputs">
             <input

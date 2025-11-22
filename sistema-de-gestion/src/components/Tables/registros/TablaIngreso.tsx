@@ -6,6 +6,7 @@ import SinResultados from "../../estaticos/SinResultados";
 import { InsumoContext } from "../../../Context/InsumoContext";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
+import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -24,7 +25,7 @@ const PROVEEDORES_BASE = [
 const TablaIngreso: React.FC = () => {
     const { movimiento_insumos, handleAdd_Movimiento_insumo, isLoading, error } = useContext(Movimiento_insumo_context)!;
     const { insumos } = useContext(InsumoContext)!;
-    const { user } = useContext(FaceAuthContext)!;
+    const { usuario } = useUsuarios();
     const { toUpperObject } = useToUpper();
     const [esOtroProveedor, setEsOtroProveedor] = useState(false);
 
@@ -193,7 +194,7 @@ const TablaIngreso: React.FC = () => {
                 accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: `${user?.legajo}` },
+                muiEditTextFieldProps: { value: `${usuario?.legajo}` },
                 Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}` || "—",
             },
             {

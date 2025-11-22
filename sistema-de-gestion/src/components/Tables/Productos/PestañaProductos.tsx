@@ -13,6 +13,7 @@ import AddReceta from "./modals/AddReceta";
 import ModalTiempos from "./modals/ModalTiempoProduccion";
 import ModalAgregarTiempo from "./modals/AddTiempo";
 import ModalInfoProducto from "./modals/VerInfo";
+import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
 
@@ -23,7 +24,7 @@ const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
   const { insumosProducto, obtenerInsumosNecesarios } = useContext(RecetaContext)!;
   const { obtenerTiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
-  const { user } = useContext(FaceAuthContext)!;
+  const { usuario } = useUsuarios();
 
   const { toUpperObject } = useToUpper();
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
@@ -120,7 +121,7 @@ const TablaProductos: React.FC = () => {
         header: "Responsable",
         enableEditing: false,
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: { value: `${user?.legajo}` },
+        muiEditTextFieldProps: { value: `${usuario?.legajo}` },
         Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
 
       },

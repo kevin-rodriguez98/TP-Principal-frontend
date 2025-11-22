@@ -30,7 +30,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 
 const TablaUsuarios: React.FC = () => {
-  const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
+  const { empleados, usuario, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
   const { logout, user } = useFaceAuth();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
@@ -281,9 +281,9 @@ const baseTextFieldProps = (campo: string, extraProps = {}) => ({
         </Button>
 
         <Box marginLeft="auto">
-          {user ? (
+          {usuario ? (
             <>
-              <Typography color="green">👤 Sesión activa: {user.nombre}</Typography>
+              <Typography color="green">👤 Sesión activa: {usuario?.nombre}</Typography>
               <Button color="error" onClick={logout}>Cerrar sesión</Button>
             </>
           ) : (

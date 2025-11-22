@@ -41,18 +41,16 @@ function App() {
     }
   }, [usuario]);
 
-  const handlePasswordChange = async ( nueva: string) => {
-    if (!usuario) {
-      return;
-    }
+  const handlePasswordChange = async (actual: string, nueva: string) => {
+  if (!usuario) return;
 
-    try {
-      await modificarPassword(usuario?.legajo, nueva);
-      setShowPasswordModal(false);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    await modificarPassword(usuario.legajo, nueva);
+    setShowPasswordModal(false);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <>
