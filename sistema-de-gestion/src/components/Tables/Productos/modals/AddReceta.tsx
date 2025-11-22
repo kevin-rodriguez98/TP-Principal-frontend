@@ -1,12 +1,13 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RecetaContext, type Receta } from "../../../../Context/RecetaContext";
 import { InsumoContext } from "../../../../Context/InsumoContext";
 
 export default function AddReceta({
     open,
     onClose,
-    productoInfo
+    productoInfo,
+    onAgregado
 }: any) {
 
 
@@ -18,6 +19,18 @@ export default function AddReceta({
     });
     const { insumos } = useContext(InsumoContext)!;
     const { obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
+
+    useEffect(() => {
+        if (open) {
+            // Reinicia los valores cuando se abre el modal
+            setNuevoInsumo({
+                codigoInsumo: "",
+                nombreInsumo: "",
+                cantidadNecesaria: 1,
+                unidad: ""
+            });
+        }
+    }, [open]);
 
 
 
@@ -47,6 +60,7 @@ export default function AddReceta({
                             ...nuevoInsumo,
                             codigoInsumo: codigo,
                             nombreInsumo: insumoSeleccionado?.nombre ?? "",
+                            unidad: insumoSeleccionado?.unidad ?? "",
                         });
                     }}
                     SelectProps={{ native: true }}
@@ -70,14 +84,14 @@ export default function AddReceta({
                             cantidadNecesaria: Number(e.target.value),
                         })
                     }
-                    inputProps={{ step: "0.01" }}  
+                    inputProps={{ step: "0.01", min: 0 }}
                     fullWidth
                 />
 
                 <TextField
                     label="Unidad"
                     disabled
-                    value={productoInfo?.unidad}
+                    value={nuevoInsumo.unidad}
                     fullWidth
                 />
             </DialogContent>
@@ -88,11 +102,13 @@ export default function AddReceta({
                     onClick={async () => {
                         await agregarInsumoAReceta(productoInfo?.codigo, nuevoInsumo);
                         await obtenerInsumosNecesarios(productoInfo?.codigo, productoInfo?.stock);
+                        onAgregado(nuevoInsumo.codigoInsumo); // 👈 enviar al modal padre
                         onClose();
                     }}
                 >
                     Guardar
                 </Button>
+
 
                 <Button onClick={onClose}>Cancelar</Button>
             </DialogActions>

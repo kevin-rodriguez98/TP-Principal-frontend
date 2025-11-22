@@ -2,17 +2,14 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_EditActionButtons, type MRT_Row, } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
-import { RecetaContext } from "../../../Context/RecetaContext";
-import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SinResultados from "../../estaticos/SinResultados";
-import AddReceta from "./modals/AddReceta";
-import ModalTiempos from "./modals/ModalTiempoProduccion";
-import ModalAgregarTiempo from "./modals/AddTiempo";
 import ModalInfoProducto from "./modals/VerInfo";
+import ModalReceta from "./modals/modalReceta";
+import { RecetaContext } from "../../../Context/RecetaContext";
 
 
 
@@ -21,9 +18,8 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
-  const { insumosProducto, obtenerInsumosNecesarios } = useContext(RecetaContext)!;
-  const { obtenerTiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
   const { user } = useContext(FaceAuthContext)!;
+  const { obtenerInsumosNecesarios } = useContext(RecetaContext)!;
 
   const { toUpperObject } = useToUpper();
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
@@ -31,9 +27,7 @@ const TablaProductos: React.FC = () => {
 
   // MODAL'S
   const [openModalReceta, setOpenModalReceta] = useState(false);
-  const [openModalAgregarTiempo, setOpenModalAgregarTiempo] = useState(false);
   const [openInfoModal, setOpenInfoModal] = useState(false);
-  const [openModalTiempos, setOpenModalTiempos] = useState(false);
 
 
   const limpiarError = (campo: string) =>
@@ -92,7 +86,8 @@ const TablaProductos: React.FC = () => {
         accessorKey: "presentacion",
         header: "Presentación",
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: baseTextFieldProps("presentacion", { type: "number" }),
+        
+        muiEditTextFieldProps: baseTextFieldProps("presentacion", { type: "number", inputProps: { step: "0.01", min: 0 } }),
       },
       {
         accessorKey: "unidad",
@@ -185,6 +180,7 @@ const TablaProductos: React.FC = () => {
     data: productos,
     createDisplayMode: "modal",
     enableRowActions: true,
+    // enableColumnResizing: true,
     positionActionsColumn: 'first',
     enableGlobalFilter: true,
     editDisplayMode: "modal",
@@ -245,7 +241,7 @@ const TablaProductos: React.FC = () => {
             onClick={async () => {
               await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
               setProductoInfo(row.original);
-              row.toggleExpanded();
+              setOpenModalReceta(true);
             }}
           >
             🧾
@@ -326,6 +322,7 @@ const TablaProductos: React.FC = () => {
         </DialogActions>
       </>
     ),
+
     renderTopToolbarCustomActions: ({ table }) => (
       <Box
         sx={{
@@ -352,106 +349,6 @@ const TablaProductos: React.FC = () => {
       </Box>
     ),
 
-    renderDetailPanel: ({ row }) => {
-      if (row.original.codigo !== productoInfo?.codigo) return null;
-
-      return (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr 1fr", // ← dos columnas iguales
-            gap: 2,
-            p: 2,
-            backgroundColor: "#2b2b2bff",
-            borderRadius: "10px",
-            color: "#fff",
-          }}
-        >
-          {/* COLUMNA IZQUIERDA - RECETA */}
-          <Box
-            sx={{
-              p: 2,
-              backgroundColor: "#1f1f1f",
-              borderRadius: "10px",
-            }}
-          >
-            <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-              🧾 Receta de {row.original.nombre}
-            </Typography>
-
-            {insumosProducto.length === 0 ? (
-              <Typography>No hay receta disponible.</Typography>
-            ) : (
-              <Box component="ul" sx={{ listStyle: "none", pl: 0, m: 0 }}>
-                {insumosProducto.map((insumo, index) => (
-                  <li key={index} style={{ marginBottom: "8px" }}>
-                    <Typography variant="body2">
-                      <strong>{insumo.nombreInsumo}</strong> — Cantidad:{" "}
-                      {insumo.cantidadNecesaria + " " + insumo.unidad}
-                    </Typography>
-                  </li>
-                ))}
-              </Box>
-            )}
-
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              sx={{ mt: 2, px: 3 }}
-              onClick={async () => {
-                await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
-                setOpenModalReceta(true);
-              }}
-            >
-              Agregar insumo
-            </Button>
-          </Box>
-
-          {/* COLUMNA DERECHA - TIEMPO PRODUCCIÓN */}
-          <Box
-            sx={{
-              p: 2,
-              backgroundColor: "#1f1f1f",
-              borderRadius: "10px",
-            }}
-          >
-            <Typography variant="subtitle1" color="primary" sx={{ mb: 1 }}>
-              ⏱️ Tiempo de Producción
-            </Typography>
-
-            <Button
-              variant="contained"
-              color="warning"
-              fullWidth
-              sx={{ mt: 1 }}
-              onClick={async () => {
-                await obtenerTiempoProduccionUnitario(row.original.codigo);
-                setOpenModalTiempos(true);
-              }}
-            >
-              Ver Tiempo de Producción
-            </Button>
-
-            <Button
-              variant="outlined"
-              color="success"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={async () => {
-                await obtenerTiempoProduccionUnitario(row.original.codigo);
-                setOpenModalAgregarTiempo(true);
-              }}
-            >
-              Agregar Tiempo de Producción
-            </Button>
-
-          </Box>
-        </Box>
-      );
-    },
-
-
     renderEmptyRowsFallback: () =>
       error ? (
         <SinResultados mensaje="El servidor no está disponible. Intenta más tarde." />
@@ -474,21 +371,10 @@ const TablaProductos: React.FC = () => {
     <>
       <MaterialReactTable table={table} />
 
-      <AddReceta
+      <ModalReceta
         open={openModalReceta}
         onClose={() => setOpenModalReceta(false)}
-        productoInfo={productoInfo}
-      />
-
-      <ModalTiempos
-        open={openModalTiempos}
-        onClose={() => setOpenModalTiempos(false)}
-      />
-
-      <ModalAgregarTiempo
-        open={openModalAgregarTiempo}
-        onClose={() => setOpenModalAgregarTiempo(false)}
-        productoInfo={productoInfo}
+        producto={productoInfo}
       />
 
       <ModalInfoProducto
