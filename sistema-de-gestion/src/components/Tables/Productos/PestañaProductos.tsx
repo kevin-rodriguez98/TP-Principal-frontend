@@ -1,15 +1,18 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_EditActionButtons, type MRT_Row, } from "material-react-table";
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
-import { RecetaContext, type Receta } from "../../../Context/RecetaContext";
-import { TiempoProduccionContext, type TiempoProduccion } from "../../../Context/TiempoProduccionContext";
-import { InsumoContext } from "../../../Context/InsumoContext";
+import { RecetaContext } from "../../../Context/RecetaContext";
+import { TiempoProduccionContext } from "../../../Context/TiempoProduccionContext";
 import { FaceAuthContext } from "../../../Context/FaceAuthContext";
+import { useToUpper } from "../../../hooks/useToUpper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SinResultados from "../../estaticos/SinResultados";
-import { useToUpper } from "../../../hooks/useToUpper";
+import AddReceta from "./modals/AddReceta";
+import ModalTiempos from "./modals/ModalTiempoProduccion";
+import ModalAgregarTiempo from "./modals/AddTiempo";
+import ModalInfoProducto from "./modals/VerInfo";
 
 
 
@@ -18,34 +21,19 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
-  const { insumosProducto, obtenerInsumosNecesarios, agregarInsumoAReceta } = useContext(RecetaContext)!;
-  const { insumos } = useContext(InsumoContext)!;
+  const { insumosProducto, obtenerInsumosNecesarios } = useContext(RecetaContext)!;
+  const { obtenerTiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
   const { user } = useContext(FaceAuthContext)!;
-  const { obtenerTiempoProduccionUnitario, agregarTiempoProduccion, tiempoProduccion } = useContext(TiempoProduccionContext)!;
-  const [productoSeleccionado, setProductoSeleccionado] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-  const [openModalReceta, setOpenModalReceta] = useState(false);
-  const [codigoProducto, setCodigoProducto] = useState("");
-  const [cantidad, setCantidad] = useState(0);
-  const [nuevoInsumo, setNuevoInsumo] = useState<Receta>({
-    codigoInsumo: "",
-    nombreInsumo: "",
-    cantidadNecesaria: 1,
-    unidad: ""
-  });
-  const [openModalTiempos, setOpenModalTiempos] = useState(false);
+
   const { toUpperObject } = useToUpper();
-  const [openModalAgregarTiempo, setOpenModalAgregarTiempo] = useState(false);
-  const [nuevoTiempo, setNuevoTiempo] = useState<TiempoProduccion>({
-    codigoProducto: "",
-    tiempoPreparacion: 0,
-    tiempoCiclo: 0,
-    maximoTanda: 1,
-  });
-  const [openInfoModal, setOpenInfoModal] = useState(false);
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
 
-
+  // MODAL'S
+  const [openModalReceta, setOpenModalReceta] = useState(false);
+  const [openModalAgregarTiempo, setOpenModalAgregarTiempo] = useState(false);
+  const [openInfoModal, setOpenInfoModal] = useState(false);
+  const [openModalTiempos, setOpenModalTiempos] = useState(false);
 
 
   const limpiarError = (campo: string) =>
@@ -211,7 +199,7 @@ const TablaProductos: React.FC = () => {
       density: 'compact',
       columnVisibility: {
         fechaCreacion: false,
-        legajoResponsable:false,
+        legajoResponsable: false,
       },
     },
     muiTableContainerProps: {
@@ -256,7 +244,7 @@ const TablaProductos: React.FC = () => {
             color="success"
             onClick={async () => {
               await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
-              setProductoSeleccionado(row.original.codigo);
+              setProductoInfo(row.original);
               row.toggleExpanded();
             }}
           >
@@ -363,14 +351,9 @@ const TablaProductos: React.FC = () => {
         </Box>
       </Box>
     ),
-    renderEmptyRowsFallback: () =>
-      error ? (
-        <SinResultados mensaje="El servidor no está disponible. Intenta más tarde." />
-      ) : (
-        <SinResultados mensaje="No hay productos disponibles para mostrar." />
-      ),
+
     renderDetailPanel: ({ row }) => {
-      if (row.original.codigo !== productoSeleccionado) return null;
+      if (row.original.codigo !== productoInfo?.codigo) return null;
 
       return (
         <Box
@@ -400,8 +383,8 @@ const TablaProductos: React.FC = () => {
               <Typography>No hay receta disponible.</Typography>
             ) : (
               <Box component="ul" sx={{ listStyle: "none", pl: 0, m: 0 }}>
-                {insumosProducto.map((insumo) => (
-                  <li key={insumo.codigoInsumo} style={{ marginBottom: "8px" }}>
+                {insumosProducto.map((insumo, index) => (
+                  <li key={index} style={{ marginBottom: "8px" }}>
                     <Typography variant="body2">
                       <strong>{insumo.nombreInsumo}</strong> — Cantidad:{" "}
                       {insumo.cantidadNecesaria + " " + insumo.unidad}
@@ -418,9 +401,6 @@ const TablaProductos: React.FC = () => {
               sx={{ mt: 2, px: 3 }}
               onClick={async () => {
                 await obtenerInsumosNecesarios(row.original.codigo, row.original.stock);
-                setProductoSeleccionado(row.original.codigo);
-                setCodigoProducto(row.original.codigo)
-                setCantidad(row.original.stock)
                 setOpenModalReceta(true);
               }}
             >
@@ -459,19 +439,9 @@ const TablaProductos: React.FC = () => {
               fullWidth
               sx={{ mt: 2 }}
               onClick={async () => {
-                const tiempo = await obtenerTiempoProduccionUnitario(row.original.codigo);
-
-                setNuevoTiempo({
-                  codigoProducto: row.original.codigo,
-                  tiempoPreparacion: tiempo?.tiempoPreparacion ?? 0,
-                  tiempoCiclo: tiempo?.tiempoCiclo ?? 0,
-                  maximoTanda: tiempo?.cantidadMaximaTanda ?? 1,
-                });
-
-                // 3. Abrir modal
+                await obtenerTiempoProduccionUnitario(row.original.codigo);
                 setOpenModalAgregarTiempo(true);
               }}
-
             >
               Agregar Tiempo de Producción
             </Button>
@@ -482,7 +452,12 @@ const TablaProductos: React.FC = () => {
     },
 
 
-
+    renderEmptyRowsFallback: () =>
+      error ? (
+        <SinResultados mensaje="El servidor no está disponible. Intenta más tarde." />
+      ) : (
+        <SinResultados mensaje="No hay productos disponibles para mostrar." />
+      ),
 
     state: { isLoading },
   });
@@ -498,247 +473,29 @@ const TablaProductos: React.FC = () => {
   return (
     <>
       <MaterialReactTable table={table} />
-      <Dialog
+
+      <AddReceta
         open={openModalReceta}
         onClose={() => setOpenModalReceta(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-        >
-          Agregar Insumo a Receta
-        </DialogTitle>
+        productoInfo={productoInfo}
+      />
 
-        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
-          <TextField
-            label="Código del Producto"
-            value={codigoProducto}
-            disabled
-            fullWidth
-            sx={{ mt: 1 }}
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <TextField
-            select
-            value={nuevoInsumo.codigoInsumo}
-            onChange={(e) => {
-              const codigo = e.target.value;
-              const insumoSeleccionado = insumos.find(i => i.codigo === codigo);
-              setNuevoInsumo({
-                ...nuevoInsumo,
-                codigoInsumo: codigo,
-                nombreInsumo: insumoSeleccionado ? insumoSeleccionado.nombre : "",
-              });
-            }}
-            fullWidth
-            SelectProps={{ native: true }}
-          >
-            <option value="">Seleccione un insumo</option>
-            {insumos.map((i) => (
-              <option key={i.codigo} value={i.codigo}>
-                {i.codigo + " - " + i.nombre + " - " + i.marca}
-              </option>
-            ))}
-          </TextField>
-
-          <TextField
-            label="Cantidad Necesaria"
-            type="number"
-            value={nuevoInsumo.cantidadNecesaria}
-            onChange={(e) =>
-              setNuevoInsumo({
-                ...nuevoInsumo,
-                cantidadNecesaria: Number(e.target.value),
-              })
-            }
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="Unidad"
-            type="text"
-            value={nuevoInsumo.unidad}
-            onChange={(e) =>
-              setNuevoInsumo({
-                ...nuevoInsumo,
-                unidad: e.target.value,
-              })
-            }
-            fullWidth
-            SelectProps={{ native: true }}
-          >
-            <option value="Unidades"> Unidades </option>
-            <option value="Miligramos"> Miligramos </option>
-            <option value="Gramos"> Gramos </option>
-            <option value="Litros"> Litros </option>
-            <option value="Kilogramos"> Kilogramos </option>
-
-          </TextField>
-
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={async () => {
-              await agregarInsumoAReceta(codigoProducto, nuevoInsumo);
-              await obtenerInsumosNecesarios(codigoProducto, cantidad);
-
-              setOpenModalReceta(false);
-            }}
-          >
-            Guardar
-          </Button>
-
-          <Button onClick={() => setOpenModalReceta(false)}>Cancelar</Button>
-        </DialogActions>
-      </Dialog>
-
-
-      <Dialog
+      <ModalTiempos
         open={openModalTiempos}
         onClose={() => setOpenModalTiempos(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-        >
-          Tiempo de Producción
-        </DialogTitle>
+      />
 
-        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
-          <Typography><b>Preparación:</b> {tiempoProduccion?.tiempoPreparacion ?? "-"} Min.</Typography>
-          <Typography><b>Ciclos:</b> {tiempoProduccion?.tiempoCiclo ?? "-"} </Typography>
-          <Typography><b>Tanda Máxima:</b> {tiempoProduccion?.cantidadMaximaTanda ?? "-"}</Typography>
-          <Typography><b>Total:</b> {tiempoProduccion?.tiempoTotal ?? "-"} Min.</Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "center" }}>
-          <Button onClick={() => setOpenModalTiempos(false)}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
-
-
-
-      {/* Modal para AGREGAR TIEMPO */}
-      <Dialog
+      <ModalAgregarTiempo
         open={openModalAgregarTiempo}
         onClose={() => setOpenModalAgregarTiempo(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-        >
-          Registrar Tiempo de Producción
-        </DialogTitle>
+        productoInfo={productoInfo}
+      />
 
-        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
-          <TextField
-            label="Código del Producto"
-            value={nuevoTiempo.codigoProducto}
-            disabled
-            fullWidth
-          />
-
-          <TextField
-            label="Tiempo de Preparación (hs)"
-            type="number"
-            value={nuevoTiempo.tiempoPreparacion}
-            onChange={(e) =>
-              setNuevoTiempo({
-                ...nuevoTiempo,
-                tiempoPreparacion: Number(e.target.value),
-              })
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="Tiempo de Ciclo (hs)"
-            type="number"
-            value={nuevoTiempo.tiempoCiclo}
-            onChange={(e) =>
-              setNuevoTiempo({
-                ...nuevoTiempo,
-                tiempoCiclo: Number(e.target.value),
-              })
-            }
-            fullWidth
-          />
-
-          <TextField
-            label="Máximo por Tanda"
-            type="number"
-            value={nuevoTiempo.maximoTanda}
-            onChange={(e) =>
-              setNuevoTiempo({
-                ...nuevoTiempo,
-                maximoTanda: Number(e.target.value),
-              })
-            }
-            fullWidth
-          />
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
-          <Button
-            variant="contained"
-            onClick={async () => {
-              // validaciones mínimas
-              if (!nuevoTiempo.codigoProducto) return;
-              await agregarTiempoProduccion(nuevoTiempo);
-              // opcional: actualizar el tiempo mostrado
-              await obtenerTiempoProduccionUnitario(nuevoTiempo.codigoProducto);
-              setOpenModalAgregarTiempo(false);
-            }}
-          >
-            Guardar
-          </Button>
-          <Button onClick={() => setOpenModalAgregarTiempo(false)}>Cancelar</Button>
-        </DialogActions>
-      </Dialog>
-
-
-
-      <Dialog
+      <ModalInfoProducto
         open={openInfoModal}
         onClose={() => setOpenInfoModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
-        >
-          Información del Producto
-        </DialogTitle>
-
-        <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
-          {productoInfo && (
-            <>
-              <Typography><b>Código:</b> {productoInfo.codigo}</Typography>
-              <Typography><b>Nombre:</b> {productoInfo.nombre}</Typography>
-              <Typography><b>Categoría:</b> {productoInfo.categoria}</Typography>
-              <Typography><b>Línea:</b> {productoInfo.linea}</Typography>
-              <Typography><b>Presentación:</b> {productoInfo.presentacion} {productoInfo.unidad}</Typography>
-              <Typography><b>Stock:</b> {productoInfo.stock}</Typography>
-              <Typography><b>Fecha Creación:</b> {productoInfo.fechaCreacion}</Typography>
-              <Typography>
-                <b>Responsable:</b> {productoInfo.legajo} - {productoInfo.responsableApellido} {productoInfo.responsableNombre}
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: "center" }}>
-          <Button onClick={() => setOpenInfoModal(false)}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
+        productoInfo={productoInfo}
+      />
 
     </>
   );

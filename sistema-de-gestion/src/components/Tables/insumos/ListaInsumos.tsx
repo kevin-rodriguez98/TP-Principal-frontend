@@ -106,7 +106,7 @@ const TablaInsumos: React.FC = () => {
                 },
             },
         ],
-        [validationErrors]
+        [validationErrors, insumos]
     );
 
     const validarCamposInsumo = (insumo: Partial<Insumo>) => {

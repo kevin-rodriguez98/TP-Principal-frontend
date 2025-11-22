@@ -38,7 +38,7 @@ interface TiempoProduccionContextType {
     obtenerTiemposProduccion: () => Promise<void>;
     isLoading: boolean;
     error: string;
-    agregarTiempoProduccion: (data: TiempoProduccion) => Promise<void>;
+    agregarTiempoProduccion: (codigoProducto: string, data: TiempoProduccion) => Promise<void>;
     obtenerTiempoProduccionUnitario: (codigoProducto: string) => Promise<TiempoProduccionResponse | null>;
 
 }
@@ -82,8 +82,9 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
     };
 
     // ➕ Agregar tiempo de producción
-    const agregarTiempoProduccion = async (data: TiempoProduccion) => {
+    const agregarTiempoProduccion = async (codigoProducto: string, data: TiempoProduccion) => {
         setIsLoading(true);
+        data.codigoProducto= codigoProducto;
         try {
             const response = await fetch(`${URLEst}/agregar`, {
                 method: "POST",

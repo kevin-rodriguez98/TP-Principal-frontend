@@ -22,6 +22,7 @@ import ReportesOrdenes from './pages/ReportesOrdenes.tsx';
 // export const URL_recetas = "http://localhost:8080/recetas";
 
 // URL´s SERVER
+export const URL = "https://tp-principal-backend.onrender.com/" 
 
 export const URL_ordenes = "https://tp-principal-backend.onrender.com/orden-produccion";
 export const URL_insumos = "https://tp-principal-backend.onrender.com/insumos";

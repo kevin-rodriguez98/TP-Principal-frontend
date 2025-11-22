@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import { URL_ordenes as URL } from "../App";
 import { URL_estimacion as URLEst } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
-import { useServerStatus } from "../hooks/ServerStatus";
 // import { TiempoProduccionContext } from "./TiempoProduccionContext";
 
 export interface Etapa {
@@ -127,7 +126,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<Etapa[]>([]);
-  const { secureFetch } = useServerStatus(`${URL}/ping`);
 
   let count = 0;
 

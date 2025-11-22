@@ -203,7 +203,7 @@ const TablaIngreso: React.FC = () => {
                 muiTableHeadCellProps: ESTILOS_CABECERA,
             },
         ],
-        [validationErrors]
+        [validationErrors, movimiento_insumos]
     );
 
     const validar = (registro: Partial<movimiento_insumo>) => {

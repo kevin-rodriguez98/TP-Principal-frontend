@@ -15,7 +15,7 @@ export interface movimiento_producto {
     lote: string;
     nombre: string;
     legajo: string;
-    fechaHora: string;
+    fecha: string;
 
     responsableNombre: string;
     responsableApellido: string;

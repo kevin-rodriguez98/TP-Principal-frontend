@@ -115,7 +115,7 @@ const TablaEgreso: React.FC = () => {
         },
         {
             accessorKey: "unidad",
-            header: "Unidad",
+            header: "Presentación",
             enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
             muiEditTextFieldProps: ({ row }) => ({
@@ -155,7 +155,7 @@ const TablaEgreso: React.FC = () => {
             Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
         },
         {
-            accessorKey: "fechaHora",
+            accessorKey: "fecha",
             header: "Fecha Ingreso",
             enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
@@ -275,7 +275,7 @@ const TablaEgreso: React.FC = () => {
                     <Typography variant="subtitle2" color="primary">
                         Fecha
                     </Typography>
-                    <Typography>{row.original.fechaHora}</Typography>
+                    <Typography>{row.original.fecha}</Typography>
                 </Box>
                 <Box>
                     <Typography variant="subtitle2" color="primary">

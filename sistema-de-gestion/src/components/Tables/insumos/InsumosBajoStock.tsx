@@ -72,7 +72,7 @@ const InsumosBajoStock: React.FC = () => {
                 },
             },
         ],
-        []
+        [insumos_bajo_stock]
     );
 
 
