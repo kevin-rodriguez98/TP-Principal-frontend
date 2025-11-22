@@ -1,92 +1,57 @@
 import React, { useMemo, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
 import { Box, CircularProgress, Typography, } from "@mui/material";
-import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
-import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../estaticos/SinResultados";
+import { TiempoProduccionContext, type TiempoProduccionGeneral } from "../../../Context/TiempoProduccionContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
-const InsumosBajoStock: React.FC = () => {
-    const { insumos_bajo_stock, isLoading, error } = useContext(InsumoContext)!;
+const TiempoProduccion: React.FC = () => {
+    const { tiempos, error, isLoading } = useContext(TiempoProduccionContext)!;
 
-    const columns = useMemo<MRT_ColumnDef<Insumo>[]>(
+    const columns = useMemo<MRT_ColumnDef<TiempoProduccionGeneral>[]>(
         () => [
             {
                 accessorKey: "codigo",
                 header: "Código",
                 size: 90,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
+                Cell: ({ row }) => row.original.codigo || "—",
             },
             {
-                accessorKey: "nombre",
-                header: "Nombre",
+                accessorKey: "tiempoPreparacion",
+                header: "Tiempo Preparacion",
                 muiTableHeadCellProps: ESTILOS_CABECERA,
+                Cell: ({ row }) => row.original.tiempoPreparacion || "—",
             },
             {
-                accessorKey: "categoria",
-                header: "Categoría",
+                accessorKey: "tiempoCiclo",
+                header: "Ciclo",
                 muiTableHeadCellProps: ESTILOS_CABECERA,
+                Cell: ({ row }) => row.original.tiempoCiclo || "—",
             },
             {
-                accessorKey: "marca",
-                header: "Marca",
+                accessorKey: "cantidaTanda",
+                header: "Máxima tanda",
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-            },
-            {
-                accessorKey: "unidad",
-                header: "Unidad",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-            },
-            {
-                accessorKey: "stock",
-                header: "Stock",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: {
-                    type: "number",
-                },
-                Cell: ({ row }) => {
-                    const stock = row.original.stock;
-                    return (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "red" }}>{stock}</Typography>
-                            <FaExclamationTriangle color="red" title="debajo del umbral" />
-                        </Box>
-                    );
-                },
-            },
-            {
-                accessorKey: "umbralMinimoStock",
-                header: "Umbral mínimo",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: {
-                    type: "number",
-                },
-                Cell: ({ row }) => {
-                    const umbral = row.original.umbralMinimoStock;
-                    return (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "#e4f502ff" }}>{umbral}</Typography>
-                        </Box>
-                    );
-                },
+                Cell: ({ row }) => row.original.cantidaTanda || "—",
             },
         ],
-        [insumos_bajo_stock]
+        []
     );
 
 
 
     const tabla = useMaterialReactTable({
         columns,
-        data: insumos_bajo_stock,
+        data: tiempos,
         enableColumnResizing: true,
         columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
         defaultColumn: {
-            minSize: 80, //allow columns to get smaller than default
-            maxSize: 900, //allow columns to get larger than default
-            size: 110, //make columns wider by default
+            minSize: 80,
+            maxSize: 900,
+            size: 110,
             grow: 1,
             enableResizing: true,
         },
@@ -129,7 +94,7 @@ const InsumosBajoStock: React.FC = () => {
             >
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
                     <Typography variant="h5" color="primary" className="titulo-lista-insumos">
-                        Insumos con bajo stock
+                        Tiempos de producción
                     </Typography>
 
                 </Box>
@@ -160,4 +125,4 @@ const InsumosBajoStock: React.FC = () => {
     );
 };
 
-export default InsumosBajoStock;
+export default TiempoProduccion;

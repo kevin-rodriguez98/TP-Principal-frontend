@@ -7,10 +7,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
 import Tabla from "./insumos/Tabla";
 import TablaOrden from "./ordenes/TablaOrden";
-import TablaProductos from "./ordenes/TablaProductos";
 import TablaRegistro from "./registros/TablaRegistro";
-import { useFaceAuth } from "../../Context/FaceAuthContext";
 import { useUsuarios } from "../../Context/UsuarioContext";
+import TablaProductos from "./Productos/TablaProductos";
 
 
 
@@ -73,7 +72,6 @@ export default function PanelGeneral({ }) {
             <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.default", backgroundColor: "transparent" }}>
                 <Paper elevation={3} sx={{ mx: 4, mt: 4, borderRadius: 2 }}>
                     {isMobile ? (
-                        // 📱 Menú desplegable en mobile
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
                                 onClick={() => navigate("/")}
@@ -107,7 +105,6 @@ export default function PanelGeneral({ }) {
                             </Select>
                         </Box>
                     ) : (
-                        // 💻 Pestañas en desktop
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
                                 onClick={() => navigate("/")}

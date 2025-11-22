@@ -27,9 +27,9 @@ createRoot(document.getElementById('root')!).render(
                 <PanelProvider>
                   <Movimiento_insumo_contextProvider>
                     <Movimiento_producto_contextProvider>
-                      <OrdenProduccionProvider>
-                        <ProductosProvider>
-                          <TiempoProduccionProvider>
+                      <ProductosProvider>
+                        <TiempoProduccionProvider>
+                          <OrdenProduccionProvider>
                             <RecetaProvider>
                               <App />
                               <ToastContainer
@@ -45,9 +45,9 @@ createRoot(document.getElementById('root')!).render(
                                 theme="dark"
                               />
                             </RecetaProvider>
-                          </TiempoProduccionProvider>
-                        </ProductosProvider>
-                      </OrdenProduccionProvider>
+                          </OrdenProduccionProvider>
+                        </TiempoProduccionProvider>
+                      </ProductosProvider>
                     </Movimiento_producto_contextProvider>
                   </Movimiento_insumo_contextProvider>
                 </PanelProvider>
