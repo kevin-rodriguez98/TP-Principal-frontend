@@ -106,6 +106,17 @@ background-color: white;
     font-family: system-ui;
 }
 
+.btn-change-pass {
+  margin-bottom: 10px;
+  background-color: #b13c7e;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-change-pass:hover {
+  background: #f2f1f2;
+}
+
 .user-fullname {
   font-weight: 600;
   margin-bottom: 4px;

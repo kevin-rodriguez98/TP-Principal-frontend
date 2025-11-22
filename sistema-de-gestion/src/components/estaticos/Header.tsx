@@ -3,21 +3,21 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/Nav.css";
 import Notificaciones from "./Notificaciones";
 import { Login as LoginIcon, Logout as LogoutIcon, AccountCircle } from "@mui/icons-material";
-import { useFaceAuth } from "../../Context/FaceAuthContext";
+import { useUsuarios } from "../../Context/UsuarioContext";
+import ModalCambiarPassword from "../modal/ModalCambiarPassword";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user, logout } = useFaceAuth();
+  const { usuario, logout, modificarPassword } = useUsuarios();
+
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
+  const [mostrarModalPassword, setMostrarModalPassword] = useState(false); // ✅ AGREGADO
 
   const handleIconClick = () => {
-    if (!user) {
-      // 👤 SIN usuario → ir al login
+    if (!usuario) {
       navigate("/login");
       return;
     }
-
-    // 👤 CON usuario → abrir/cerrar panel
     setIsUserPanelOpen((prev) => !prev);
   };
 
@@ -25,6 +25,19 @@ const Header = () => {
     logout();
     setIsUserPanelOpen(false);
     navigate("/login");
+  };
+
+  // ✅ FUNCIÓN PARA CAMBIAR CONTRASEÑA
+  const manejarCambioPassword = async (actual: string, nueva: string) => {
+    if (!usuario) return;
+
+    try {
+      await modificarPassword(usuario.legajo, nueva);
+      setMostrarModalPassword(false);
+      setIsUserPanelOpen(false);
+    } catch {
+      // el contexto ya muestra toast de error
+    }
   };
 
   return (
@@ -37,9 +50,10 @@ const Header = () => {
       />
 
       <div className="div-notify">
+
         <div className="user-slide-container" style={{ position: "relative" }}>
           <button className="btn-login" onClick={handleIconClick}>
-            {user ? (
+            {usuario ? (
               <AccountCircle className="icon-login" />
             ) : (
               <LoginIcon className="icon-login" />
@@ -47,16 +61,26 @@ const Header = () => {
           </button>
 
           {/* PANEL SOLO SI HAY USUARIO */}
-          {user && (
+          {usuario && (
             <div className={`panel-user ${isUserPanelOpen ? "open" : ""}`}>
               <div className="user-details">
                 <p className="user-fullname">
-                  {user.nombre} {user.apellido}
+                  {usuario.nombre} {usuario.apellido}
                 </p>
-                <small>Legajo: {user.legajo}</small>
-                <small>Rol: {user.rol}</small>
+                <small>Legajo: {usuario.legajo}</small>
+                <small>Rol: {usuario.rol}</small>
               </div>
+                {/* ✅ BOTÓN CAMBIAR CONTRASEÑA */}
+              <button
+                className="btn-change-pass"
+                onClick={() => setMostrarModalPassword(true)}
+              >
+                Cambiar contraseña
+              </button>
               <hr className="divider" />
+
+
+              {/* BOTÓN LOGOUT */}
               <button className="btn-logout" onClick={handleLogout}>
                 <LogoutIcon fontSize="small" /> <span>Cerrar sesión</span>
               </button>
@@ -66,6 +90,14 @@ const Header = () => {
 
         <Notificaciones />
       </div>
+
+      {/* ✅ MODAL CAMBIAR CONTRASEÑA */}
+      {mostrarModalPassword && (
+        <ModalCambiarPassword
+          onClose={() => setMostrarModalPassword(false)}
+          onSubmit={manejarCambioPassword}
+        />
+      )}
     </nav>
   );
 };

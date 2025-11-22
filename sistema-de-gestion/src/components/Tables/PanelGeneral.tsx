@@ -10,6 +10,7 @@ import TablaOrden from "./ordenes/TablaOrden";
 import TablaProductos from "./ordenes/TablaProductos";
 import TablaRegistro from "./registros/TablaRegistro";
 import { useFaceAuth } from "../../Context/FaceAuthContext";
+import { useUsuarios } from "../../Context/UsuarioContext";
 
 
 
@@ -46,7 +47,7 @@ const darkTheme = createTheme({
 
 export default function PanelGeneral({ }) {
     const navigate = useNavigate();
-    const { logout, user } = useFaceAuth();
+    const { logout, usuario } =  useUsuarios();
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -162,7 +163,7 @@ export default function PanelGeneral({ }) {
                                     boxShadow: "0 0 10px rgba(0,0,0,0.3)",
                                 }}
                             >
-                                {user ? (
+                                {usuario ? (
                                     <>
                                         <Box
                                             sx={{
@@ -176,14 +177,14 @@ export default function PanelGeneral({ }) {
                                                 fontSize: "1.1rem",
                                             }}
                                         >
-                                            {user.nombre?.charAt(0).toUpperCase()}
+                                            {usuario.nombre?.charAt(0).toUpperCase()}
                                         </Box>
                                         <Box>
                                             <Typography sx={{ fontSize: "0.85rem", color: "gray" }}>
                                                 Sesión activa
                                             </Typography>
                                             <Typography sx={{ fontSize: "0.95rem", fontWeight: "bold", color: "green" }}>
-                                                {user.nombre}
+                                                {usuario.nombre}
                                             </Typography>
                                         </Box>
                                         <Button

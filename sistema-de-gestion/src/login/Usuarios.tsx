@@ -22,6 +22,7 @@ import '../styles/tablas.css'
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { EditIcon } from "lucide-react";
 
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
@@ -29,22 +30,21 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 
 const TablaUsuarios: React.FC = () => {
-  const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado } = useUsuarios();
+  const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
   const { logout, user } = useFaceAuth();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
   const limpiarError = (campo: string) =>
     setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
 
-  const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-    required: true,
-    error: !!validationErrors[campo],
-    helperText: validationErrors[campo] ? (
-      <span style={{ color: "red" }}>{validationErrors[campo]}</span>
-    ) : null,
-    onFocus: () => limpiarError(campo),
-    ...extraProps,
-  });
+const baseTextFieldProps = (campo: string, extraProps = {}) => ({
+  error: !!validationErrors[campo],
+  helperText: validationErrors[campo] ? (
+    <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+  ) : null,
+  onFocus: () => limpiarError(campo),
+  ...extraProps,
+});
 
 
 
@@ -57,6 +57,7 @@ const TablaUsuarios: React.FC = () => {
       header: "Legajo",
       muiTableHeadCellProps: ESTILOS_CABECERA,
       muiEditTextFieldProps: baseTextFieldProps("legajo"),
+      enableEditing: (row: any) => !row?.original?.legajo,
     },
     {
       accessorKey: "nombre",
@@ -77,13 +78,20 @@ const TablaUsuarios: React.FC = () => {
       muiEditTextFieldProps: baseTextFieldProps("area"),
     },
     {
-      accessorKey: "rol",
-      header: "Rol",
-      editVariant: "select",
-      editSelectOptions: roles,
-      muiTableHeadCellProps: ESTILOS_CABECERA,
-      muiEditTextFieldProps: baseTextFieldProps("rol"),
-    },
+  accessorKey: "rol",
+  header: "Rol",
+  editVariant: "select",
+  editSelectOptions: roles,
+  muiTableHeadCellProps: ESTILOS_CABECERA,
+  muiEditTextFieldProps: ({ row }) => ({
+    ...baseTextFieldProps("rol"),
+    select: true,
+    value: row._valuesCache?.rol ?? row.original.rol,  // <-- ESTA ES LA CLAVE
+    onChange: (e) => {
+      row._valuesCache.rol = e.target.value; // hace controlado al input
+    }
+  }),
+},
   ], [validationErrors]);
 
   /** ------------------------------------------------------------------
@@ -101,6 +109,20 @@ const TablaUsuarios: React.FC = () => {
     table.setCreatingRow(null);
   };
 
+  const handleEditar = async ({ values, table }: any) => {
+  const errores = validarUsuario(values);
+
+  if (Object.keys(errores).length) {
+    setValidationErrors(errores);
+    return;
+  }
+
+  setValidationErrors({});
+
+  await modificarEmpleado(values);
+
+  table.setEditingRow(null);
+};
 
   /** ------------------------------------------------------------------
    * LOGIN SIMULADO
@@ -128,7 +150,6 @@ const TablaUsuarios: React.FC = () => {
     if (!u.legajo?.trim()) errores.legajo = "Legajo requerido";
     if (!u.nombre?.trim()) errores.nombre = "Nombre requerido";
     if (!u.apellido?.trim()) errores.apellido = "Apellido requerido";
-    if (!u.area?.trim()) errores.area = "Área requerida";
     if (!u.rol?.trim()) errores.rol = "Rol requerido";
     return errores;
   };
@@ -173,6 +194,7 @@ const TablaUsuarios: React.FC = () => {
     onCreatingRowSave: handleGuardar,
     onCreatingRowCancel: () => setValidationErrors({}),
     onEditingRowCancel: () => setValidationErrors({}),
+    onEditingRowSave: handleEditar,
 
     // Modal de creación
     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
@@ -200,6 +222,32 @@ const TablaUsuarios: React.FC = () => {
         </DialogActions>
       </>
     ),
+
+    renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
+  <>
+    <DialogTitle
+      variant="h5"
+      sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+    >
+      Editar Usuario
+    </DialogTitle>
+
+    <DialogContent
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 2,
+        padding: 2,
+      }}
+    >
+      {internalEditComponents}
+    </DialogContent>
+
+    <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+      <MRT_EditActionButtons table={table} row={row} />
+    </DialogActions>
+  </>
+),
 
     /** ---- BOTONES SUPERIORES ---- */
     renderTopToolbarCustomActions: ({ table }) => (
@@ -247,9 +295,14 @@ const TablaUsuarios: React.FC = () => {
 
     renderRowActions: ({ row }) => (
       <Box sx={{ display: "flex", gap: "1rem" }}>
-        {/* <Button variant="outlined" onClick={() => handleLoginSimulado(row.original)}>
-          Iniciar Sesión
-        </Button> */}
+        <Tooltip title="Modificar">
+          <IconButton
+            color="primary"
+            onClick={() => table.setEditingRow(row)}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Eliminar">
           <IconButton color="error" onClick={async () =>  await eliminarEmpleado(row.original.legajo)}>
             <DeleteIcon />

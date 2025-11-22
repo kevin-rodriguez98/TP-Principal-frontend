@@ -14,7 +14,7 @@ interface FaceAuthContextProps {
   user: User | null;
   users: User[];
   setUser: (user: User | null) => void;
-  login: (
+  loginFacial: (
     legajo: string,
     nombre?: string,
     apellido?: string,
@@ -132,7 +132,7 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   // 🔵 LOGIN 100% FIXEADO
-  const login = async (
+  const loginFacial = async (
     legajo: string,
     nombre?: string,
     apellido?: string,
@@ -175,7 +175,7 @@ export const FaceAuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <FaceAuthContext.Provider
-      value={{ user, users, setUser, login, logout, reloadUsers }}
+      value={{ user, users, setUser, loginFacial, logout, reloadUsers }}
     >
       {children}
     </FaceAuthContext.Provider>

@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFaceAuth } from "./FaceAuthContext";
+import { useUsuarios } from "./UsuarioContext";
 
 interface OpContextType {
   modulos: Modulo[];
@@ -51,9 +52,9 @@ const ROLES_PERMISOS: Record<string, string[]> = {
 
 export function OpProvider({ children }: OpProviderProps) {
   const navigate = useNavigate();
-  const { user } = useFaceAuth();
+  const { usuario } = useUsuarios();
 
-  const rolUsuario = (user?.rol || localStorage.getItem("rol") || "GERENTE").toUpperCase();
+  const rolUsuario = (usuario?.rol || localStorage.getItem("rol") || "GERENTE").toUpperCase();
 
   const todosLosModulos: Modulo[] = [
     {
