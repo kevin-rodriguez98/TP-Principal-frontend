@@ -2,7 +2,6 @@ import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_EditActionButtons, type MRT_Row, } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { ProductosContext, type Producto } from "../../../Context/ProductosContext";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -10,6 +9,7 @@ import SinResultados from "../../estaticos/SinResultados";
 import ModalInfoProducto from "./modals/VerInfo";
 import ModalReceta from "./modals/modalReceta";
 import { RecetaContext } from "../../../Context/RecetaContext";
+import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
 
@@ -18,8 +18,8 @@ const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
-  const { user } = useContext(FaceAuthContext)!;
   const { obtenerInsumosNecesarios } = useContext(RecetaContext)!;
+  const { usuario } = useUsuarios();
 
   const { toUpperObject } = useToUpper();
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
@@ -115,7 +115,7 @@ const TablaProductos: React.FC = () => {
         header: "Responsable",
         enableEditing: false,
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: { value: `${user?.legajo}` },
+        muiEditTextFieldProps: { value: `${usuario?.legajo}` },
         Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
 
       },

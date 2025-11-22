@@ -4,8 +4,8 @@ import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitl
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
 import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
+import { useUsuarios } from "../../../Context/UsuarioContext";
 
 const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
 
@@ -13,7 +13,7 @@ const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const { productos } = useContext(ProductosContext)!;
     const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const { user } = useContext(FaceAuthContext)!;
+    const { usuario } = useUsuarios();
 
     const { toUpperObject } = useToUpper();
 
@@ -151,7 +151,7 @@ const TablaEgreso: React.FC = () => {
             header: "Responsable",
             enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
-            muiEditTextFieldProps: { value: `${user?.legajo}` },
+            muiEditTextFieldProps: { value: `${usuario?.legajo}` },
             Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
         },
         {

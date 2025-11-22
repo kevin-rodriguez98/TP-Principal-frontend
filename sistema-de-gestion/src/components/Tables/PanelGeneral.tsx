@@ -8,7 +8,7 @@ import { Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
 import Tabla from "./insumos/Tabla";
 import TablaOrden from "./ordenes/TablaOrden";
 import TablaRegistro from "./registros/TablaRegistro";
-import { useFaceAuth } from "../../Context/FaceAuthContext";
+import { useUsuarios } from "../../Context/UsuarioContext";
 import TablaProductos from "./Productos/TablaProductos";
 
 
@@ -46,7 +46,7 @@ const darkTheme = createTheme({
 
 export default function PanelGeneral({ }) {
     const navigate = useNavigate();
-    const { logout, user } = useFaceAuth();
+    const { logout, usuario } =  useUsuarios();
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -72,7 +72,6 @@ export default function PanelGeneral({ }) {
             <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.default", backgroundColor: "transparent" }}>
                 <Paper elevation={3} sx={{ mx: 4, mt: 4, borderRadius: 2 }}>
                     {isMobile ? (
-                        // 📱 Menú desplegable en mobile
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
                                 onClick={() => navigate("/")}
@@ -106,7 +105,6 @@ export default function PanelGeneral({ }) {
                             </Select>
                         </Box>
                     ) : (
-                        // 💻 Pestañas en desktop
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
                                 onClick={() => navigate("/")}
@@ -162,7 +160,7 @@ export default function PanelGeneral({ }) {
                                     boxShadow: "0 0 10px rgba(0,0,0,0.3)",
                                 }}
                             >
-                                {user ? (
+                                {usuario ? (
                                     <>
                                         <Box
                                             sx={{
@@ -176,14 +174,14 @@ export default function PanelGeneral({ }) {
                                                 fontSize: "1.1rem",
                                             }}
                                         >
-                                            {user.nombre?.charAt(0).toUpperCase()}
+                                            {usuario.nombre?.charAt(0).toUpperCase()}
                                         </Box>
                                         <Box>
                                             <Typography sx={{ fontSize: "0.85rem", color: "gray" }}>
                                                 Sesión activa
                                             </Typography>
                                             <Typography sx={{ fontSize: "0.95rem", fontWeight: "bold", color: "green" }}>
-                                                {user.nombre}
+                                                {usuario.nombre}
                                             </Typography>
                                         </Box>
                                         <Button

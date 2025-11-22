@@ -1,61 +1,53 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useFaceAuth } from "../Context/FaceAuthContext";
+import { useUsuarios } from "../Context/UsuarioContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
-
-const API_BASE = "https://reconocimiento-facial-opxl.onrender.com";
+import { useFaceAuth } from "../Context/FaceAuthContext";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { login, users } = useFaceAuth();
+
+  const { login } = useUsuarios();
+  const {loginFacial} = useFaceAuth();
 
   const [status, setStatus] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [manualMode, setManualMode] = useState<boolean>(true);
+
   const [legajo, setLegajo] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
   const [cameraOn, setCameraOn] = useState<boolean>(false);
   const [captured, setCaptured] = useState<string | null>(null);
   const [errorRetryTimeout, setErrorRetryTimeout] = useState<number | null>(null);
 
-  /** ---- Obtener usuarios desde API ---- **/
-  const obtenerUsuarios = async () => {
-    const res = await fetch(`${API_BASE}/usuarios`);
-    if (!res.ok) throw new Error("Error al obtener usuarios");
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.usuarios || [];
-  };
-
-  /** ---- Buscar usuario por legajo (lista local o API) ---- **/
-  const buscarUsuario = async (legajo: string) => {
-    let usuario = users.find((u: any) => u.legajo === legajo);
-    if (!usuario) {
-      const lista = await obtenerUsuarios();
-      usuario = lista.find((u: any) => u.legajo === legajo);
-    }
-    return usuario;
-  };
-
-  /** ---- Encender cámara ---- **/
+  /** ------------------------------------------------------
+   * Encender cámara
+   * ------------------------------------------------------*/
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoRef.current) videoRef.current.srcObject = stream;
+
       setCameraOn(true);
       setCaptured(null);
       setStatus("");
       setSuccess(false);
+
     } catch (err) {
-      console.error(err);
       setStatus("No se pudo acceder a la cámara");
       setCameraOn(false);
       retryAfterError();
     }
   };
 
-  /** ---- Apagar cámara ---- **/
+  /** ------------------------------------------------------
+   * Apagar cámara
+   * ------------------------------------------------------*/
   const stopCamera = () => {
     if (videoRef.current?.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
@@ -67,7 +59,9 @@ const Login: React.FC = () => {
     if (errorRetryTimeout) clearTimeout(errorRetryTimeout);
   };
 
-  /** ---- Reintentar detección ---- **/
+  /** ------------------------------------------------------
+   * Reintentar si falla la cámara
+   * ------------------------------------------------------*/
   const retryAfterError = () => {
     setStatus("Intentá de nuevo...");
     setErrorRetryTimeout(
@@ -77,15 +71,19 @@ const Login: React.FC = () => {
     );
   };
 
-  /** ---- Detección facial ---- **/
+  /** ------------------------------------------------------
+   * Detección facial
+   * ------------------------------------------------------*/
   const handleDetect = async () => {
     if (!videoRef.current || !canvasRef.current) return;
+
     setLoading(true);
-    setStatus("Detectando...");
+    setStatus("Detectando rostro...");
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
     if (!ctx) {
       setLoading(false);
       retryAfterError();
@@ -100,17 +98,24 @@ const Login: React.FC = () => {
     setCaptured(dataUrl);
 
     try {
-      const faceLegajo = "100"; 
-      const usuario = await buscarUsuario(faceLegajo);
+      /**
+       * ⚡ Aquí se supone que el backend facial responde con un legajo detectado.
+       * Cuando lo tengas, reemplazas "" por legajoDetectado.
+       */
+      const legajoDetectado = ""; // ← cambiar cuando tengas backend
 
-      if (!usuario) throw new Error("Usuario no encontrado");
+      if (!legajoDetectado) throw new Error("No se detectó ningún usuario");
 
-      await login(usuario.legajo, usuario.nombre, usuario.rol, "FACIAL");
+      // SI el facial detecta legajo pero no password → password vacío
+      await loginFacial(legajoDetectado, legajoDetectado);
+
       stopCamera();
-      setStatus(`✅ Bienvenido ${usuario.nombre}`);
+      setStatus("✅ Ingreso facial exitoso");
       setSuccess(true);
+
       setTimeout(() => navigate("/"), 1500);
-    } catch {
+
+    } catch (err) {
       setStatus("❌ Usuario no encontrado o no autorizado");
       setSuccess(false);
       retryAfterError();
@@ -119,33 +124,39 @@ const Login: React.FC = () => {
     }
   };
 
-  /** ---- Login manual ---- **/
+  /** ------------------------------------------------------
+   * Login manual con validación real
+   * ------------------------------------------------------*/
   const handleManualLogin = async () => {
-    if (!legajo) {
-      setStatus("Ingrese legajo");
+    if (!legajo || !password) {
+      setStatus("Ingrese legajo y contraseña");
       setSuccess(false);
       return;
     }
 
     setLoading(true);
-    try {
-      const usuario = await buscarUsuario(legajo);
-      if (!usuario) throw new Error("Usuario no encontrado");
 
-      await login(usuario.legajo, usuario.nombre, usuario.rol, "MANUAL");
+    try {
+      await login(legajo, password);
+
       stopCamera();
-      setStatus(`✅ Bienvenido ${usuario.nombre}`);
+      setStatus("✅ Credenciales correctas");
       setSuccess(true);
+
       setTimeout(() => navigate("/"), 1500);
+
     } catch {
-      setStatus("❌ Usuario no encontrado o no autorizado");
+      setStatus("❌ Credenciales inválidas");
       setSuccess(false);
+
     } finally {
       setLoading(false);
     }
   };
 
-  /** ---- Cleanup ---- **/
+  /** ------------------------------------------------------
+   * Cleanup
+   * ------------------------------------------------------*/
   useEffect(() => {
     return () => {
       if (errorRetryTimeout) clearTimeout(errorRetryTimeout);
@@ -165,10 +176,19 @@ const Login: React.FC = () => {
             value={legajo}
             onChange={(e) => setLegajo(e.target.value)}
           />
+
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
           <div className="manual-buttons">
             <button onClick={handleManualLogin} disabled={loading}>
               {loading ? "Verificando..." : "Ingresar"}
             </button>
+
             <button
               onClick={() => {
                 setManualMode(false);
@@ -187,11 +207,14 @@ const Login: React.FC = () => {
           ) : (
             <video ref={videoRef} autoPlay muted className="video-face" />
           )}
+
           <canvas ref={canvasRef} style={{ display: "none" }} />
+
           <div className="face-buttons">
             <button onClick={handleDetect} disabled={!cameraOn || loading}>
               {loading ? "Procesando..." : "Detectar rostro"}
             </button>
+
             <button
               onClick={() => {
                 stopCamera();
