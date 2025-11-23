@@ -248,8 +248,8 @@ const ReportesOrdenes = () => {
                             <YAxis stroke="#ccc" />
                             <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
                             <Legend />
-                            <Bar dataKey="CANCELADA" stackId="a" fill="#b13c7e" />
-                            <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#d88346ff" />
+                            <Bar dataKey="CANCELADA" stackId="a" fill="#d88346ff" />
+                            <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#8c52ff" />
                             <Bar dataKey="FINALIZADA_ENTREGADA" stackId="a" fill="#b13c7e" />
                         </BarChart>
                     </ResponsiveContainer>
