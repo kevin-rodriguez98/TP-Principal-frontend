@@ -90,19 +90,19 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
   // -------------------------------------------
   // RECARGA CON RETORNO (para FaceAuth/login)
   // -------------------------------------------
-  const recargarEmpleadosConRetorno = async (): Promise<Empleado[]> => {
-    try {
-      const res = await fetch(`${URL}/obtener-empleados`);
-      if (!res.ok) throw new Error("Error al obtener empleados");
+  // const recargarEmpleadosConRetorno = async (): Promise<Empleado[]> => {
+  //   try {
+  //     const res = await fetch(`${URL}/obtener-empleados`);
+  //     if (!res.ok) throw new Error("Error al obtener empleados");
 
-      const data = await res.json();
-      setEmpleados(data);
-      return data;
-    } catch {
-      toast.error("No se pudieron obtener los empleados");
-      return [];
-    }
-  };
+  //     const data = await res.json();
+  //     setEmpleados(data);
+  //     return data;
+  //   } catch {
+  //     toast.error("No se pudieron obtener los empleados");
+  //     return [];
+  //   }
+  // };
 
   // -------------------------------------------
   // LOGIN — POST body (nuevo)

@@ -27,7 +27,7 @@ const Header = () => {
     navigate("/login");
   };
 
-  const manejarCambioPassword = async (actual: string, nueva: string) => {
+  const manejarCambioPassword = async (_actual: string, nueva: string) => {
     if (!usuario) return;
 
     try {

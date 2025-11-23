@@ -4,7 +4,6 @@ import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitl
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
 import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 

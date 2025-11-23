@@ -7,7 +7,6 @@ import CeldaEstado from "./CeldaEstado";
 import CeldaEtapa from "./CeldaEtapa";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 

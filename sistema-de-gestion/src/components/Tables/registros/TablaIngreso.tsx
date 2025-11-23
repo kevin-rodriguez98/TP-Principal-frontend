@@ -4,7 +4,6 @@ import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitl
 import { Movimiento_insumo_context, type movimiento_insumo } from "../../../Context/Movimiento_insumo_context";
 import SinResultados from "../../estaticos/SinResultados";
 import { InsumoContext } from "../../../Context/InsumoContext";
-import { FaceAuthContext } from "../../../Context/FaceAuthContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 

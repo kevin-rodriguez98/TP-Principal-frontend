@@ -31,7 +31,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 const TablaUsuarios: React.FC = () => {
   const { empleados, usuario, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
-  const { logout, user } = useFaceAuth();
+  const { logout } = useFaceAuth();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
   const limpiarError = (campo: string) =>

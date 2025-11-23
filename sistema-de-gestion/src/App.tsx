@@ -41,7 +41,7 @@ function App() {
     }
   }, [usuario]);
 
-  const handlePasswordChange = async (actual: string, nueva: string) => {
+  const handlePasswordChange = async (_actual: string, nueva: string) => {
   if (!usuario) return;
 
   try {

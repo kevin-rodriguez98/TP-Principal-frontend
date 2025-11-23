@@ -1,24 +1,13 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
-import { TiempoProduccionContext, type TiempoProduccion } from "../../../../Context/TiempoProduccionContext";
-import { useContext, useState } from "react";
 
 export default function ModalAgregarTiempo({
     open,
     onClose,
-    productoInfo
-
+    nuevoTiempo,
+    setNuevoTiempo,
+    agregarTiempoProduccion,
+    obtenerTiempoProduccionUnitario
 }: any) {
-    const { agregarTiempoProduccion } = useContext(TiempoProduccionContext)!;
-    const { tiempoProduccion } = useContext(TiempoProduccionContext)!;
-
-    const [nuevoTiempo, setNuevoTiempo] = useState<TiempoProduccion>({
-        codigoProducto: tiempoProduccion.codigo,
-        tiempoPreparacion: tiempoProduccion.tiempoPreparacion,
-        tiempoCiclo: tiempoProduccion.tiempoCiclo,
-        maximoTanda: tiempoProduccion.cantidadMaximaTanda,
-    });
-
-
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}>
@@ -28,16 +17,14 @@ export default function ModalAgregarTiempo({
             <DialogContent sx={{ display: "grid", gap: 2, padding: 2 }}>
                 <TextField
                     label="Código del Producto"
-                    value={productoInfo?.codigo}
+                    value={nuevoTiempo.codigoProducto}
                     disabled
                     fullWidth
-                    sx={{ mt: 1 }}
                     InputLabelProps={{ shrink: true }}
-
                 />
 
                 <TextField
-                    label="Tiempo de Preparación (minutos)"
+                    label="Tiempo de Preparación (min)"
                     type="number"
                     value={nuevoTiempo.tiempoPreparacion}
                     onChange={(e) =>
@@ -47,7 +34,7 @@ export default function ModalAgregarTiempo({
                 />
 
                 <TextField
-                    label="Tiempo de Ciclo (minutos)"
+                    label="Tiempo de Ciclo (min)"
                     type="number"
                     value={nuevoTiempo.tiempoCiclo}
                     onChange={(e) =>
@@ -71,7 +58,9 @@ export default function ModalAgregarTiempo({
                 <Button
                     variant="contained"
                     onClick={async () => {
-                        await agregarTiempoProduccion(productoInfo?.codigo, nuevoTiempo);
+                        if (!nuevoTiempo.codigoProducto) return;
+                        await agregarTiempoProduccion(nuevoTiempo);
+                        await obtenerTiempoProduccionUnitario(nuevoTiempo.codigoProducto);
                         onClose();
                     }}
                 >

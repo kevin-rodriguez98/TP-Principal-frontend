@@ -10,7 +10,7 @@ const Login: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { login, empleados } = useUsuarios();
+  const { login } = useUsuarios();
   const {loginFacial} = useFaceAuth();
 
   const [status, setStatus] = useState<string>("");
