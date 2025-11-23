@@ -154,7 +154,7 @@ const ReportesOrdenes = () => {
                 {/* === PIE CHARTS JUNTOS === */}
                 <div className="pie-wrapper">
                     <Card titulo="Distribución de Estados (%)" className="pie-card">
-                        <ResponsiveContainer width="100%" height={160}>
+                        <ResponsiveContainer width="100%" height={180}>
                             <PieChart>
                                 <Pie
                                     data={resumenEstados.data}
@@ -167,12 +167,13 @@ const ReportesOrdenes = () => {
                                     ))}
                                 </Pie>
                                 <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Legend />
                             </PieChart>
                         </ResponsiveContainer>
                     </Card>
 
                     <Card titulo="Producción por Marca" className="pie-card">
-                        <ResponsiveContainer width="100%" height={160}>
+                        <ResponsiveContainer width="100%" height={180}>
                             <PieChart>
                                 <Pie
                                     data={produccionPorMarca}

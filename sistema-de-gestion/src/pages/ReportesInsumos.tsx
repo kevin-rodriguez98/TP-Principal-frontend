@@ -75,6 +75,7 @@ const ReportesInsumos = () => {
         }, {})
     ).map(([categoria, stock]) => ({ categoria, stock }));
 
+    
 
 
     // === Componente principal ===
@@ -122,7 +123,7 @@ const ReportesInsumos = () => {
             <div className="pie-wrapper">
 
                 <Card titulo="Distribución de Categorías (%)" className="pie-card">
-                    <ResponsiveContainer width="100%" height={160}>
+                    <ResponsiveContainer width="100%" height={180}>
                         <PieChart>
                             <Pie data={stockPorCategoria} nameKey="categoria" dataKey="stock" outerRadius={70} label>
                                 {stockPorCategoria.map((_, i) => (
@@ -130,21 +131,30 @@ const ReportesInsumos = () => {
                                 ))}
                             </Pie>
                             <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Legend />
                         </PieChart>
                     </ResponsiveContainer>
                 </Card>
 
-                <Card titulo="Stock por Categoría (Ingresado)" className="pie-card">
-                    <ResponsiveContainer width="100%" height={160}>
-                        <PieChart>
-                            <Pie data={stockPorCategoriaInsumo} dataKey="stock" outerRadius={70} label>
-                                {stockPorCategoriaInsumo.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
+<Card titulo="Stock por Categoría (Ingresado)" className="pie-card">
+    <ResponsiveContainer width="100%" height={220}>
+        <BarChart
+            layout="vertical"
+            data={stockPorCategoriaInsumo}
+            margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+        >
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis type="number" stroke="#ccc" />
+            <YAxis type="category" dataKey="categoria" stroke="#ccc" />
+            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+            <Bar dataKey="stock" fill="#8c52ff">
+                {stockPorCategoriaInsumo.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+            </Bar>
+        </BarChart>
+    </ResponsiveContainer>
+</Card>
 
             </div>
         </div>
