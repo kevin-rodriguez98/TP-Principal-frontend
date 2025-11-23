@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import ReportExport from "../components/estaticos/ReportExport";
 
-const COLORS = ["#15a017ff", "#f4b400", "#f44336", "#2196f3"];
+const COLORS = ["#8c52ff", "#f1c40f", "#b13c7e", "#d88346ff", "#b062ceff"];
 
 const ReportesOrdenes = () => {
     const { ordenes } = useContext(OrdenesContext)!;
@@ -112,175 +112,165 @@ const ReportesOrdenes = () => {
     const totalFinalizadas = ordenes.filter(o => o.estado === estados.finalizada).length;
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                padding: "30px 20px",
-                color: "#fff",
-                // background: "#121212",
-                boxSizing: "border-box",
-            }}
-        >
+    <div className="insumos-dashboard">
 
-            <ReportExport
-                filename="Reporte_produccion"
-                exportId="reporte-produccion"
-                csvData={ordenes}
-            />
+        <ReportExport
+            filename="Reporte_produccion"
+            exportId="reporte-produccion"
+            csvData={ordenes}
+        />
 
-            <div id="reporte-produccion">
-                {/* --- Resumen superior --- */}
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: "20px",
-                        flexWrap: "wrap",
-                        background: "#1a1a1a",
-                        padding: "20px",
-                        borderRadius: "12px",
-                    }}
-                >
-                    <ResumenCardDark titulo="En Producción" valor={totalProduccion} color="#f4b400" />
-                    <ResumenCardDark titulo="Canceladas" valor={totalCanceladas} color="#f44336" />
-                    <ResumenCardDark titulo="Finalizadas" valor={totalFinalizadas} color="#15a017ff" />
-                </div>
+        <div id="reporte-produccion">
 
-                {/* --- Contenedor de gráficos --- */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                        gap: "25px",
-                        marginTop: "30px",
-                    }}
-                >
+            {/* ==== RESUMEN SUPERIOR ==== */}
+            <div className="resumen-container">
+                <ResumenCardDark titulo="En Producción" valor={totalProduccion} color="#8c52ff" />
+                <ResumenCardDark titulo="Canceladas" valor={totalCanceladas} color="#b13c7e" />
+                <ResumenCardDark titulo="Finalizadas" valor={totalFinalizadas} color="#d88346ff" />
+            </div>
+
+            {/* ===================================================================================
+                BLOQUE PRINCIPAL ESTILO GULL
+            =================================================================================== */}
+            <div className="dashboard-main">
+
+                {/* === GRÁFICO GRANDE === */}
+                <div className="main-chart">
                     <Card titulo="Producción Mensual">
-                        <ResponsiveContainer width="100%" height={220}>
+                        <ResponsiveContainer width="100%" height={330}>
                             <LineChart data={produccionMensual1}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="mes" stroke="#ccc" />
+                                <XAxis dataKey="mes" stroke="#ccc" tick={{ fontSize: 10 }} />
                                 <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
                                 <Legend />
-                                <Line type="monotone" dataKey="produccion" stroke="#15a017" strokeWidth={2} />
-                                <Line type="monotone" dataKey="errores" stroke="#f44336" strokeWidth={2} />
+                                <Line type="monotone" dataKey="produccion" stroke="#b13c7e" strokeWidth={2} />
+                                <Line type="monotone" dataKey="errores" stroke="#d88346ff" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>
                     </Card>
+                </div>
 
-                    <Card titulo="Órdenes de los Últimos 30 Días">
-                        <ResponsiveContainer width="100%" height={220}>
-                            <LineChart data={ordenesUltimos30Dias}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="dia" stroke="#ccc" />
-                                <YAxis stroke="#ccc" allowDecimals={false} />
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                                <Line type="monotone" dataKey="cantidad" stroke="#2196f3" strokeWidth={2} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-
-                    <Card titulo="Órdenes por Estado">
-                        <ResponsiveContainer width="100%" height={220}>
-                            <BarChart data={resumenEstados.data}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="name" stroke="#ccc" />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                                <Bar dataKey="value">
-                                    <Cell fill="#15a017" />
-                                    <Cell fill="#f4b400" />
-                                    <Cell fill="#f44336" />
-                                    <Cell fill="#2196f3" />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Distribución de Estados (%)">
-                        <ResponsiveContainer width="100%" height={220}>
+                {/* === PIE CHARTS JUNTOS === */}
+                <div className="pie-wrapper">
+                    <Card titulo="Distribución de Estados (%)" className="pie-card">
+                        <ResponsiveContainer width="100%" height={160}>
                             <PieChart>
                                 <Pie
                                     data={resumenEstados.data}
                                     dataKey="value"
-                                    outerRadius={80}
+                                    outerRadius={70}
                                     label
                                 >
                                     {resumenEstados.data.map((_, i) => (
                                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </Card>
 
-                    <Card titulo="Producción por Producto">
-                        <ResponsiveContainer width="100%" height={220}>
-                            <BarChart data={produccionPorProducto}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="producto" stroke="#ccc" tick={{ fontSize: 10 }} />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                                <Bar dataKey="cantidad" fill="#15a017" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Producción Mensual por Estado">
-                        <ResponsiveContainer width="100%" height={220}>
-                            <BarChart data={produccionMensual}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="mes" stroke="#ccc" />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
-                                <Legend />
-                                <Bar dataKey="CANCELADA" stackId="a" fill="#f44336" />
-                                <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#f4b400" />
-                                <Bar dataKey="FINALIZADA_ENTREGADA" stackId="a" fill="#15a017" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Producción por Marca">
-                        <ResponsiveContainer width="100%" height={220}>
+                    <Card titulo="Producción por Marca" className="pie-card">
+                        <ResponsiveContainer width="100%" height={160}>
                             <PieChart>
                                 <Pie
                                     data={produccionPorMarca}
                                     dataKey="cantidad"
                                     nameKey="marca"
-                                    outerRadius={80}
+                                    outerRadius={70}
                                     label
                                 >
                                     {produccionPorMarca.map((_, i) => (
                                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: "#222" }} />
+                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>
                     </Card>
                 </div>
+
+            </div>
+
+            {/* ===================================================================================
+                RESTO DE GRÁFICOS ABAJO
+            =================================================================================== */}
+            <div className="graficos-grid">
+
+                <Card titulo="Órdenes de los Últimos 30 Días" className="card-grafico">
+                    <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={ordenesUltimos30Dias}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                            <XAxis dataKey="dia" stroke="#ccc" />
+                            <YAxis stroke="#ccc" allowDecimals={false} />
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Line type="monotone" dataKey="cantidad" stroke="#8c52ff" strokeWidth={2} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Card>
+
+                <Card titulo="Órdenes por Estado" className="card-grafico">
+                    <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={resumenEstados.data}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                            <XAxis dataKey="name" stroke="#ccc" />
+                            <YAxis stroke="#ccc" />
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Bar dataKey="value">
+                                <Cell fill="#8c52ff" />
+                                <Cell fill="#d88346ff" />
+                                <Cell fill="#b13c7e" />
+                                <Cell fill="#f1c40f" />
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </Card>
+
+                <Card titulo="Producción por Producto" className="card-grafico">
+                    <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={produccionPorProducto}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                            <XAxis dataKey="producto" stroke="#ccc" tick={{ fontSize: 10 }} />
+                            <YAxis stroke="#ccc" />
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Bar dataKey="cantidad" fill="#b13c7e" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </Card>
+
+                <Card titulo="Producción Mensual por Estado" className="card-grafico">
+                    <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={produccionMensual}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                            <XAxis dataKey="mes" stroke="#ccc" />
+                            <YAxis stroke="#ccc" />
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Legend />
+                            <Bar dataKey="CANCELADA" stackId="a" fill="#b13c7e" />
+                            <Bar dataKey="EN_PRODUCCION" stackId="a" fill="#d88346ff" />
+                            <Bar dataKey="FINALIZADA_ENTREGADA" stackId="a" fill="#b13c7e" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </Card>
+
             </div>
         </div>
-    );
+    </div>
+);
 };
 
 // --- Cards reutilizables ---
 export const Card = ({ titulo, children }: any) => (
     <div
         style={{
-            background: "#1e1e1e",
-            borderRadius: 12,
             padding: "15px 20px",
             color: "#fff",
-            boxShadow: "0 0 12px rgba(0,0,0,0.4)",
+
         }}
     >
-        <h4 style={{ color: "#15a017", marginBottom: 10, fontSize: "1rem" }}>{titulo}</h4>
+        <h4 style={{ color: "#b13c7e", marginBottom: 10, fontSize: "1rem" }}>{titulo}</h4>
         {children}
     </div>
 );

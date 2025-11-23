@@ -144,16 +144,16 @@ const ReportExport = ({ filename, exportId, csvData }: Props) => {
 
                     {/* Botones centrales */}
                     <NavButton onClick={exportPDF} label="Exportar PDF">
-                        <PictureAsPdf style={{ color: "#e74c3c", fontSize: "28px" }} />
+                        <PictureAsPdf style={{ color: "#d88346ff", fontSize: "28px" }} />
                     </NavButton>
 
                     <NavButton onClick={exportPNG} label="Exportar PNG">
-                        <Image style={{ color: "#2ecc71", fontSize: "28px" }} />
+                        <Image style={{ color: "#8c52ff", fontSize: "28px" }} />
                     </NavButton>
 
                     {csvData && (
                         <NavButton onClick={exportCSV} label="Exportar CSV">
-                            <TableChart style={{ color: "#f1c40f", fontSize: "28px" }} />
+                            <TableChart style={{ color: "#b13c7e", fontSize: "28px" }} />
                         </NavButton>
                     )}
 
@@ -161,7 +161,7 @@ const ReportExport = ({ filename, exportId, csvData }: Props) => {
                         style={{
                             position: "absolute",
                             right: "25px",
-                            color: "#3498db",
+                            color: "#f1c40f",
                             fontSize: "30px",
                         }}
                         titleAccess="Opciones de exportación"

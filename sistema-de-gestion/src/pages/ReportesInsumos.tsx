@@ -8,7 +8,7 @@ import "../styles/reportesInsumos.css"
 import ReportExport from "../components/estaticos/ReportExport";
 
 // Colores usados en todos los gráficos
-const COLORS = ["#2ecc71", "#f1c40f", "#e74c3c", "#3498db", "#9b59b6"];
+const COLORS = ["#8c52ff", "#f1c40f", "#b13c7e", "#d88346ff", "#b062ceff"];
 
 const ReportesInsumos = () => {
 
@@ -79,130 +79,145 @@ const ReportesInsumos = () => {
 
     // === Componente principal ===
     return (
-        <div className="insumos-dashboard">
+<div className="insumos-dashboard">
 
-            <ReportExport
-                filename="Reporte_Insumos"
-                exportId="reporte-insumos"
-                csvData={insumos}
-            />
+    <ReportExport
+        filename="Reporte_Insumos"
+        exportId="reporte-insumos"
+        csvData={insumos}
+    />
 
-            <div id="reporte-insumos">
+    <div id="reporte-insumos">
 
-                {/* ==== RESUMEN SUPERIOR ==== */}
-                <div className="resumen-container">
-                    <ResumenCardDark titulo="Total de Insumos" valor={totalInsumos} color="#3498db" />
-                    <ResumenCardDark titulo="Por debajo del umbral" valor={bajoUmbral} color="#e74c3c" />
-                    <ResumenCardDark titulo="Stock Total" valor={stockTotal} color="#2ecc71" />
-                </div>
+        {/* ==== RESUMEN SUPERIOR ==== */}
+        <div className="resumen-container">
+            <ResumenCardDark titulo="Total de Insumos" valor={totalInsumos} color="#8c52ff" />
+            <ResumenCardDark titulo="Por debajo del umbral" valor={bajoUmbral} color="#d88346ff" />
+            <ResumenCardDark titulo="Stock Total" valor={stockTotal} color="#b13c7e" />
+        </div>
 
-                {/* ==== GRID DE GRAFICOS ==== */}
-                <div className="graficos-grid ">
+        {/* ===================================================================================
+            BLOQUE PRINCIPAL ESTILO GULL 
+        =================================================================================== */}
+        <div className="dashboard-main">
 
-                    <Card titulo="Stock por Categoría" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={200}>
-                            <BarChart data={stockPorCategoria}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="categoria" stroke="#ccc" />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Bar dataKey="stock" fill="#2ecc71" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
+            {/* === GRÁFICO GRANDE === */}
+            <div className="main-chart">
+                <Card titulo="Stock vs Umbral Mínimo">
+                    <ResponsiveContainer width="100%" height={330}>
+                        <LineChart data={stockVsUmbral}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                            <XAxis dataKey="nombre" stroke="#ccc" tick={{ fontSize: 10 }} />
+                            <YAxis stroke="#ccc" />
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                            <Legend />
+                            <Line type="monotone" dataKey="stock" stroke="#b13c7e" strokeWidth={2} name="Stock actual" />
+                            <Line type="monotone" dataKey="umbral" stroke="#8c52ff" strokeWidth={2} name="Umbral mínimo" />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Card>
+            </div>
 
-                    <Card titulo="Stock por Marca" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={200}>
-                            <BarChart data={stockPorMarca}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="marca" stroke="#ccc" tick={{ fontSize: 10 }} />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Bar dataKey="stock" fill="#f1c40f" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
+            {/* === DOS PIE CHARTS JUNTOS (UNO ARRIBA DEL OTRO) === */}
+            <div className="pie-wrapper">
 
-                    <Card titulo="Distribución de Categorías (%)" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={200}>
-                            <PieChart>
-                                <Pie data={stockPorCategoria} nameKey="categoria" dataKey="stock" outerRadius={70} label>
-                                    {stockPorCategoria.map((_, i) => (
-                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </Card>
+                <Card titulo="Distribución de Categorías (%)" className="pie-card">
+                    <ResponsiveContainer width="100%" height={160}>
+                        <PieChart>
+                            <Pie data={stockPorCategoria} nameKey="categoria" dataKey="stock" outerRadius={70} label>
+                                {stockPorCategoria.map((_, i) => (
+                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </Card>
 
-                    <Card titulo="Stock vs Umbral Mínimo" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={220}>
-                            <LineChart data={stockVsUmbral}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="nombre" stroke="#ccc" tick={{ fontSize: 10 }} />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Legend />
-                                <Line type="monotone" dataKey="stock" stroke="#2ecc71" strokeWidth={2} name="Stock actual" />
-                                <Line type="monotone" dataKey="umbral" stroke="#e74c3c" strokeWidth={2} name="Umbral mínimo" />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </Card>
+                <Card titulo="Stock por Categoría (Ingresado)" className="pie-card">
+                    <ResponsiveContainer width="100%" height={160}>
+                        <PieChart>
+                            <Pie data={stockPorCategoriaInsumo} dataKey="stock" outerRadius={70} label>
+                                {stockPorCategoriaInsumo.map((_, i) => (
+                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                ))}
+                            </Pie>
+                        </PieChart>
+                    </ResponsiveContainer>
+                </Card>
 
-                    {/* GRAFICOS DE MOVIMIENTOS */}
-
-                    <Card titulo="Ingresos por Mes" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={ingresosPorMes}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="mes" stroke="#ccc" />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Bar dataKey="cantidad" fill="#3498db" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Ingresos por Proveedor" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={ingresosPorProveedor}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="proveedor" stroke="#ccc" tick={{ fontSize: 10 }} />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Bar dataKey="cantidad" fill="#9b59b6" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Ingresos por Responsable" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={ingresosPorResponsable}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                                <XAxis dataKey="responsable" stroke="#ccc" tick={{ fontSize: 9 }} />
-                                <YAxis stroke="#ccc" />
-                                <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                                <Bar dataKey="cantidad" fill="#e67e22" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                    <Card titulo="Stock por Categoría (Ingresado)" className="card-grafico">
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie data={stockPorCategoriaInsumo} dataKey="stock" outerRadius={90} label>
-                                    {stockPorCategoriaInsumo.map((_, i) => (
-                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </Card>
-
-                </div>
             </div>
         </div>
+
+        {/* ===================================================================================
+            RESTO DE GRÁFICOS ABAJO 
+        =================================================================================== */}
+        <div className="graficos-grid">
+
+            <Card titulo="Stock por Categoría" className="card-grafico">
+                <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={stockPorCategoria}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="categoria" stroke="#ccc" />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Bar dataKey="stock" fill="#d88346ff" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
+
+            <Card titulo="Stock por Marca" className="card-grafico">
+                <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={stockPorMarca}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="marca" stroke="#ccc" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Bar dataKey="stock" fill="#f1c40f" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
+
+            <Card titulo="Ingresos por Mes" className="card-grafico">
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={ingresosPorMes}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="mes" stroke="#ccc" />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Bar dataKey="cantidad" fill="#b13c7e" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
+
+            <Card titulo="Ingresos por Proveedor" className="card-grafico">
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={ingresosPorProveedor}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="proveedor" stroke="#ccc" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Bar dataKey="cantidad" fill="#9b59b6" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
+
+            <Card titulo="Ingresos por Responsable" className="card-grafico">
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={ingresosPorResponsable}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="responsable" stroke="#ccc" tick={{ fontSize: 9 }} />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                        <Bar dataKey="cantidad" fill="#8c52ff" />
+                    </BarChart>
+                </ResponsiveContainer>
+            </Card>
+
+        </div>
+
+    </div>
+</div>
     );
 
 }
