@@ -267,6 +267,7 @@ export const Card = ({ titulo, children }: any) => (
         style={{
             padding: "15px 20px",
             color: "#fff",
+            background: "#0e1217"
 
         }}
     >
