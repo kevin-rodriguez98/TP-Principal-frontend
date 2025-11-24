@@ -570,22 +570,22 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     };
 
     // dibujar pasillos (aisles) - ejemplo simple: líneas o rects entre racks
-    const renderAisles = () => {
-        // para este ejemplo, colocamos 3 pasillos verticales dentro del área de insumos secos
-        const aX = [SECTORES[4].x + 150, SECTORES[4].x + 350, SECTORES[4].x + 550];
-        return aX.map((ax, i) => (
-            <Rect
-                key={`aisle-${i}`}
-                x={ax}
-                y={SECTORES[4].y + 10}
-                width={20}
-                height={SECTORES[4].height - 20}
-                fill={"#ffffff"}
-                opacity={0.6}
-                stroke={"#e0e0e0"}
-            />
-        ));
-    };
+    // const renderAisles = () => {
+    //     // para este ejemplo, colocamos 3 pasillos verticales dentro del área de insumos secos
+    //     const aX = [SECTORES[4].x + 150, SECTORES[4].x + 350, SECTORES[4].x + 550];
+    //     return aX.map((ax, i) => (
+    //         <Rect
+    //             key={`aisle-${i}`}
+    //             x={ax}
+    //             y={SECTORES[4].y + 10}
+    //             width={20}
+    //             height={SECTORES[4].height - 20}
+    //             fill={"#ffffff"}
+    //             opacity={0.6}
+    //             stroke={"#e0e0e0"}
+    //         />
+    //     ));
+    // };
 
     return (
         <div
@@ -703,8 +703,6 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 )}
             </div>
 
-
-            {/* Stage */}
             <Stage
                 ref={stageRef}
                 width={stageSize.width}
@@ -784,7 +782,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                     ))}
 
                     {/* Aisles */}
-                    {renderAisles()}
+                    {/* {renderAisles()} */}
 
                     {/* Dibujar estantes (shelves) - clickeables */}
                     {ESTANTES.map((sh) => {
