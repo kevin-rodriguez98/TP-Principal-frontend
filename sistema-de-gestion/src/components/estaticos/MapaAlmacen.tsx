@@ -13,7 +13,6 @@ type Props = {
 export interface Posiciones {
     [key: string]: { x: number; y: number };
 }
-
 export interface Estante {
     id: string;
     sectorId: string;
@@ -23,7 +22,6 @@ export interface Estante {
     height: number;
     posiciones: Posiciones;
 }
-
 
 type Sector = {
     id: string;
@@ -41,7 +39,7 @@ export const SECTORES: Sector[] = [
     { id: "camara-pt", name: "Cámara Prod. Terminados", x: 740, y: 20, width: 300, height: 150, color: "#D8F5D8" },
     { id: "packaging", name: "Depósito Packaging", x: 20, y: 200, width: 350, height: 220, color: "#F3DCFF" },
     { id: "insumos-secos", name: "Depósito Insumos Secos", x: 400, y: 200, width: 640, height: 220, color: "#FFF9CC" },
-    { id: "despacho", name: "Área Despacho", x: 20, y: 440, width: 1020, height: 200, color: "#FFD6D6" },
+    { id: "despacho", name: "Área Despacho", x: 20, y: 440, width: 1020, height: 150, color: "#FFD6D6" },
 ];
 
 export const ESTANTES: Estante[] = [
@@ -325,9 +323,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const [selectedShelf, setSelectedShelf] = useState<Estante | null>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const { insumos } = useContext(InsumoContext)!;
-
-
-    // marcador (resultado de búsqueda)
+    const [searchError, setSearchError] = useState<string | null>(null);
     const [marker, setMarker] = useState<{ x: number; y: number; label: string } | null>(null);
     const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -362,27 +358,31 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     }, [stageSize]);
 
     useEffect(() => {
-        // buscar estante por label
+        if (!estante) return;          // si no vino desde la tabla → no hacer nada
+        if (!codigo) return;
+
         const shelf = ESTANTES.find(s => s.id === estante);
         if (!shelf) return;
 
         let targetX = shelf.x + shelf.width / 2;
         let targetY = shelf.y + shelf.height / 2;
 
-        // si hay posición interna (X1, X2...)
         if (posicion && shelf.posiciones?.[posicion]) {
             targetX = shelf.x + shelf.posiciones[posicion].x;
             targetY = shelf.y + shelf.posiciones[posicion].y;
         }
 
-        // centerOn(targetX, targetY, 2.2);
+        // mover cámara
+        centerOn(targetX, targetY, 2.2);
 
+        // colocar marker
         setMarker({
             x: targetX,
             y: targetY,
             label: `${codigo} (${estante}-${posicion ?? ""})`
         });
-    }, [codigo, {/*insumos */ }]);
+
+    }, [codigo, estante, posicion]);
 
     useEffect(() => {
         const updateSize = () => {
@@ -397,8 +397,6 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         return () => window.removeEventListener("resize", updateSize);
     }, []);
 
-
-    // Centrar en una coordenada (map units) con zoom opcional
     const centerOn = (x: number, y: number, zoom = 1.8) => {
         const stage = stageRef.current;
         if (!stage) return;
@@ -420,7 +418,6 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         stage.batchDraw();
     };
 
-
     // Manejo de rueda (zoom centrado en el puntero)
     const handleWheel = (e: any) => {
         e.evt.preventDefault();
@@ -432,9 +429,18 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         if (!pointer) return;
 
         const scaleBy = 1.05;
-        const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
 
-        // zoom centrado en puntero:
+        // Calcular nuevo scale
+        let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+
+        // 🔒 límites del zoom
+        const MIN_SCALE = 0.8;   // no permite achicar más que esto
+        const MAX_SCALE = 3;     // opcional
+
+        if (newScale < MIN_SCALE) newScale = MIN_SCALE;
+        if (newScale > MAX_SCALE) newScale = MAX_SCALE;
+
+        // zoom centrado en el puntero
         const mousePointTo = {
             x: (pointer.x - stage.x()) / oldScale,
             y: (pointer.y - stage.y()) / oldScale,
@@ -453,39 +459,72 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         setPosition(newPos);
     };
 
+
     // buscar producto y centrar en su estante
-    const handleSearch = () => {
-        const q = (searchRef.current?.value || "").toUpperCase().trim();
-        if (!q) return alert("Ingresá código o palabra a buscar");
+const handleSearch = () => {
+    const q = (searchRef.current?.value || "").toUpperCase().trim();
+    if (!q) {
+        setSearchError("Ingresá un código o palabra para buscar.");
+        return;
+    }
 
-        // Buscar insumo por código
-        const insumo = insumos.find(i => i.codigo.toUpperCase() === q);
-        if (!insumo) return alert("Producto no encontrado");
+    // --- nueva búsqueda flexible ---
+    const insumo = insumos.find(i => {
+        const codigo = i.codigo?.toUpperCase() || "";
+        const nombre = i.nombre?.toUpperCase() || "";
+        const categoria = i.categoria?.toUpperCase() || "";
+        const marca = i.marca?.toUpperCase() || "";
 
-        const shelfId = insumo.locacion?.estante;
-        if (!shelfId) return alert("El producto no tiene estante asignado");
+        return (
+            codigo === q ||                 // coincidencia exacta por código
+            nombre.includes(q) ||           // búsqueda parcial
+            categoria.includes(q) ||
+            marca.includes(q)
+        );
+    });
 
-        // Buscar estante
-        const s = ESTANTES.find(sh => sh.id === shelfId);
-        if (!s) return alert("Estante no encontrado");
+    if (!insumo) {
+        setSearchError("Producto no encontrado.");
+        return;
+    }
 
-        // Centrar y marcar
-        centerOn(s.x + s.width / 2, s.y + s.height / 2, 2.0);
-        // setMarker({
-        //     x: s.x + s.width / 2,
-        //     y: s.y + s.height / 2,
-        //     label: `${insumo.codigo} → ${s.id}`,
-        // });
+    const shelfId = insumo.locacion?.estante;
+    const posId = insumo.locacion?.posicion;
 
-        setMarker({
-            x: s.x + s.width / 2,
-            y: s.y + s.height / 2,
-            label: `${codigo} (${estante}-${posicion ?? ""})`
-        });
+    if (!shelfId) {
+        setSearchError("El producto no tiene estante asignado.");
+        setMarker(null)
+        return;
+    }
 
-        // Deseleccionar popup anterior
-        setSelectedShelf(null);
-    };
+    const shelf = ESTANTES.find(sh => sh.id === shelfId);
+    if (!shelf) {
+        setSearchError("Estante no encontrado.");
+        return;
+    }
+
+    // ✔ si todo va bien
+    setSearchError(null);
+    setMarker(null);
+
+    let targetX = shelf.x + shelf.width / 2;
+    let targetY = shelf.y + shelf.height / 2;
+
+    // si tiene posición específica dentro del estante
+    if (posId && shelf.posiciones?.[posId]) {
+        targetX = shelf.x + shelf.posiciones[posId].x;
+        targetY = shelf.y + shelf.posiciones[posId].y;
+    }
+
+    setMarker({
+        x: targetX,
+        y: targetY,
+        label: `${insumo.codigo} (${shelfId}-${posId ?? ""})`
+    });
+
+    setSelectedShelf(null);
+};
+
 
 
     // click en estante: abrir modal (aquí simple panel)
@@ -583,33 +622,40 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                     width: "100%",
                     maxWidth: "700px",
                     display: "flex",
-                    gap: 8,
+                    flexDirection: "column",
+                    gap: 4,
                     marginBottom: 10,
-                    alignItems: "center",
                 }}
             >
-                <input ref={searchRef} placeholder="Buscar producto (ej: I001 o LECHE)" style={{ padding: 8, flex: 1 }} />
-                <button onClick={handleSearch} style={{ padding: "8px 12px" }}>
-                    Buscar
-                </button>
-                <button
-                    onClick={() => {
-                        // reset
-                        setMarker(null);
-                        setSelectedShelf(null);
-                        setScale(1);
-                        setPosition({ x: 0, y: 0 });
-                        if (stageRef.current) {
-                            stageRef.current.scale({ x: 1, y: 1 });
-                            stageRef.current.position({ x: 0, y: 0 });
-                            stageRef.current.batchDraw();
-                        }
-                    }}
-                    style={{ padding: "8px 12px" }}
-                >
-                    Reset
-                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+<select
+    ref={searchRef}
+    onChange={handleSearch}
+    style={{
+        padding: "8px",
+        width: "100%",
+        marginBottom: "10px",
+        borderRadius: "6px"
+    }}
+>
+    <option value="">Seleccioná un insumo...</option>
+
+    {insumos.map(i => (
+        <option key={i.codigo} value={i.codigo}>
+            {i.codigo} - {i.nombre}
+        </option>
+    ))}
+</select>
+
+                </div>
+
+                {searchError && (
+                    <div style={{ color: "red", fontSize: "14px" }}>
+                        {searchError}
+                    </div>
+                )}
             </div>
+
 
             {/* Stage */}
             <Stage
@@ -621,7 +667,31 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 y={position.y}
                 scaleX={scale}
                 scaleY={scale}
-                // onWheel={handleWheel}
+                onWheel={handleWheel}
+                dragBoundFunc={(pos) => {
+                    const stage = stageRef.current;
+                    if (!stage) return pos;
+
+                    const mapWidth = 1100;  // tu tamaño de mapa real
+                    const mapHeight = 680;
+
+                    const scaledW = mapWidth * stage.scaleX();
+                    const scaledH = mapHeight * stage.scaleY();
+
+                    const containerW = stage.width();
+                    const containerH = stage.height();
+
+                    // límites para que no "escape"
+                    const minX = containerW - scaledW;
+                    const minY = containerH - scaledH;
+                    const maxX = 0;
+                    const maxY = 0;
+
+                    return {
+                        x: Math.min(maxX, Math.max(minX, pos.x)),
+                        y: Math.min(maxY, Math.max(minY, pos.y)),
+                    };
+                }}
                 onDragEnd={(e) => {
                     setPosition({ x: e.target.x(), y: e.target.y() });
                 }}
@@ -760,6 +830,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
 
                         </Group>
                     )}
+
 
 
 

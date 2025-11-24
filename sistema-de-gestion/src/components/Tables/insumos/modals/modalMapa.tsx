@@ -20,7 +20,7 @@ export default function ModalMapaAlmacen({ open, onClose, insumo }: Props) {
                     padding: 2,
                     borderRadius: 3,
                     width: "90vw",          // ancho grande
-                    height: "60vh",         // más bajo
+                    height: "80vh",         // más bajo
                     maxWidth: "1100px",     // límite
                     maxHeight: "650px",
                     display: "flex",
