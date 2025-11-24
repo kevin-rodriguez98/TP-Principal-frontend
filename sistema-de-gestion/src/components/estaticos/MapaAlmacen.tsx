@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Text, Group, Label, Tag, Circle, } from "react-konva";
 import { InsumoContext } from "../../Context/InsumoContext";
+import { Autocomplete, TextField } from "@mui/material";
 
 
 type Props = {
@@ -461,69 +462,53 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
 
 
     // buscar producto y centrar en su estante
-const handleSearch = () => {
-    const q = (searchRef.current?.value || "").toUpperCase().trim();
-    if (!q) {
-        setSearchError("Ingresá un código o palabra para buscar.");
-        return;
-    }
+    const handleSearch = (codigoBuscado: string) => {
+        const insumo = insumos.find(i => i.codigo === codigoBuscado);
 
-    // --- nueva búsqueda flexible ---
-    const insumo = insumos.find(i => {
-        const codigo = i.codigo?.toUpperCase() || "";
-        const nombre = i.nombre?.toUpperCase() || "";
-        const categoria = i.categoria?.toUpperCase() || "";
-        const marca = i.marca?.toUpperCase() || "";
+        if (!insumo) {
+            setSearchError("Producto no encontrado.");
+            return;
+        }
 
-        return (
-            codigo === q ||                 // coincidencia exacta por código
-            nombre.includes(q) ||           // búsqueda parcial
-            categoria.includes(q) ||
-            marca.includes(q)
-        );
-    });
+        const shelfId = insumo.locacion?.estante;
+        const posId = insumo.locacion?.posicion;
 
-    if (!insumo) {
-        setSearchError("Producto no encontrado.");
-        return;
-    }
+        if (!shelfId) {
+            setSearchError("El producto no tiene estante asignado.");
+            setMarker(null)
+            return;
+        }
 
-    const shelfId = insumo.locacion?.estante;
-    const posId = insumo.locacion?.posicion;
+        const shelf = ESTANTES.find(s => s.id === shelfId);
 
-    if (!shelfId) {
-        setSearchError("El producto no tiene estante asignado.");
-        setMarker(null)
-        return;
-    }
+        if (!shelf) {
+            setSearchError("Estante no encontrado.");
+            setMarker(null)
+            return;
+        }
 
-    const shelf = ESTANTES.find(sh => sh.id === shelfId);
-    if (!shelf) {
-        setSearchError("Estante no encontrado.");
-        return;
-    }
+        // borrar errores
+        setSearchError(null);
+        setMarker(null);
 
-    // ✔ si todo va bien
-    setSearchError(null);
-    setMarker(null);
+        // calcular coordenadas
+        let targetX = shelf.x + shelf.width / 2;
+        let targetY = shelf.y + shelf.height / 2;
 
-    let targetX = shelf.x + shelf.width / 2;
-    let targetY = shelf.y + shelf.height / 2;
+        if (posId && shelf.posiciones?.[posId]) {
+            targetX = shelf.x + shelf.posiciones[posId].x;
+            targetY = shelf.y + shelf.posiciones[posId].y;
+        }
 
-    // si tiene posición específica dentro del estante
-    if (posId && shelf.posiciones?.[posId]) {
-        targetX = shelf.x + shelf.posiciones[posId].x;
-        targetY = shelf.y + shelf.posiciones[posId].y;
-    }
+        // colocar marcador
+        setMarker({
+            x: targetX,
+            y: targetY,
+            label: `${insumo.codigo} (${shelfId}-${posId ?? ""})`,
+        });
 
-    setMarker({
-        x: targetX,
-        y: targetY,
-        label: `${insumo.codigo} (${shelfId}-${posId ?? ""})`
-    });
-
-    setSelectedShelf(null);
-};
+        setSelectedShelf(null);
+    };
 
 
 
@@ -628,24 +613,86 @@ const handleSearch = () => {
                 }}
             >
                 <div style={{ display: "flex", gap: 8 }}>
-<select
-    ref={searchRef}
-    onChange={handleSearch}
-    style={{
-        padding: "8px",
-        width: "100%",
-        marginBottom: "10px",
-        borderRadius: "6px"
+<Autocomplete
+    options={insumos}
+    getOptionLabel={(option) => `${option.codigo} - ${option.nombre}`}
+    onChange={(event, value) => {
+        if (!value) return;
+        handleSearch(value.codigo);
     }}
->
-    <option value="">Seleccioná un insumo...</option>
+    renderInput={(params) => (
+        <TextField
+            {...params}
+            label="Buscar insumo"
+            placeholder="Código, nombre, marca..."
+            size="small"
+            sx={{
+                mb: 1.5,
+                borderRadius: 2,
 
-    {insumos.map(i => (
-        <option key={i.codigo} value={i.codigo}>
-            {i.codigo} - {i.nombre}
-        </option>
-    ))}
-</select>
+                // fondo campo
+                "& .MuiInputBase-root": {
+                    backgroundColor: "#2c2c2c",
+                    color: "white",
+                },
+
+                // label
+                "& .MuiInputLabel-root": {
+                    color: "#bbbbbb",
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#ffffff",
+                },
+
+                // placeholder
+                "& .MuiInputBase-input::placeholder": {
+                    color: "#cccccc",
+                    opacity: 1,
+                },
+
+                // borde
+                "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#555",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#888",
+                },
+                "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#00bcd4",
+                },
+            }}
+        />
+    )}
+    sx={{
+        width: "100%",
+
+        // estilo del dropdown
+        "& .MuiAutocomplete-paper": {
+            backgroundColor: "#2c2c2c",
+            color: "white",
+        },
+
+        // estilo de cada ítem
+        "& .MuiAutocomplete-option": {
+            backgroundColor: "#2c2c2c",
+            color: "white",
+            "&:hover": {
+                backgroundColor: "#3a3a3a",
+            },
+            "&.Mui-focused": {
+                backgroundColor: "#444",
+            },
+            "&.Mui-selected": {
+                backgroundColor: "#555",
+            },
+            "&.Mui-selected:hover": {
+                backgroundColor: "#666",
+            },
+        },
+    }}
+/>
+
+
 
                 </div>
 
