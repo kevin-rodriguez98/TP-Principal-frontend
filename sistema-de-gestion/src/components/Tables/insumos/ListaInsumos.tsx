@@ -19,6 +19,13 @@ const TablaInsumos: React.FC = () => {
     const { toUpperObject } = useToUpper();
     const [openMapa, setOpenMapa] = useState(false);
     const [insumoSeleccionado, setInsumoSeleccionado] = useState<Insumo | null>(null);
+    const [openLocacion, setOpenLocacion] = useState(false);
+    const [locacionTemp, setLocacionTemp] = useState({
+        deposito: "",
+        sector: "",
+        estante: "",
+        posicion: "",
+    });
 
     const handleOpenMapa = (insumo: Insumo) => {
         setInsumoSeleccionado(insumo);
@@ -134,52 +141,6 @@ const TablaInsumos: React.FC = () => {
         return errores;
     };
 
-    // const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
-    //     const errores = validarCamposInsumo(values);
-    //     if (Object.keys(errores).length > 0) {
-    //         setValidationErrors(errores);
-    //         return;
-    //     }
-
-    //     setValidationErrors({});
-
-    //     const codigo = values.codigo && values.codigo.trim() !== "" ? values.codigo : obtenerSiguienteCodigo();
-    //     const nuevoInsumo: Insumo = {
-    //         ...values,
-    //         codigo,
-    //         stock: 0,
-    //         locacion: {
-    //             deposito: "Depósito Central",
-    //             sector: "insumos-secos",
-    //             estante: "ins-1",
-    //             posicion: "E1",
-    //         },
-    //     };
-
-    //     const valoresEnMayus = toUpperObject(nuevoInsumo);
-
-    //     await handleAddInsumo(valoresEnMayus);
-    //     table.setCreatingRow(null);
-    // };
-
-    // --- Modal Locación ---
-
-
-
-
-
-
-
-
-
-
-    const [openLocacion, setOpenLocacion] = useState(false);
-    const [locacionTemp, setLocacionTemp] = useState({
-        deposito: "",
-        sector: "",
-        estante: "",
-        posicion: "",
-    });
 
     // Guarda temporalmente los datos del insumo en creación
     const [insumoTemp, setInsumoTemp] = useState<Insumo | null>(null);
@@ -193,18 +154,13 @@ const TablaInsumos: React.FC = () => {
             setValidationErrors(errores);
             return;
         }
-
         setValidationErrors({});
-
         // Guardar datos temporales del insumo
         setInsumoTemp(values);
-
         // Abrir modal de locación
         setOpenLocacion(true);
-
         // NO crear el insumo todavía
     };
-
 
     const confirmarLocacion = async () => {
         if (!insumoTemp) return;

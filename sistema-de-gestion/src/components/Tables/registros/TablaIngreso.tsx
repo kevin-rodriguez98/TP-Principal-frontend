@@ -228,7 +228,7 @@ const TablaIngreso: React.FC = () => {
         const nuevaOrden = {
             ...values,
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "INGRESO",
-            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
+            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
         };
 
         const valoresEnMayus = toUpperObject(nuevaOrden);
