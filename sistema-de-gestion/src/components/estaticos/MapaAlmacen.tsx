@@ -326,7 +326,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const { insumos } = useContext(InsumoContext)!;
     const [searchError, setSearchError] = useState<string | null>(null);
     const [marker, setMarker] = useState<{ x: number; y: number; label: string } | null>(null);
-    const searchRef = useRef<HTMLInputElement | null>(null);
+    // const searchRef = useRef<HTMLInputElement | null>(null);
 
 
     // Ajustar zoom inicial para mostrar todo el mapa dentro del Stage
@@ -613,84 +613,84 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 }}
             >
                 <div style={{ display: "flex", gap: 8 }}>
-<Autocomplete
-    options={insumos}
-    getOptionLabel={(option) => `${option.codigo} - ${option.nombre}`}
-    onChange={(event, value) => {
-        if (!value) return;
-        handleSearch(value.codigo);
-    }}
-    renderInput={(params) => (
-        <TextField
-            {...params}
-            label="Buscar insumo"
-            placeholder="Código, nombre, marca..."
-            size="small"
-            sx={{
-                mb: 1.5,
-                borderRadius: 2,
+                    <Autocomplete
+                        options={insumos}
+                        getOptionLabel={(option) => `${option.codigo} - ${option.nombre} - ${option.marca} - ${option.categoria}`}
+                        onChange={(_event, value) => {
+                            if (!value) return;
+                            handleSearch(value.codigo);
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Buscar insumo"
+                                placeholder="Código, nombre, marca..."
+                                size="small"
+                                sx={{
+                                    mb: 1.5,
+                                    borderRadius: 2,
 
-                // fondo campo
-                "& .MuiInputBase-root": {
-                    backgroundColor: "#2c2c2c",
-                    color: "white",
-                },
+                                    // fondo campo
+                                    "& .MuiInputBase-root": {
+                                        backgroundColor: "#2c2c2c",
+                                        color: "white",
+                                    },
 
-                // label
-                "& .MuiInputLabel-root": {
-                    color: "#bbbbbb",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#ffffff",
-                },
+                                    // label
+                                    "& .MuiInputLabel-root": {
+                                        color: "#bbbbbb",
+                                    },
+                                    "& .MuiInputLabel-root.Mui-focused": {
+                                        color: "#ffffff",
+                                    },
 
-                // placeholder
-                "& .MuiInputBase-input::placeholder": {
-                    color: "#cccccc",
-                    opacity: 1,
-                },
+                                    // placeholder
+                                    "& .MuiInputBase-input::placeholder": {
+                                        color: "#cccccc",
+                                        opacity: 1,
+                                    },
 
-                // borde
-                "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#555",
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#888",
-                },
-                "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#00bcd4",
-                },
-            }}
-        />
-    )}
-    sx={{
-        width: "100%",
+                                    // borde
+                                    "& .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#555",
+                                    },
+                                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#888",
+                                    },
+                                    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#00bcd4",
+                                    },
+                                }}
+                            />
+                        )}
+                        sx={{
+                            width: "100%",
 
-        // estilo del dropdown
-        "& .MuiAutocomplete-paper": {
-            backgroundColor: "#2c2c2c",
-            color: "white",
-        },
+                            // estilo del dropdown
+                            "& .MuiAutocomplete-paper": {
+                                backgroundColor: "#2c2c2c",
+                                color: "white",
+                            },
 
-        // estilo de cada ítem
-        "& .MuiAutocomplete-option": {
-            backgroundColor: "#2c2c2c",
-            color: "white",
-            "&:hover": {
-                backgroundColor: "#3a3a3a",
-            },
-            "&.Mui-focused": {
-                backgroundColor: "#444",
-            },
-            "&.Mui-selected": {
-                backgroundColor: "#555",
-            },
-            "&.Mui-selected:hover": {
-                backgroundColor: "#666",
-            },
-        },
-    }}
-/>
+                            // estilo de cada ítem
+                            "& .MuiAutocomplete-option": {
+                                backgroundColor: "#2c2c2c",
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: "#3a3a3a",
+                                },
+                                "&.Mui-focused": {
+                                    backgroundColor: "#444",
+                                },
+                                "&.Mui-selected": {
+                                    backgroundColor: "#555",
+                                },
+                                "&.Mui-selected:hover": {
+                                    backgroundColor: "#666",
+                                },
+                            },
+                        }}
+                    />
 
 
 
@@ -771,7 +771,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                                     const container = stageRef.current?.container();
                                     if (container) container.style.cursor = "default";
                                 }}
-                                onClick={(e) => {
+                                onClick={() => {
                                     // centrar en sector
                                     const centerX = s.x + s.width / 2;
                                     const centerY = s.y + s.height / 2;
