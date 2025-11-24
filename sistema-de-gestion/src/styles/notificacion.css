@@ -6,53 +6,56 @@
     position: relative;
 }
 
+/* Icono 🔔 estilo violeta/blanco */
 .btn-notify svg {
-    width: 28px;
-    height: 28px;
-    color: #060606;
-    fill: #ffd700;
-    background: white;
-    border: 2px solid #ffd700;
+    width: 37px;
+    height: 37px;
+    stroke: #ffffff;         /* icono blanco */
+    background: #b13c7e;      /* violeta */
+    border: 2px solid #ff88d3;
     border-radius: 50%;
-    padding: 30%;
-    transition: transform 0.2s ease;
+    padding: 24%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-notify:hover svg {
-    transform: scale(1.1);
+    transform: scale(1.12);
+    box-shadow: 0 0 12px rgba(140, 82, 255, 0.6);
 }
 
-/* 🔴 Contador de notificaciones */
+/* 🔴 Badge de notificaciones */
 .badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ff0000;
-    /* amarillo */
+    top: -6px;
+    right: -6px;
+    background: #ff3b7f;        /* rosa moderno */
     color: #ffffff;
-    /* número negro */
     font-size: 11px;
     font-weight: bold;
     border-radius: 50%;
     padding: 2px 6px;
+    box-shadow: 0 0 8px rgba(255, 0, 120, 0.45);
 }
 
 /* 🪟 Panel de notificaciones */
 .panel-notificaciones {
     position: absolute;
-    top: 40px;
+    top: 45px;
     right: 0;
-    width: 300px;
-    max-height: 400px;
+    width: 280px;
+    max-height: 380px;
     overflow-y: auto;
-    background: #fff0f6;
-    border: 2px solid #080808;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+
+    background: #1f1f1f;
+    border: 1px solid #3d3d3d;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+
     transform: translateY(-10px);
     opacity: 0;
     pointer-events: none;
+
+    transition: all 0.25s ease;
     z-index: 100;
 }
 
@@ -62,53 +65,51 @@
     pointer-events: auto;
 }
 
-/* 🔸 Notificaciones individuales */
+/* 🔸 Notificación individual */
 .noti-item {
-    padding: 12px 16px;
-    border-bottom: 1px solid #ddd;
-    background: #fff;
-    transition: background 0.2s ease;
+    padding: 12px 14px;
+    border-bottom: 1px solid #2f2f2f;
+    background: #262626;
+    border-left: 4px solid #8c52ff;
+    transition: background 0.25s ease;
 }
 
 .noti-item:hover {
-    background: #ffe0eb;
+    background: #322246;
 }
 
 .noti-item:last-child {
     border-bottom: none;
 }
 
+/* Título */
 .noti-titulo {
     font-weight: 600;
-    color: #b13c7e;
+    color: #c8a2ff;
     font-size: 0.95rem;
 }
 
+/* Mensaje */
 .noti-mensaje {
     font-size: 0.85rem;
-    color: #333;
+    color: #e5e5e5;
 }
 
+/* Fecha */
 .noti-fecha {
     font-size: 0.7rem;
-    /* más pequeña */
-    color: #999;
-    /* gris claro */
+    color: #9a9a9a;
     margin-top: 4px;
 }
 
-
+/* 📱 Mobile */
 @media (max-width: 768px) {
-
     .btn-notify svg {
-        color: #060606;
-        fill: #ffd700;
-        background: white;
-        border: 2px solid #ffd700;
-        border-radius: 50%;
-        padding: 30%;
-
-
+        padding: 26%;
     }
 
+    .panel-notificaciones {
+        width: 240px;
+        max-height: 320px;
+    }
 }

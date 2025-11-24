@@ -213,7 +213,7 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado?.trim() !== "" ? values.estado : estados.evaluacion,
-            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
+            legajoResponsable: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
             lote: generarCodigoLote(values.codigoProducto),
         };
         const valoresEnMayus = toUpperObject(nuevaOrden);

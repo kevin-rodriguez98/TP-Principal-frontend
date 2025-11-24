@@ -41,6 +41,10 @@ const Header = () => {
 
   return (
     <nav className="navbar">
+
+  <div className="logo-div">
+
+    {/* LOGO como botón */}
       <img
         className="title"
         src="./logo-blanco.png"
@@ -48,16 +52,22 @@ const Header = () => {
         alt="Logo"
       />
 
+
+    {/* Título */}
+    <h1 className="text-4xl font-extrabold text-white" style={{color: "white", fontSize: "3rem"}}>
+      <span style={{ color: "var(--color-primary)", padding: "5px" }}>FROZEN</span> Dashboard
+    </h1>
+  </div>
       <div className="div-notify">
 
         <div className="user-slide-container" style={{ position: "relative" }}>
-          <button className="btn-login" onClick={handleIconClick}>
+        <button className="btn-login" onClick={handleIconClick}>
             {usuario ? (
-              <AccountCircle className="icon-login" />
+                <AccountCircle className="icon-login" />
             ) : (
-              <LoginIcon className="icon-login" />
+                <LoginIcon className="icon-login" />
             )}
-          </button>
+        </button>
 
           {usuario && (
             <div className={`panel-user ${isUserPanelOpen ? "open" : ""}`}>
@@ -85,7 +95,7 @@ const Header = () => {
           )}
         </div>
 
-        <Notificaciones />
+          <Notificaciones/>
       </div>
 
       {mostrarModalPassword && (

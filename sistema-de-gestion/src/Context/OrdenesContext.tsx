@@ -66,8 +66,6 @@ export interface OrdenProduccionAgregarRequest {
   estado?: string;
   lote: string;
   presentacion: string;
-
-
   legajo: string;
 }
 
@@ -100,6 +98,7 @@ interface OrdenContextType {
   setOrdenes: React.Dispatch<React.SetStateAction<OrdenProduccion[]>>;
   handleAddOrden: (orden: OrdenProduccionAgregarRequest) => Promise<void>;
   obtenerOrdenes: () => Promise<void>;
+  filtrarOrdenes: (fecha?: string, ultimosXDias?: number) => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   error: string | null;
@@ -245,7 +244,53 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
+  // ===============================
+  // 📊 Filtrar órdenes (fecha o últimos X días)
+  // ===============================
+  const filtrarOrdenes = async (fecha?: string, ultimosXDias?: number) => {
+    setIsLoading(true);
+    try {
+      setError(null);
 
+      let url = "";
+      if (fecha) {
+        url = `${URL}/obtener-ordenes-dia?fecha=${fecha}`;
+      } else if (ultimosXDias) {
+        url = `${URL}/obtener-ultimas-orden/${ultimosXDias}`;
+      } else {
+        await obtenerOrdenes(); // Si no hay filtros, traemos todas
+        return;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) await handleFetchError(response, "No se pudieron obtener las órdenes filtradas.");
+
+      const data = await response.json();
+
+      const ordenesBase = data.map((orden: any) => ({
+        ...orden,
+        responsableNombre: orden.empleado?.nombre || "",
+        responsableApellido: orden.empleado?.apellido || "",
+        legajoEmpleado: orden.empleado?.legajo || "",
+      }));
+
+      const ordenesConTiempo = await Promise.all(
+        ordenesBase.map(async (orden: any) => ({
+          ...orden,
+          tiempoEstimado: await calcularTiempoEstimado(orden.codigoProducto, orden.stockRequerido) ?? 0,
+        }))
+      );
+
+      setOrdenes(ordenesConTiempo);
+
+    } catch (err: any) {
+      setError(err.message);
+      if (!modal) setModal({ tipo: "error", mensaje: "No se pudo filtrar las órdenes." });
+      setOrdenes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   
 
@@ -509,6 +554,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         error,
         setError,
         finalizarOrden,
+        filtrarOrdenes,
         notificarEtapa,
         agregarNota,
         obtenerHistorialEtapas,

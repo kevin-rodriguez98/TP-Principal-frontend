@@ -1,89 +1,107 @@
-
+/* === CONTENEDOR PRINCIPAL DEL HEADER === */
 .navbar {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 40px;
-    display: flex;
-    /* FONDO TRANSPARENTE */
-    /* background: rgba(255, 255, 255, 0.1); */
-    /* backdrop-filter: blur(10px); */
-    /* position: fixed; */
-    z-index: 10;
-    box-sizing: border-box;
-}
-
-.div-notify {
+  width: 100%;
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+border-bottom: 1px solid #111827;
+    margin-bottom: 30px;
+    box-sizing: border-box;
+    background-color: #00000066;
 }
 
-/* Logo / título */
+/* === GRUPO LOGO + TITULO === */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* === LOGO (Placeholder del HTML) === */
 .title {
-    cursor: pointer;
-    transition: transform 0.7s ease;
-    width: 15%;
-    height: 20%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background-color: none;
+  transition: transform 0.25s ease;
+  cursor: pointer;
+  font-size: 3rem;
 }
 
 .title:hover {
-    transform:scale(1.3) ;
-
-}
-.div-titulo h2 {
-    font-size: 2rem;
-    margin-bottom: 30px;
+    transform: scale(1.12);
+    box-shadow: 0 0 50px #b13c7e6f;
+    border: 2px solid #b13c7e53;   /* igual al placeholder */
 }
 
-.btn-login {
-background-color: white;
-    color: #e31837;
-    border: solid #e31837 2px;
-    border-radius: 87px;
-    padding: 12px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    display: flex;
-    align-items: flex-end;
-    gap: 9px;
-    transition: background 0.3s;
-    flex-direction: row;
+.logo-div {
+  display: flex;
+  flex-direction: column; /* 📱 Mobile: uno debajo del otro */
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.btn-login:hover {
-  background-color: #c91530;
+/* 💻 PC o pantallas grandes */
+@media (min-width: 768px) {
+  .logo-div {
+    flex-direction: row; /* elementos lado a lado */
+    align-items: center;
+    gap: 15px;
+  }
+}
+
+/* === TITULO === */
+.header-title {
+  font-size: 32px;
+  font-weight: 800;
   color: white;
+  font-family: "Inter", sans-serif;
 }
 
-.icon-login {
-  font-size: 20px;
+.header-title span {
+  color: var(--color-primary);
 }
 
+/* === BOTÓN CERRAR SESIÓN === */
+.btn-logout-dashboard {
+  background-color: #3a3a3a;
+  color: #ff6969;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  border: none;
+}
+
+.btn-logout-dashboard:hover {
+  background-color: #505050;
+}
+
+/* === NOTIFICACIONES + LOGIN === */
+.div-notify {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* === PANEL USUARIO (SIN CAMBIOS) === */
 .user-slide-container {
   position: relative;
 }
 
-.btn-user {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .panel-user {
   position: absolute;
-  top: 50px;
+  top: 55px;
   right: 0;
   background: #1e1e1e;
   color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   width: 220px;
-  padding: 12px;
+  padding: 14px;
   transform: translateY(-10px);
   opacity: 0;
   pointer-events: none;
@@ -97,67 +115,90 @@ background-color: white;
   pointer-events: auto;
 }
 
+/* === INFO USUARIO === */
 .user-details {
   text-align: left;
-    font-size: 14px;
-    display: flex;
-    flex-direction: column;
-    color: #b13c7e;
-    font-family: system-ui;
-}
-
-.btn-change-pass {
-  margin-bottom: 10px;
-  background-color: #b13c7e;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn-change-pass:hover {
-  background: #f2f1f2;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  color: #b13c7e;
+  font-family: "Inter", sans-serif;
 }
 
 .user-fullname {
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 4px;
 }
 
-.divider {
-  border: 0;
-  border-top: 1px solid #444;
-  margin: 10px 0;
+/* === BOTÓN CAMBIO CONTRASEÑA === */
+.btn-change-pass {
+  margin-top: 10px;
+  background-color: #b13c7e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 10px;
 }
 
-.btn-logout {
-  width: 100%;
+.btn-change-pass:hover {
+  background-color: #d84f9d;
+}
+/* === ICONOS MODERNOS (Login / Notificaciones) === */
+.icon-button {
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: none;
-  color: #ff5f5f;
-  border: none;
+  justify-content: center;
+  background-color: #1f1f1f;
+  border: 2px solid #8c52ff; /* Violeta */
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  transition: color 0.2s;
+  transition: all 0.25s ease;
 }
 
-.btn-logout:hover {
-  color: #ff8080;
+.icon-button:hover {
+  transform: scale(1.12);
+  background-color: #322246; /* Violeta oscuro suave */
+  box-shadow: 0 0 10px rgba(140, 82, 255, 0.5);
+}
+
+/* === BOTÓN LOGIN (igual al de notificaciones) === */
+.btn-login {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1f1f1f;
+  border: 2px solid #b13c7e9d; /* Violeta */
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0; /* quita el padding del estilo viejo */
+}
+
+.btn-login:hover {
+  transform: scale(1.12);
+  background-color: #3f2246; /* violeta oscuro */
+  box-shadow: 0 0 10px rgba(226, 82, 255, 0.5);
+}
+
+/* Icono blanco moderno */
+.btn-login .icon-login {
+  color: #b13c7e !important;
+  font-size: 26px !important;
 }
 
 
+
+/* === MOBILE === */
 @media (max-width: 768px) {
-
-    .navbar {
-    margin: 0%;
+  .navbar {
     padding: 15px 20px;
-    }
-
-    .title {
-    width: 50%;
-    height: 20%;
-}
-
-
-
+  }
+  .header-title {
+    font-size: 24px;
+  }
 }

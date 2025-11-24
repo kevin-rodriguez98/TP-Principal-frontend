@@ -10,12 +10,13 @@ const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {
 
     return (
         <div className='operacion'
+            style={{ "--op-color": modulo.color } as React.CSSProperties}
             onMouseEnter={() => setMostrarSubmenu(true)}
             onMouseLeave={() => setMostrarSubmenu(false)}
         >
-            <img src={modulo.icon} className='operacion-icon' />
+            {modulo.icon}
             <label className='label' >{modulo.label}</label>
-
+            <p className="subtitle" style={{fontSize: "15px", color: "#ffffff94"}}>{modulo.subtitle}</p>
             <AnimatePresence>
                 {mostrarSubmenu && (
                     <motion.div

@@ -4,27 +4,26 @@ body {
     padding: 0;
     height: 100%;
     overflow-x: hidden;
-    /* evita scroll horizontal */
+    background-color: #111827; 
 }
 
+/* ==== DESKTOP ==== */
 body {
-    background-image: url('/diseño1.png');
-    /* imagen de escritorio */
     background-size: cover;
-    /* ocupa todo el ancho sin deformar */
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    min-height: 100vh;
+    background-position: center;
+
+    /* Suaviza el look del fondo si querés mantenerlo */
+    backdrop-filter: brightness(0.85) blur(2px);
+    -webkit-backdrop-filter: brightness(0.85) blur(2px);
 }
 
-/* --- Versión para MOBILE --- */
+/* ==== MOBILE ==== */
 @media (max-width: 768px) {
     body {
-        background-image: url('/diseñoMobile2.png');
-        background-attachment: scroll;
-        /* 🔧 evita bugs en móviles */
         background-size: cover;
         background-position: center;
+
+        backdrop-filter: brightness(0.9);
+        -webkit-backdrop-filter: brightness(0.9);
     }
 }

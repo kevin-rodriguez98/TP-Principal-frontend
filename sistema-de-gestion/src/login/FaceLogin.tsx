@@ -166,8 +166,21 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-container">
-      <h2>Inicio de Sesión</h2>
+  {/* ⭐ LOGO */}
+      <div className="logo-box">
+        <img 
+          src="/logo-blanco.png" 
+          alt="Logo" 
+          className="logo-img"
+        />
+    <h1 className="text-4xl font-extrabold text-white" style={{color: "white", fontSize: "3rem"}}>
+      <span style={{ color: "var(--color-primary)", padding: "5px" }}>FROZEN</span> Dashboard
+    </h1>
+      </div>
 
+      {/* ⭐ TITULO + TEXTO */}
+      <h2 className="login-title">Acceso al Sistema</h2>
+      <p className="login-subtitle">Introduce tus credenciales para continuar.</p>
       {manualMode ? (
         <div className="manual-login">
           <input
