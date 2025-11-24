@@ -398,6 +398,29 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     }, []);
 
 
+    // Centrar en una coordenada (map units) con zoom opcional
+    const centerOn = (x: number, y: number, zoom = 1.8) => {
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        const containerW = stage.width();
+        const containerH = stage.height();
+
+        const newScale = zoom;
+        // calcular nueva posición para que (x,y) quede en el centro del contenedor
+        const newX = -x * newScale + containerW / 2;
+        const newY = -y * newScale + containerH / 2;
+
+        setScale(newScale);
+        setPosition({ x: newX, y: newY });
+
+        // aplicar directamente al stage
+        stage.scale({ x: newScale, y: newScale });
+        stage.position({ x: newX, y: newY });
+        stage.batchDraw();
+    };
+
+
     // Manejo de rueda (zoom centrado en el puntero)
     const handleWheel = (e: any) => {
         e.evt.preventDefault();
@@ -447,10 +470,17 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         if (!s) return alert("Estante no encontrado");
 
         // Centrar y marcar
+        centerOn(s.x + s.width / 2, s.y + s.height / 2, 2.0);
+        // setMarker({
+        //     x: s.x + s.width / 2,
+        //     y: s.y + s.height / 2,
+        //     label: `${insumo.codigo} → ${s.id}`,
+        // });
+
         setMarker({
             x: s.x + s.width / 2,
             y: s.y + s.height / 2,
-            label: `${insumo.codigo} → ${s.id}`,
+            label: `${codigo} (${estante}-${posicion ?? ""})`
         });
 
         // Deseleccionar popup anterior
@@ -534,9 +564,30 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     };
 
     return (
-        <div ref={containerRef} style={{ width: "100%", maxWidth: 1200, margin: "0 auto", position: "relative" }}>
+        <div
+            ref={containerRef}
+            style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                overflow: "hidden",
+                padding: "10px",
+            }}
+        >
             {/* Controls: buscador simple */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+            <div
+                style={{
+                    width: "100%",
+                    maxWidth: "700px",
+                    display: "flex",
+                    gap: 8,
+                    marginBottom: 10,
+                    alignItems: "center",
+                }}
+            >
                 <input ref={searchRef} placeholder="Buscar producto (ej: I001 o LECHE)" style={{ padding: 8, flex: 1 }} />
                 <button onClick={handleSearch} style={{ padding: "8px 12px" }}>
                     Buscar
@@ -570,7 +621,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 y={position.y}
                 scaleX={scale}
                 scaleY={scale}
-                onWheel={handleWheel}
+                // onWheel={handleWheel}
                 onDragEnd={(e) => {
                     setPosition({ x: e.target.x(), y: e.target.y() });
                 }}
@@ -602,6 +653,12 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                                 onMouseLeave={() => {
                                     const container = stageRef.current?.container();
                                     if (container) container.style.cursor = "default";
+                                }}
+                                onClick={(e) => {
+                                    // centrar en sector
+                                    const centerX = s.x + s.width / 2;
+                                    const centerY = s.y + s.height / 2;
+                                    centerOn(centerX, centerY, 1.6);
                                 }}
                             />
                             <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />

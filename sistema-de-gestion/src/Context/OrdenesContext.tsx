@@ -40,11 +40,9 @@ export interface OrdenProduccion {
   lote: string;
   presentacion: string;
 
-
   legajo: string;
   responsableNombre: string;
   responsableApellido: string;
-
 
   etapa: string;
   nota: string;
@@ -178,10 +176,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-
-  // ===============================
-  // 📊 Filtrar órdenes (fecha o últimos X días)
-  // ===============================
   const filtrarOrdenes = async (fecha?: string, ultimosXDias?: number) => {
     setIsLoading(true);
     try {
@@ -226,7 +220,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  
   const handleAddOrden = async (orden: OrdenProduccionAgregarRequest): Promise<void> => {
     setError(null);
     try {
@@ -351,7 +344,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       return [];
     }
   };
-
 
   const generarCodigoLote = (codigoProducto: string): string => {
     // Filtramos todas las órdenes del mismo producto
