@@ -100,10 +100,21 @@ export default function PanelGeneral({ }) {
                                     "& .MuiSvgIcon-root": { color: "#fff" },
                                 }}
                             >
-                                <MenuItem value={0}>Gestión de Insumos</MenuItem>
-                                <MenuItem value={1}>Registros de Ingreso/Egreso</MenuItem>
-                                <MenuItem value={2}>Órdenes de Producción</MenuItem>
-                                <MenuItem value={3}>Productos</MenuItem>
+                                    <MenuItem value={0}>
+                                        <FiBox style={{ marginRight: 8 }} /> Gestión de Insumos
+                                    </MenuItem>
+
+                                    <MenuItem value={1}>
+                                        <FiFileText style={{ marginRight: 8 }} /> Registros
+                                    </MenuItem>
+
+                                    <MenuItem value={2}>
+                                        <FiPackage style={{ marginRight: 8 }} /> Productos
+                                    </MenuItem>
+
+                                    <MenuItem value={3}>
+                                        <FiCpu style={{ marginRight: 8 }} /> Órdenes de Producción
+                                    </MenuItem>
                             </Select>
                         </Box>
                     ) : (
@@ -145,22 +156,22 @@ export default function PanelGeneral({ }) {
                                 }}
                             >
                                   <Tab
-                                        icon={<FiBox size={18} />}
+                                        icon={<FiBox size={20} />}
                                         iconPosition="start"
                                         label="Gestión de Insumos"
                                     />
                                     <Tab
-                                        icon={<FiFileText size={18} />}
+                                        icon={<FiFileText size={20} />}
                                         iconPosition="start"
                                         label="Registros"
                                     />
                                     <Tab
-                                        icon={<FiPackage size={18} />}
+                                        icon={<FiPackage size={20} />}
                                         iconPosition="start"
                                         label="Productos"
                                     />
                                     <Tab
-                                        icon={<FiCpu size={18} />}
+                                        icon={<FiCpu size={20} />}
                                         iconPosition="start"
                                         label="Órdenes de Producción"
                                     />

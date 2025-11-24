@@ -105,12 +105,26 @@ const baseTextFieldProps = (campo: string, extraProps = {}) => ({
     }
 
     setValidationErrors({});
-    await agregarEmpleado(values);
+    await agregarEmpleado({
+      ...values,
+      legajo: values.legajo.toUpperCase(),
+      nombre: values.nombre.toUpperCase(),
+      apellido: values.apellido.toUpperCase(),
+      area: values.area?.toUpperCase() ?? "",
+      rol: values.rol.toUpperCase(),
+    });
     table.setCreatingRow(null);
   };
 
   const handleEditar = async ({ values, table }: any) => {
-  const errores = validarUsuario(values);
+  const errores = validarUsuario({
+      ...values,
+      legajo: values.legajo.toUpperCase(),
+      nombre: values.nombre.toUpperCase(),
+      apellido: values.apellido.toUpperCase(),
+      area: values.area?.toUpperCase() ?? "",
+      rol: values.rol.toUpperCase(),
+    });
 
   if (Object.keys(errores).length) {
     setValidationErrors(errores);
