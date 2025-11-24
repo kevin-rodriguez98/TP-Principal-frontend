@@ -11,6 +11,14 @@ export interface Insumo {
     unidad: string;
     stock: number;
     umbralMinimoStock: number;
+    locacion: Locacion;
+}
+
+export interface Locacion {
+    deposito: string;
+    sector: string;
+    estante: string;
+    posicion: string;
 }
 
 interface InsumoContextType {
@@ -49,7 +57,7 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         count++;
         console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
     }, []);
-    
+
 
     useEffect(() => {
         obtenerInsumosBajoStock();
