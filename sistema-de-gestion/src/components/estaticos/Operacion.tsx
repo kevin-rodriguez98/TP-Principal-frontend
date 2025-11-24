@@ -2,11 +2,15 @@ import { useState } from 'react';
 import '../../styles/Operacion.css'
 import { AnimatePresence, motion } from 'framer-motion';
 import { type Modulo } from '../../Context/OpContext';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {
 
     const [mostrarSubmenu, setMostrarSubmenu] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     return (
         <div className='operacion'
@@ -16,7 +20,7 @@ const Operacion: React.FC<{ modulo: Modulo }> = ({ modulo }) => {
         >
             {modulo.icon}
             <label className='label' >{modulo.label}</label>
-            <p className="subtitle" style={{fontSize: "15px", color: "#ffffff94"}}>{modulo.subtitle}</p>
+            <p className="subtitle" style={{fontSize: isMobile? "9px" : "15px", color: "#ffffff94"}}>{modulo.subtitle}</p>
             <AnimatePresence>
                 {mostrarSubmenu && (
                     <motion.div

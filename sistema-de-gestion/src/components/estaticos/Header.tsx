@@ -5,6 +5,9 @@ import Notificaciones from "./Notificaciones";
 import { Login as LoginIcon, Logout as LogoutIcon, AccountCircle } from "@mui/icons-material";
 import { useUsuarios } from "../../Context/UsuarioContext";
 import ModalCambiarPassword from "../modal/ModalCambiarPassword";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 
 const Header = () => {
   const navigate = useNavigate();
@@ -38,6 +41,8 @@ const Header = () => {
       // el contexto ya muestra toast de error
     }
   };
+const theme = useTheme();
+const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <nav className="navbar">
@@ -54,7 +59,7 @@ const Header = () => {
 
 
     {/* Título */}
-    <h1 className="text-4xl font-extrabold text-white" style={{color: "white", fontSize: "3rem"}}>
+    <h1 className="text-4xl font-extrabold text-white" style={{color: "white",  fontSize: isMobile ? "1rem" : "3rem"}}>
       <span style={{ color: "#8c52ff", padding: "5px" }}>FROZEN</span> Dashboard
     </h1>
   </div>

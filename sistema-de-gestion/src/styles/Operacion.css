@@ -87,8 +87,8 @@
 /* ==== RESPONSIVE ==== */
 @media (max-width: 768px) {
   .operacion {
-    width: 120px;
-    min-height: 120px;
+    width: 80px;
+    min-height: 80px;
     padding: 18px;
   }
 
@@ -105,5 +105,8 @@
   .submenu-btn {
     padding: 10px 12px;
     font-size: 0.9rem;
+  }
+  .submenu-btn {         
+  font-size: 0.5rem; 
   }
 }
