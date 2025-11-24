@@ -65,19 +65,23 @@ border-bottom: 1px solid #111827;
 
 /* === BOTÓN CERRAR SESIÓN === */
 .btn-logout-dashboard {
-  background-color: #3a3a3a;
-  color: #ff6969;
-  padding: 8px 18px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.25s ease;
-  border: none;
+background-color: transparent;
+    color: #ff6969;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    border: none;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
 }
 
 .btn-logout-dashboard:hover {
-  background-color: #505050;
+  background-color: #f3f3f3;
 }
 
 /* === NOTIFICACIONES + LOGIN === */

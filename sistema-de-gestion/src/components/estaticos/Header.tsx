@@ -57,10 +57,9 @@ const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
         alt="Logo"
       />
 
-
     {/* Título */}
     <h1 className="text-4xl font-extrabold text-white" style={{color: "white",  fontSize: isMobile ? "1rem" : "3rem"}}>
-      <span style={{ color: "#8c52ff", padding: "5px" }}>FROZEN</span> Dashboard
+      <span style={{ color: "#b13c7e", padding: "5px" }}>FROZEN</span> Dashboard
     </h1>
   </div>
       <div className="div-notify">
@@ -93,7 +92,7 @@ const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
 
               {/* BOTÓN LOGOUT */}
-              <button className="btn-logout" onClick={handleLogout}>
+              <button className="btn-logout-dashboard" onClick={handleLogout}>
                 <LogoutIcon fontSize="small" /> <span>Cerrar sesión</span>
               </button>
             </div>
