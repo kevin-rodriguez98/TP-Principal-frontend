@@ -89,7 +89,7 @@ const ReportesInsumos = () => {
     />
 
     <div id="reporte-insumos">
-
+         <div style={{textAlign: "center", padding: "20px", background: "#0e1217"}}>     <h2 style={{ margin: 0, color: "#5b088cff", fontSize: "30px"}}>Reporte de insumos</h2></div>
         {/* ==== RESUMEN SUPERIOR ==== */}
         <div className="resumen-container">
             <ResumenCardDark titulo="Total de Insumos" valor={totalInsumos} color="#8c52ff" />

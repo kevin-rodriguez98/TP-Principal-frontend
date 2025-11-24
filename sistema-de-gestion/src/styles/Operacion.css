@@ -1,70 +1,109 @@
+/* ==== ESTILOS MODERNOS DARK ==== */
+
+:root {
+  --color-primary: #8c52ff;
+  --color-card: #2b2b2b;
+}
+
+/* Card principal */
 .operacion {
-  width: 140px; /* ancho base de la card */
-  min-height: 140px; /* altura mínima */
-  background-color: rgb(73, 73, 73);
+  width: 250px;              
+  min-height: 250px;         
+  background: #0e1217;
+  border: 2px solid #ffffff;
+  border-radius: 22px;      
+  padding: 26px;            
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* centra icon y label verticalmente */
-  padding: 10px; /* reduce padding para que no se salga */
-  border-radius: 12px;
+  justify-content: flex-start;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.3s;
-  text-align: center;
-  word-wrap: break-word;
+  gap: 18px;                
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.3s ease,
+    border 0.3s ease,
+    background-color 0.3s ease;
+
+  --color-dynamic: var(--op-color, var(--color-primary));
 }
 
 .operacion:hover {
-  transform: scale(1.05);
+  transform: translateY(-6px);
+  border-color: var(--color-dynamic);
+  box-shadow: 0 0 35px rgba(140, 82, 255, 0.5);
 }
 
-.operacion-icon {
-  width: 60px;
-  height: 60px;
-  margin-bottom: 8px;
+/* Icono (SVG o IMG) */
+.operacion-icon,
+.operacion svg {
+  width: 110px;
+  height: 110px;
+  color: var(--color-dynamic);
+  filter: drop-shadow(0 0 5px rgba(0,0,0,0.45));
 }
 
+/* Label */
 .label {
-  font-weight: bold;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: white;
+  text-align: center;
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
 }
 
-/* Submenu */
+/* ==== SUBMENÚ ==== */
+
 .submenu {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 14px;
+  margin-top: 18px;
+  width: 100%;
 }
 
 .submenu-btn {
-  background: #b30059;
+  background: var(--color-dynamic);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.8rem;
+  padding: 14px 16px;             
+  border-radius: 14px;           
+  font-size: 1rem;                
+  font-weight: 600;
   cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .submenu-btn:hover {
-  background: #df0271;
+  background: color-mix(in srgb, var(--color-dynamic) 80%, white);
+  box-shadow: 0 0 22px var(--color-dynamic);
+  transform: translateY(-3px);
 }
 
-/* Responsive para móviles */
+/* ==== RESPONSIVE ==== */
 @media (max-width: 768px) {
   .operacion {
-    width: 100px;
-    min-height: 100px;
-    padding: 8px;
+    width: 120px;
+    min-height: 120px;
+    padding: 18px;
   }
 
-  .operacion-icon {
+  .operacion-icon,
+  .operacion svg {
     width: 50px;
     height: 50px;
   }
 
   .label {
     font-size: 0.8rem;
+  }
+
+  .submenu-btn {
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
