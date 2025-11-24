@@ -15,6 +15,7 @@ import Modal from "./components/modal/Modal.tsx";
 
 import ModalCambiarPassword from "./components/modal/ModalCambiarPassword.tsx";
 import { useUsuarios } from "./Context/UsuarioContext";
+import ProtectedRoute from "./ProtectedRoute.tsx";
 
 // URL´s SERVER
 export const URL = "https://tp-principal-backend.onrender.com/" 
@@ -35,12 +36,6 @@ function App() {
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  useEffect(() => {
-    if (usuario?.isPrimerIngreso) {
-      setShowPasswordModal(true);
-    }
-  }, [usuario]);
-
   const handlePasswordChange = async (_actual: string, nueva: string) => {
   if (!usuario) return;
 
@@ -54,21 +49,39 @@ function App() {
 
   return (
     <>
-      {showPasswordModal && (
-        <ModalCambiarPassword
-          onClose={() => setShowPasswordModal(false)}
-          onSubmit={handlePasswordChange}
-        />
-      )}
+   <Routes>
+  <Route path="/" element={
+    <ProtectedRoute>
+      <Menu />
+    </ProtectedRoute>
+  } />
 
-      <Routes>
-        <Route path="/" element={<Menu />} />
-        <Route path="/login" element={<FaceLogin />} />
-        <Route path="/PanelGestion/:id" element={<PanelGeneral />} />
-        <Route path="/usuarios" element={<PanelUsuarios />} />
-        <Route path="/reportes/insumos" element={<ReportesInsumos />} />
-        <Route path="/reportes/ordenes" element={<ReportesOrdenes />} />
-      </Routes>
+  <Route path="/login" element={<FaceLogin />} />
+
+  <Route path="/PanelGestion/:id" element={
+    <ProtectedRoute>
+      <PanelGeneral />
+    </ProtectedRoute>
+  } />
+
+  <Route path="/usuarios" element={
+    <ProtectedRoute>
+      <PanelUsuarios />
+    </ProtectedRoute>
+  } />
+
+  <Route path="/reportes/insumos" element={
+    <ProtectedRoute>
+      <ReportesInsumos />
+    </ProtectedRoute>
+  } />
+
+  <Route path="/reportes/ordenes" element={
+    <ProtectedRoute>
+      <ReportesOrdenes />
+    </ProtectedRoute>
+  } />
+</Routes>
 
       {modal && (
         <Modal
