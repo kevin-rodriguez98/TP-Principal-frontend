@@ -187,7 +187,7 @@ const TablaInsumos: React.FC = () => {
     const handleChangeLocacion = (campo: string, valor: string) => {
         setLocacionTemp((prev) => ({ ...prev, [campo]: valor }));
     };
-    const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values, table }) => {
+    const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values}) => {
         const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);

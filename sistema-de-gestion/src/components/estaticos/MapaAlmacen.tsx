@@ -315,7 +315,7 @@ export const ESTANTES: Estante[] = [
 ];
 
 
-export default function MapaAlmacenPro({ codigo, sector, estante, posicion, }: Props) {
+export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const stageRef = useRef<any>(null);
     const [stageSize, setStageSize] = useState({ width: 600, height: 700 });
@@ -643,7 +643,7 @@ export default function MapaAlmacenPro({ codigo, sector, estante, posicion, }: P
                                         const container = stage?.container();
                                         if (container) container.style.cursor = "default";
                                     }}
-                                    onClick={(e) => handleShelfClick(sh)}
+                                    onClick={() => handleShelfClick(sh)}
                                 />
 
                                 {/* etiqueta con número de estante */}

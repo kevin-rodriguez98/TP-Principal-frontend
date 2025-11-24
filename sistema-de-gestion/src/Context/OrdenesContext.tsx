@@ -277,6 +277,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
       const ordenesConTiempo = await Promise.all(
         ordenesBase.map(async (orden: any) => ({
           ...orden,
+          tiempoEstimado: await calcularTiempoEstimado(orden.codigoProducto, orden.stockRequerido) ?? 0,
         }))
       );
 
