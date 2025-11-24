@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Text, Group, Label, Tag, Circle, } from "react-konva";
 import { InsumoContext } from "../../Context/InsumoContext";
+import { Autocomplete, TextField } from "@mui/material";
 
 
 type Props = {
@@ -13,7 +14,6 @@ type Props = {
 export interface Posiciones {
     [key: string]: { x: number; y: number };
 }
-
 export interface Estante {
     id: string;
     sectorId: string;
@@ -23,7 +23,6 @@ export interface Estante {
     height: number;
     posiciones: Posiciones;
 }
-
 
 type Sector = {
     id: string;
@@ -41,7 +40,7 @@ export const SECTORES: Sector[] = [
     { id: "camara-pt", name: "Cámara Prod. Terminados", x: 740, y: 20, width: 300, height: 150, color: "#D8F5D8" },
     { id: "packaging", name: "Depósito Packaging", x: 20, y: 200, width: 350, height: 220, color: "#F3DCFF" },
     { id: "insumos-secos", name: "Depósito Insumos Secos", x: 400, y: 200, width: 640, height: 220, color: "#FFF9CC" },
-    { id: "despacho", name: "Área Despacho", x: 20, y: 440, width: 1020, height: 200, color: "#FFD6D6" },
+    { id: "despacho", name: "Área Despacho", x: 20, y: 440, width: 1020, height: 150, color: "#FFD6D6" },
 ];
 
 export const ESTANTES: Estante[] = [
@@ -325,11 +324,9 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const [selectedShelf, setSelectedShelf] = useState<Estante | null>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const { insumos } = useContext(InsumoContext)!;
-
-
-    // marcador (resultado de búsqueda)
+    const [searchError, setSearchError] = useState<string | null>(null);
     const [marker, setMarker] = useState<{ x: number; y: number; label: string } | null>(null);
-    const searchRef = useRef<HTMLInputElement | null>(null);
+    // const searchRef = useRef<HTMLInputElement | null>(null);
 
 
     // Ajustar zoom inicial para mostrar todo el mapa dentro del Stage
@@ -362,27 +359,31 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     }, [stageSize]);
 
     useEffect(() => {
-        // buscar estante por label
+        if (!estante) return;          // si no vino desde la tabla → no hacer nada
+        if (!codigo) return;
+
         const shelf = ESTANTES.find(s => s.id === estante);
         if (!shelf) return;
 
         let targetX = shelf.x + shelf.width / 2;
         let targetY = shelf.y + shelf.height / 2;
 
-        // si hay posición interna (X1, X2...)
         if (posicion && shelf.posiciones?.[posicion]) {
             targetX = shelf.x + shelf.posiciones[posicion].x;
             targetY = shelf.y + shelf.posiciones[posicion].y;
         }
 
-        // centerOn(targetX, targetY, 2.2);
+        // mover cámara
+        centerOn(targetX, targetY, 2.2);
 
+        // colocar marker
         setMarker({
             x: targetX,
             y: targetY,
             label: `${codigo} (${estante}-${posicion ?? ""})`
         });
-    }, [codigo, {/*insumos */ }]);
+
+    }, [codigo, estante, posicion]);
 
     useEffect(() => {
         const updateSize = () => {
@@ -397,6 +398,26 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         return () => window.removeEventListener("resize", updateSize);
     }, []);
 
+    const centerOn = (x: number, y: number, zoom = 1.8) => {
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        const containerW = stage.width();
+        const containerH = stage.height();
+
+        const newScale = zoom;
+        // calcular nueva posición para que (x,y) quede en el centro del contenedor
+        const newX = -x * newScale + containerW / 2;
+        const newY = -y * newScale + containerH / 2;
+
+        setScale(newScale);
+        setPosition({ x: newX, y: newY });
+
+        // aplicar directamente al stage
+        stage.scale({ x: newScale, y: newScale });
+        stage.position({ x: newX, y: newY });
+        stage.batchDraw();
+    };
 
     // Manejo de rueda (zoom centrado en el puntero)
     const handleWheel = (e: any) => {
@@ -409,9 +430,18 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         if (!pointer) return;
 
         const scaleBy = 1.05;
-        const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
 
-        // zoom centrado en puntero:
+        // Calcular nuevo scale
+        let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+
+        // 🔒 límites del zoom
+        const MIN_SCALE = 0.8;   // no permite achicar más que esto
+        const MAX_SCALE = 3;     // opcional
+
+        if (newScale < MIN_SCALE) newScale = MIN_SCALE;
+        if (newScale > MAX_SCALE) newScale = MAX_SCALE;
+
+        // zoom centrado en el puntero
         const mousePointTo = {
             x: (pointer.x - stage.x()) / oldScale,
             y: (pointer.y - stage.y()) / oldScale,
@@ -430,32 +460,56 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         setPosition(newPos);
     };
 
-    // buscar producto y centrar en su estante
-    const handleSearch = () => {
-        const q = (searchRef.current?.value || "").toUpperCase().trim();
-        if (!q) return alert("Ingresá código o palabra a buscar");
 
-        // Buscar insumo por código
-        const insumo = insumos.find(i => i.codigo.toUpperCase() === q);
-        if (!insumo) return alert("Producto no encontrado");
+    // buscar producto y centrar en su estante
+    const handleSearch = (codigoBuscado: string) => {
+        const insumo = insumos.find(i => i.codigo === codigoBuscado);
+
+        if (!insumo) {
+            setSearchError("Producto no encontrado.");
+            return;
+        }
 
         const shelfId = insumo.locacion?.estante;
-        if (!shelfId) return alert("El producto no tiene estante asignado");
+        const posId = insumo.locacion?.posicion;
 
-        // Buscar estante
-        const s = ESTANTES.find(sh => sh.id === shelfId);
-        if (!s) return alert("Estante no encontrado");
+        if (!shelfId) {
+            setSearchError("El producto no tiene estante asignado.");
+            setMarker(null)
+            return;
+        }
 
-        // Centrar y marcar
+        const shelf = ESTANTES.find(s => s.id === shelfId);
+
+        if (!shelf) {
+            setSearchError("Estante no encontrado.");
+            setMarker(null)
+            return;
+        }
+
+        // borrar errores
+        setSearchError(null);
+        setMarker(null);
+
+        // calcular coordenadas
+        let targetX = shelf.x + shelf.width / 2;
+        let targetY = shelf.y + shelf.height / 2;
+
+        if (posId && shelf.posiciones?.[posId]) {
+            targetX = shelf.x + shelf.posiciones[posId].x;
+            targetY = shelf.y + shelf.posiciones[posId].y;
+        }
+
+        // colocar marcador
         setMarker({
-            x: s.x + s.width / 2,
-            y: s.y + s.height / 2,
-            label: `${insumo.codigo} → ${s.id}`,
+            x: targetX,
+            y: targetY,
+            label: `${insumo.codigo} (${shelfId}-${posId ?? ""})`,
         });
 
-        // Deseleccionar popup anterior
         setSelectedShelf(null);
     };
+
 
 
     // click en estante: abrir modal (aquí simple panel)
@@ -534,31 +588,121 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     };
 
     return (
-        <div ref={containerRef} style={{ width: "100%", maxWidth: 1200, margin: "0 auto", position: "relative" }}>
+        <div
+            ref={containerRef}
+            style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                overflow: "hidden",
+                padding: "10px",
+            }}
+        >
             {/* Controls: buscador simple */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
-                <input ref={searchRef} placeholder="Buscar producto (ej: I001 o LECHE)" style={{ padding: 8, flex: 1 }} />
-                <button onClick={handleSearch} style={{ padding: "8px 12px" }}>
-                    Buscar
-                </button>
-                <button
-                    onClick={() => {
-                        // reset
-                        setMarker(null);
-                        setSelectedShelf(null);
-                        setScale(1);
-                        setPosition({ x: 0, y: 0 });
-                        if (stageRef.current) {
-                            stageRef.current.scale({ x: 1, y: 1 });
-                            stageRef.current.position({ x: 0, y: 0 });
-                            stageRef.current.batchDraw();
-                        }
-                    }}
-                    style={{ padding: "8px 12px" }}
-                >
-                    Reset
-                </button>
+            <div
+                style={{
+                    width: "100%",
+                    maxWidth: "700px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    marginBottom: 10,
+                }}
+            >
+                <div style={{ display: "flex", gap: 8 }}>
+                    <Autocomplete
+                        options={insumos}
+                        getOptionLabel={(option) => `${option.codigo} - ${option.nombre} - ${option.marca} - ${option.categoria}`}
+                        onChange={(_event, value) => {
+                            if (!value) return;
+                            handleSearch(value.codigo);
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Buscar insumo"
+                                placeholder="Código, nombre, marca..."
+                                size="small"
+                                sx={{
+                                    mb: 1.5,
+                                    borderRadius: 2,
+
+                                    // fondo campo
+                                    "& .MuiInputBase-root": {
+                                        backgroundColor: "#2c2c2c",
+                                        color: "white",
+                                    },
+
+                                    // label
+                                    "& .MuiInputLabel-root": {
+                                        color: "#bbbbbb",
+                                    },
+                                    "& .MuiInputLabel-root.Mui-focused": {
+                                        color: "#ffffff",
+                                    },
+
+                                    // placeholder
+                                    "& .MuiInputBase-input::placeholder": {
+                                        color: "#cccccc",
+                                        opacity: 1,
+                                    },
+
+                                    // borde
+                                    "& .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#555",
+                                    },
+                                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#888",
+                                    },
+                                    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "#00bcd4",
+                                    },
+                                }}
+                            />
+                        )}
+                        sx={{
+                            width: "100%",
+
+                            // estilo del dropdown
+                            "& .MuiAutocomplete-paper": {
+                                backgroundColor: "#2c2c2c",
+                                color: "white",
+                            },
+
+                            // estilo de cada ítem
+                            "& .MuiAutocomplete-option": {
+                                backgroundColor: "#2c2c2c",
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: "#3a3a3a",
+                                },
+                                "&.Mui-focused": {
+                                    backgroundColor: "#444",
+                                },
+                                "&.Mui-selected": {
+                                    backgroundColor: "#555",
+                                },
+                                "&.Mui-selected:hover": {
+                                    backgroundColor: "#666",
+                                },
+                            },
+                        }}
+                    />
+
+
+
+                </div>
+
+                {searchError && (
+                    <div style={{ color: "red", fontSize: "14px" }}>
+                        {searchError}
+                    </div>
+                )}
             </div>
+
 
             {/* Stage */}
             <Stage
@@ -571,6 +715,30 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 scaleX={scale}
                 scaleY={scale}
                 onWheel={handleWheel}
+                dragBoundFunc={(pos) => {
+                    const stage = stageRef.current;
+                    if (!stage) return pos;
+
+                    const mapWidth = 1100;  // tu tamaño de mapa real
+                    const mapHeight = 680;
+
+                    const scaledW = mapWidth * stage.scaleX();
+                    const scaledH = mapHeight * stage.scaleY();
+
+                    const containerW = stage.width();
+                    const containerH = stage.height();
+
+                    // límites para que no "escape"
+                    const minX = containerW - scaledW;
+                    const minY = containerH - scaledH;
+                    const maxX = 0;
+                    const maxY = 0;
+
+                    return {
+                        x: Math.min(maxX, Math.max(minX, pos.x)),
+                        y: Math.min(maxY, Math.max(minY, pos.y)),
+                    };
+                }}
                 onDragEnd={(e) => {
                     setPosition({ x: e.target.x(), y: e.target.y() });
                 }}
@@ -602,6 +770,12 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                                 onMouseLeave={() => {
                                     const container = stageRef.current?.container();
                                     if (container) container.style.cursor = "default";
+                                }}
+                                onClick={() => {
+                                    // centrar en sector
+                                    const centerX = s.x + s.width / 2;
+                                    const centerY = s.y + s.height / 2;
+                                    centerOn(centerX, centerY, 1.6);
                                 }}
                             />
                             <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />
@@ -703,6 +877,7 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
 
                         </Group>
                     )}
+
 
 
 

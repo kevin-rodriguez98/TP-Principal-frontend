@@ -19,15 +19,16 @@ export default function ModalMapaAlmacen({ open, onClose, insumo }: Props) {
                 sx: {
                     padding: 2,
                     borderRadius: 3,
-                    maxWidth: "650px",
-                    width: "95%",
+                    width: "90vw",          // ancho grande
+                    height: "80vh",         // más bajo
+                    maxWidth: "1100px",     // límite
+                    maxHeight: "650px",
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
+                    overflow: "hidden"
                 },
             }}
         >
-            {/* Título con botón de cerrar */}
             <DialogTitle
                 sx={{
                     fontWeight: "bold",
@@ -49,7 +50,9 @@ export default function ModalMapaAlmacen({ open, onClose, insumo }: Props) {
                     padding: 0,
                     display: "flex",
                     justifyContent: "center",
+                    alignItems: "center",
                     width: "100%",
+                    height: "100%",       // ocupa el modal horizontal
                 }}
             >
                 {insumo && (
