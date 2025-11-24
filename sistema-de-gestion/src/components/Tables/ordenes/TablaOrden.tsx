@@ -195,7 +195,6 @@ const TablaOrden: React.FC = () => {
     const validar = (o: Partial<OrdenProduccion>) => {
         const err: Record<string, string> = {};
         if (!o.codigoProducto?.trim()) err.codigoProducto = "El código es requerido";
-        // if (!o.lote?.trim()) err.lote = "El lote es requerido";
         if (!o.stockRequerido && o.stockRequerido !== 0)
             err.stockRequerido = "El stock planeado es requerido";
         if (!o.fechaEntrega) err.fechaEntrega = "La fecha de entrega es requerida";
@@ -221,8 +220,6 @@ const TablaOrden: React.FC = () => {
         await handleAddOrden(valoresEnMayus);
         table.setCreatingRow(null);
     };
-
-
 
 
     const tabla = useMaterialReactTable({

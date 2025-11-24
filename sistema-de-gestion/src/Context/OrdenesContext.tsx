@@ -1,9 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from 'react-toastify';
 import { URL_ordenes as URL } from "../App";
-import { URL_estimacion as URLEst } from "../App";
 import { ModalContext } from "../components/modal/ModalContext";
-// import { TiempoProduccionContext } from "./TiempoProduccionContext";
 
 export interface Etapa {
   idOrden: number;
@@ -77,7 +75,6 @@ export interface ordenFinalizadaRequest {
   legajo: string;
 }
 
-
 export interface HistorialItem {
   etapa: string;
   fechaCambio: string;
@@ -90,8 +87,6 @@ export interface HistorialItem {
     rol: string;
   };
 }
-
-
 
 interface OrdenContextType {
   ordenes: OrdenProduccion[];
@@ -109,7 +104,6 @@ interface OrdenContextType {
   obtenerHistorialEtapas: (id: number) => Promise<HistorialItem[]>
   historial: Etapa[];
   setHistorial: React.Dispatch<React.SetStateAction<Etapa[]>>;
-  calcularTiempoEstimado: (codigoProducto: string, cantidad: number) => Promise<number | null>;
   generarCodigoLote: (codigoProducto: string) => string;
 
 }
@@ -119,7 +113,6 @@ interface OrdenProviderProps {
 }
 
 export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
-  // const { tiempos } = useContext(TiempoProduccionContext)!;
   const { setModal, modal } = useContext(ModalContext)!;
   const [ordenes, setOrdenes] = useState<OrdenProduccion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -133,8 +126,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     count++;
     console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
   }, []);
-
-
 
   // ====================================================
   // 🔧 Helper: Manejo centralizado de errores del backend
@@ -158,78 +149,24 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     throw new Error(message);
   };
 
-  // ===============================
-  // 📦 Obtener todas las órdenes
-  // ===============================
-  // const obtenerOrdenes = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     setError(null);
-  //     const response = await fetch(`${URL}/obtener`);
-  //     if (!response.ok) {
-  //       await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
-  //     }
-  //     const data = await response.json();
-  //     // console.log(data)
-
-  //     const ordenesConEmpleado = data.map((orden: any) => ({
-  //       ...orden,
-  //       responsableNombre: orden.empleado?.nombre || "",
-  //       responsableApellido: orden.empleado?.apellido || "",
-  //       legajoEmpleado: orden.empleado?.legajo || "",
-  //     }));
-  //     setOrdenes(ordenesConEmpleado);
-  //   } catch (err: any) {
-  //     setError(err.message);
-  //     if (!modal) {
-  //       setModal({
-  //         tipo: "error",
-  //         mensaje: "El servidor no está disponible. Intenta más tarde.",
-  //       });
-  //     }
-  //     setOrdenes([]);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const obtenerOrdenes = async () => {
     setIsLoading(true);
     try {
       setError(null);
-
       const response = await fetch(`${URL}/obtener`);
       if (!response.ok) {
         await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
       }
-
       const data = await response.json();
+      // console.log(data)
 
-      // 🟦 1. Armamos la orden con los datos del empleado
-      const ordenesBase = data.map((orden: any) => ({
+      const ordenesConEmpleado = data.map((orden: any) => ({
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
         legajoEmpleado: orden.empleado?.legajo || "",
       }));
-
-      // 🟩 2. Recalculamos el tiempo estimado para cada orden
-      const ordenesConTiempo = await Promise.all(
-        ordenesBase.map(async (orden: any) => {
-          const tiempo = await calcularTiempoEstimado(
-            orden.codigoProducto,
-            orden.stockRequerido
-          );
-
-          return {
-            ...orden,
-            tiempoEstimado: tiempo ?? 0,  // 👈 AQUI SE GUARDA AL CARGAR
-          };
-        })
-      );
-
-      setOrdenes(ordenesConTiempo);
-
+      setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
       setError(err.message);
       if (!modal) {
@@ -274,14 +211,15 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         legajoEmpleado: orden.empleado?.legajo || "",
       }));
 
-      const ordenesConTiempo = await Promise.all(
-        ordenesBase.map(async (orden: any) => ({
-          ...orden,
-          tiempoEstimado: await calcularTiempoEstimado(orden.codigoProducto, orden.stockRequerido) ?? 0,
-        }))
-      );
+      // const ordenesConTiempo = await Promise.all(
+      //   ordenesBase.map(async (orden: any) => ({
+      //     ...orden,
+      //     tiempoEstimado: await calcularTiempoEstimado(orden.codigoProducto, orden.stockRequerido) ?? 0,
+      //   }))
+      // );
 
-      setOrdenes(ordenesConTiempo);
+      // setOrdenes(ordenesConTiempo);
+      setOrdenes(ordenesBase);
 
     } catch (err: any) {
       setError(err.message);
@@ -292,54 +230,9 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  
-
-
-
-  
-
-
-  // ===============================
-  // ➕ Agregar una nueva orden
-  // ===============================
-  // const handleAddOrden = async (orden: OrdenProduccionAgregarRequest): Promise<void> => {
-  //   setError(null);
-  //   try {
-  //     const response = await fetch(`${URL}/agregar`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(orden),
-  //     });
-
-  //     if (!response.ok) {
-  //       await handleFetchError(response, "No se pudo crear la orden.");
-  //       return;
-  //     }
-
-  //     const nuevaOrden = await response.json();
-  //     setOrdenes(prev => [...prev, nuevaOrden]);
-
-  //     toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
-
-  //   } catch {
-  //     setModal({
-  //       tipo: "error",
-  //       mensaje: "No se pudo crear la orden.",
-  //     });
-  //   }
-  // };
-
   const handleAddOrden = async (orden: OrdenProduccionAgregarRequest): Promise<void> => {
     setError(null);
-
     try {
-      // 1) Calcular tiempo estimado ANTES de enviar al backend
-      const tiempoEstimado = await calcularTiempoEstimado(
-        orden.codigoProducto,
-        orden.stockRequerido
-      );
-
-      // 2) Enviar solo lo que el backend necesita
       const response = await fetch(`${URL}/agregar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -351,27 +244,61 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         return;
       }
 
-      // 3) El backend devuelve la orden (sin tiempoEstimado)
       const nuevaOrden = await response.json();
-
-      // 4) Agregar el tiempo estimado SOLO en el front
-      const ordenConTiempo = {
-        ...nuevaOrden,
-        tiempoEstimado: tiempoEstimado ?? 0, // 👈 SE GUARDA AQUÍ
-      };
-
-      // 5) Guardar en el estado del context
-      setOrdenes(prev => [...prev, ordenConTiempo]);
+      setOrdenes(prev => [...prev, nuevaOrden]);
 
       toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
 
-    } catch (e) {
+    } catch {
       setModal({
         tipo: "error",
         mensaje: "No se pudo crear la orden.",
       });
     }
   };
+
+  //   setError(null);
+
+  //   try {
+  //     // 1) Calcular tiempo estimado ANTES de enviar al backend
+  //     const tiempoEstimado = await calcularTiempoEstimado(
+  //       orden.codigoProducto,
+  //       orden.stockRequerido
+  //     );
+
+  //     // 2) Enviar solo lo que el backend necesita
+  //     const response = await fetch(`${URL}/agregar`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(orden),
+  //     });
+
+  //     if (!response.ok) {
+  //       await handleFetchError(response, "No se pudo crear la orden.");
+  //       return;
+  //     }
+
+  //     // 3) El backend devuelve la orden (sin tiempoEstimado)
+  //     const nuevaOrden = await response.json();
+
+  //     // 4) Agregar el tiempo estimado SOLO en el front
+  //     const ordenConTiempo = {
+  //       ...nuevaOrden,
+  //       tiempoEstimado: tiempoEstimado ?? 0, // 👈 SE GUARDA AQUÍ
+  //     };
+
+  //     // 5) Guardar en el estado del context
+  //     setOrdenes(prev => [...prev, ordenConTiempo]);
+
+  //     toast.success(`¡Se ha creado la orden para ${orden.productoRequerido}!`);
+
+  //   } catch (e) {
+  //     setModal({
+  //       tipo: "error",
+  //       mensaje: "No se pudo crear la orden.",
+  //     });
+  //   }
+  // };
 
 
 
@@ -407,11 +334,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-
-
-  // ===============================
-  // 📨 Notificar nueva etapa
-  // ===============================
   const notificarEtapa = async (data: Etapa) => {
     try {
       const response = await fetch(`${URL}/notificar-etapa`, {
@@ -439,10 +361,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-
-  // ===============================
-  // 📝 Agregar nota a la orden
-  // ===============================
   const agregarNota = async (id: number, nota: string) => {
     try {
       const response = await fetch(`${URL}/agregar-nota/${id}`, {
@@ -466,9 +384,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-  // ===============================
-  // 📜 Obtener historial de etapas
-  // ===============================
   const obtenerHistorialEtapas = async (id: number): Promise<HistorialItem[]> => {
     try {
       const response = await fetch(`${URL}/${id}/historial-etapas`);
@@ -488,41 +403,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     }
   };
 
-
-  // Calcular tiempo estimado total
-  const calcularTiempoEstimado = async (codigoProducto: string, cantidad: number): Promise<number | null> => {
-    // const existe = tiempos.some(t =>
-    //   (t as any).codigo === codigoProducto || (t as any).codigoProducto === codigoProducto
-    // );
-    // console.log(tiempos)
-
-    // if (!existe) {
-    //   // No está incluido → devolvemos null (no undefined)
-    //   console.warn(`El producto ${codigoProducto} no está incluido en tiempos.`);
-    //   return null;
-    // }
-
-    try {
-      const response = await fetch(
-        `${URLEst}/calcular?codigoProducto=${codigoProducto}&cantidad=${cantidad}`
-      );
-
-      // if (!response.ok) {
-      //   await handleFetchError(response, "Error al calcular el tiempo estimado");
-      //   return null;
-      // }
-
-      const data = await response.json();
-      console.log(data);
-      return data.tiempoEstimado ?? null;
-
-    } catch (error) {
-      console.error("Error calculando tiempo estimado:", error);
-      return null;
-    }
-  };
-
-
   const generarCodigoLote = (codigoProducto: string): string => {
     // Filtramos todas las órdenes del mismo producto
     const ordenesProducto = ordenes.filter(
@@ -538,8 +418,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
     // Retornamos formato "L{numero}"
     return `L0${siguiente}`;
   };
-
-
 
 
   return (
@@ -560,7 +438,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         obtenerHistorialEtapas,
         historial,
         setHistorial,
-        calcularTiempoEstimado,
         generarCodigoLote
       }}
     >
