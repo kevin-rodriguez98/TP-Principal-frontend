@@ -348,7 +348,7 @@ const baseTextFieldProps = (campo: string, extraProps = {}) => ({
           maxWidth: "1400px",
           borderRadius: 2,
           p: 3,
-          backgroundColor: "#1e1e1e",
+          backgroundColor: "#0e1217",
         }}
       >
         <MaterialReactTable table={table} />

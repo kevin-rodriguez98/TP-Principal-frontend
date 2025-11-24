@@ -24,7 +24,7 @@ const styleModal = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: "#1e1e1e",
+    bgcolor: "#0e1217",
     borderRadius: "12px",
     boxShadow: 24,
     p: 3,

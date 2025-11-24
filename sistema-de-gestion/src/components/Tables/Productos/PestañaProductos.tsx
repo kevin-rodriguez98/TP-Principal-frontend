@@ -14,7 +14,7 @@ import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
@@ -271,7 +271,7 @@ const TablaProductos: React.FC = () => {
         <>
           <DialogTitle
             variant="h5"
-            sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+            sx={{ fontWeight: "bold", color: "#8c52ff", textAlign: "center" }}
           >
             Nuevo Producto
           </DialogTitle>
@@ -297,7 +297,7 @@ const TablaProductos: React.FC = () => {
       <>
         <DialogTitle
           variant="h5"
-          sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+          sx={{ fontWeight: "bold", color: "#b13c7e", textAlign: "center" }}
         >
           Editar Producto
         </DialogTitle>

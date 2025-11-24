@@ -208,7 +208,7 @@ export const Card = ({ titulo, children }: any) => (
 
 export const ResumenCardDark = ({ titulo, valor, color }: any) => (
   <div style={{
-    flex: 1, minWidth: 200, background: "#1e1e1e", borderRadius: 12,
+    flex: 1, minWidth: 200, background: "#0e1217", borderRadius: 12,
     padding: "20px 25px", display: "flex", flexDirection: "column",
     alignItems: "center", borderTop: `4px solid ${color}`,
     boxShadow: "0 2px 6px rgba(0,0,0,0.4)`, marginBottom: 20"
