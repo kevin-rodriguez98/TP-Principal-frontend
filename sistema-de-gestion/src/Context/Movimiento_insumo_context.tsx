@@ -16,9 +16,9 @@ export interface movimiento_insumo {
     stock: number;
     lote: string;
     proveedor: string;
-    legajo: string;
     fechaHora: string;
-
+    
+    legajo: string;
     responsableNombre: string;
     responsableApellido: string;
 }
@@ -80,7 +80,9 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
                 ...item.movimientos,                 // todos los campos del movimiento
                 responsableNombre: item.empleado?.nombre || "",
                 responsableApellido: item.empleado?.apellido || "",
+                legajo: item.empleado?.legajo || "",
             }));
+            console.log(data)
             setMovimiento_insumos(listaTransformada);
         } catch (err: any) {
             setError(err.message);
