@@ -42,7 +42,7 @@ export interface OrdenProduccion {
 
 
   legajo: string;
-  legajoEmpleado: string;
+  // legajoEmpleado: string;
   responsableNombre: string;
   responsableApellido: string;
 
@@ -164,7 +164,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
-        legajoEmpleado: orden.empleado?.legajo || "",
+        // legajoEmpleado: orden.empleado?.legajo || "",
       }));
       setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
@@ -208,7 +208,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
-        legajoEmpleado: orden.empleado?.legajo || "",
+        // legajoEmpleado: orden.empleado?.legajo || "",
       }));
 
       // const ordenesConTiempo = await Promise.all(
