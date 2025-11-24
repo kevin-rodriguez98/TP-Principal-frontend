@@ -53,8 +53,7 @@ export interface OrdenProduccion {
   nota: string;
   fechaCreacion: string;
   stockProducidoReal: number;
-  tiempoEstimado: number;
-  // envasado: string;
+  tiempoProduccion: number;
 }
 
 export interface OrdenProduccionAgregarRequest {

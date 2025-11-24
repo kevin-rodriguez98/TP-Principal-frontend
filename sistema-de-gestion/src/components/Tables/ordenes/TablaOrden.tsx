@@ -215,7 +215,7 @@ const TablaOrden: React.FC = () => {
             legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
             lote: generarCodigoLote(values.codigoProducto),
         };
-        
+
         const valoresEnMayus = toUpperObject(nuevaOrden);
         setValidationErrors({});
         await handleAddOrden(valoresEnMayus);
@@ -298,9 +298,9 @@ const TablaOrden: React.FC = () => {
                                 Tiempo estimado de Producción
                             </Typography>
 
-                            {row.original.tiempoEstimado ? (
+                            {row.original.tiempoProduccion ? (
                                 <>
-                                    <Typography>{row.original.tiempoEstimado} minutos.</Typography>
+                                    <Typography>{row.original.tiempoProduccion} minutos.</Typography>
                                     <Typography variant="caption" color="text.secondary">
                                         *Los tiempos son estimativos.
                                     </Typography>
