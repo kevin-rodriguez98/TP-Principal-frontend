@@ -42,7 +42,6 @@ export interface OrdenProduccion {
 
 
   legajo: string;
-  // legajoEmpleado: string;
   responsableNombre: string;
   responsableApellido: string;
 
@@ -51,8 +50,7 @@ export interface OrdenProduccion {
   nota: string;
   fechaCreacion: string;
   stockProducidoReal: number;
-  tiempoEstimado: number;
-  // envasado: string;
+  tiempoProduccion: number;
 }
 
 export interface OrdenProduccionAgregarRequest {
@@ -158,13 +156,12 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         await handleFetchError(response, "No se pudo obtener la lista de órdenes.");
       }
       const data = await response.json();
-      // console.log(data)
+      console.log(data)
 
       const ordenesConEmpleado = data.map((orden: any) => ({
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
-        // legajoEmpleado: orden.empleado?.legajo || "",
       }));
       setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
@@ -208,7 +205,6 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
-        // legajoEmpleado: orden.empleado?.legajo || "",
       }));
 
       // const ordenesConTiempo = await Promise.all(
