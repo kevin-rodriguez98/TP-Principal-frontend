@@ -76,14 +76,14 @@ const CeldaEtapa: React.FC<Props> = ({
                         disabled={estadoActual !== estados.enProduccion}
                         onChange={onChange}
                         sx={{
-                            background: "#1e1e1e",
+                            background: "#111827",
                             fontWeight: 700,
                             px: 1.2,
                             borderRadius: "6px",
                             border: `1px solid`,
                         }}
                         MenuProps={{
-                            PaperProps: { sx: { backgroundColor: "#222", borderRadius: "10px" } },
+                            PaperProps: { sx: { backgroundColor: "#311e55", borderRadius: "10px" } },
                         }}
                     >
                         {Object.values(etapas_produccion).map((et) => (
@@ -118,8 +118,8 @@ const CeldaEtapa: React.FC<Props> = ({
                             textarea: { color: "white" },
                             input: { color: "white" },
                             "& .MuiOutlinedInput-root": {
-                                "& fieldset": { borderColor: "#555" },
-                                "&:hover fieldset": { borderColor: "#888" },
+                                "& fieldset": { borderColor: "#150e23ff" },
+                                "&:hover fieldset": { borderColor: "#0e0917ff" },
                             },
                         }}
                     />

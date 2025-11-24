@@ -55,7 +55,7 @@ const Header = () => {
 
     {/* Título */}
     <h1 className="text-4xl font-extrabold text-white" style={{color: "white", fontSize: "3rem"}}>
-      <span style={{ color: "var(--color-primary)", padding: "5px" }}>FROZEN</span> Dashboard
+      <span style={{ color: "#8c52ff", padding: "5px" }}>FROZEN</span> Dashboard
     </h1>
   </div>
       <div className="div-notify">

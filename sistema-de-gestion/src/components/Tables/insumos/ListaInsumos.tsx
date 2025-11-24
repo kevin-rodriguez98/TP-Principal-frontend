@@ -11,7 +11,7 @@ import MapIcon from "@mui/icons-material/Map";
 import ModalMapaAlmacen from "./modals/modalMapa";
 import ModalLocacionInsumo from "./modals/modalAddLocacion";
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const TablaInsumos: React.FC = () => {
     const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error, obtenerSiguienteCodigo } = useContext(InsumoContext)!;
@@ -38,7 +38,7 @@ const TablaInsumos: React.FC = () => {
         required: true,
         error: !!validationErrors[campo],
         helperText: validationErrors[campo] ? (
-            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
+            <span style={{ color: "#8c52ff" }}>{validationErrors[campo]}</span>
         ) : null,
         onFocus: () => limpiarError(campo),
         ...extraProps,
@@ -95,9 +95,9 @@ const TablaInsumos: React.FC = () => {
                     const isLow = stock < umbral;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: isLow ? "red" : "inherit" }}>{stock}</Typography>
+                            <Typography sx={{ color: isLow ? "#8c52ff" : "inherit" }}>{stock}</Typography>
                             {isLow && (
-                                <FaExclamationTriangle color="red" title="debajo del umbral" />
+                                <FaExclamationTriangle color="#b13c7e" title="debajo del umbral" />
                             )}
                         </Box>
                     );
@@ -112,7 +112,7 @@ const TablaInsumos: React.FC = () => {
                     const umbral = row.original.umbralMinimoStock;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "#e4f502ff" }}>{umbral}</Typography>
+                            <Typography sx={{ color: "#f1c40f" }}>{umbral}</Typography>
                         </Box>
                     );
                 },
@@ -315,7 +315,7 @@ const TablaInsumos: React.FC = () => {
                 <>
                     <DialogTitle
                         variant="h5"
-                        sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                        sx={{ fontWeight: "bold", color: "#b13c7e", textAlign: "center" }}
                     >
                         Nuevo Insumo
                     </DialogTitle>
@@ -341,7 +341,7 @@ const TablaInsumos: React.FC = () => {
             <>
                 <DialogTitle
                     variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                    sx={{ fontWeight: "bold", color: "#8c52ff", textAlign: "center" }}
                 >
                     Editar Insumo
                 </DialogTitle>
@@ -404,7 +404,7 @@ const TablaInsumos: React.FC = () => {
                     <span className="icono-boton">➕</span>
                 </Button>
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
-                    <Typography variant="h5" color="primary" className="titulo-lista-insumos">
+                    <Typography variant="h5" color="#b13c7e" className="titulo-lista-insumos">
                         Insumos
                     </Typography>
 

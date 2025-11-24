@@ -22,10 +22,10 @@ const Tabla: React.FC = () => {
             {/* Encabezado */}
             <Box
                 sx={{
-                    backgroundColor: "#121212",
+                    backgroundColor: "#111827",
                     py: 2,
                     px: 3,
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #311e55",
                     display: "flex",
                     justifyContent: "center", // 🔹 Centrado horizontal
                     alignItems: "center",
@@ -35,7 +35,7 @@ const Tabla: React.FC = () => {
                     variant="h6"
                     sx={{
                         fontWeight: "bold",
-                        color: "#90caf9",
+                        color: "#8c52ff",
                         textAlign: "center",
                         letterSpacing: "1px",
                     }}
@@ -52,13 +52,13 @@ const Tabla: React.FC = () => {
                 textColor="inherit"
                 TabIndicatorProps={{
                     style: {
-                        backgroundColor: "#00fff7ff",
+                        backgroundColor: "#b13c7e",
                         height: "4px",
                         borderRadius: "2px",
                     },
                 }}
                 sx={{
-                    backgroundColor: "#2b2b2b",
+                    backgroundColor: "#130f25ff",
                     "& .MuiTab-root": {
                         textTransform: "none",
                         fontWeight: "bold",
@@ -66,11 +66,11 @@ const Tabla: React.FC = () => {
                         transition: "all 0.3s ease",
                     },
                     "& .Mui-selected": {
-                        color: "#42a5f5",
-                        backgroundColor: "#1e1e1e",
+                        color: "#8c52ff",
+                        backgroundColor: "#111827",
                     },
                     "& .MuiTabs-flexContainer": {
-                        borderBottom: "1px solid #333",
+                        borderBottom: "1px solid #311e55",
                     },
                 }}
             >
@@ -84,8 +84,8 @@ const Tabla: React.FC = () => {
                     mt: 1,
                     p: 3,
                     minHeight: 500,
-                    backgroundColor: "#121212",
-                    borderTop: "1px solid #333",
+                    backgroundColor: "#111827",
+                    borderTop: "1px solid #311e55",
                     borderRadius: "0 0 16px 16px",
                 }}
             >

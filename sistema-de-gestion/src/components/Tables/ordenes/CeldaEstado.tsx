@@ -23,7 +23,7 @@ const styleModal = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: "#1e1e1e",
+    bgcolor: "#111827",
     borderRadius: "12px",
     boxShadow: 24,
     p: 3,
@@ -103,7 +103,7 @@ const CeldaEstado: React.FC<Props> = ({
         value={estado}
         onChange={onChange}
         sx={{
-            background: "#1e1e1e",
+            background: "#111827",
             color: colorEstado[estado],
             fontWeight: 700,
             px: 1.2,
@@ -112,7 +112,7 @@ const CeldaEstado: React.FC<Props> = ({
             "& .MuiSvgIcon-root": { color: colorEstado[estado] },
         }}
         MenuProps={{
-            PaperProps: { sx: { backgroundColor: "#222", borderRadius: "10px" } },
+            PaperProps: { sx: { backgroundColor: "#311e55", borderRadius: "10px" } },
         }}
     >
         <MenuItem
@@ -163,7 +163,7 @@ const CeldaEstado: React.FC<Props> = ({
                             label: { color: "#aaa" },
                             "& .MuiSelect-select": { color: "white" },
                             "& .MuiOutlinedInput-root": {
-                                "& fieldset": { borderColor: "#555" },
+                                "& fieldset": { borderColor: "#311e55" },
                                 "&:hover fieldset": { borderColor: "#888" },
                             },
                         }}
@@ -184,7 +184,7 @@ const CeldaEstado: React.FC<Props> = ({
                             input: { color: "white" },
                             label: { color: "#aaa" },
                             "& .MuiOutlinedInput-root": {
-                                "& fieldset": { borderColor: "#555" },
+                                "& fieldset": { borderColor: "#311e55" },
                                 "&:hover fieldset": { borderColor: "#888" },
                             },
                         }}

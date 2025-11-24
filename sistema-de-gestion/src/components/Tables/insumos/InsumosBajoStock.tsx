@@ -5,7 +5,7 @@ import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
 import { FaExclamationTriangle } from "react-icons/fa";
 import SinResultados from "../../estaticos/SinResultados";
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const InsumosBajoStock: React.FC = () => {
     const { insumos_bajo_stock, isLoading, error } = useContext(InsumoContext)!;
@@ -49,8 +49,8 @@ const InsumosBajoStock: React.FC = () => {
                     const stock = row.original.stock;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "red" }}>{stock}</Typography>
-                            <FaExclamationTriangle color="red" title="debajo del umbral" />
+                            <Typography sx={{ color: "#8c52ff" }}>{stock}</Typography>
+                            <FaExclamationTriangle color="#8c52ff" title="debajo del umbral" />
                         </Box>
                     );
                 },
@@ -66,7 +66,7 @@ const InsumosBajoStock: React.FC = () => {
                     const umbral = row.original.umbralMinimoStock;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "#e4f502ff" }}>{umbral}</Typography>
+                            <Typography sx={{ color: "#d88346" }}>{umbral}</Typography>
                         </Box>
                     );
                 },

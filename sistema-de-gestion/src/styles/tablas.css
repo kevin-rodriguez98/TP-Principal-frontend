@@ -1,17 +1,17 @@
 --- Contenedor principal ---
 .ordenes-main, .insumos-main, .registros-main, .productos-main {
   margin: 2%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #0e1217;
+  font-family: "Inter", sans-serif;
 }
 
 /* --- Título --- */
 .titulo {
   font-size: 1rem;
-  font-weight: bold;
   color: rgb(255, 255, 255);
   display: none;
 }

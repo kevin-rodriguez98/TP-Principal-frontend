@@ -30,7 +30,7 @@
     height: auto; 
     border-radius: 12px;
     margin-bottom: 20px;
-    border: 3px solid #3b82f6; /* Azul brillante para el foco */
+    border: 3px solid #8c52ff; /* Azul brillante para el foco */
     object-fit: cover;
 }
 
@@ -71,12 +71,12 @@
 
 /* Botón cambiar modo (Azul) */
 .switch-btn {
-    background-color: #3b82f6; /* Azul */
+    background-color: #8c52ff; /* Azul */
     color: white;
 }
 
 .switch-btn:hover {
-    background-color: #2563eb; /* Azul más oscuro */
+    background-color: #2e1560; /* Azul más oscuro */
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
@@ -84,15 +84,15 @@
 /* Botones de detectar/iniciar (Verde - Acción Principal) */
 .face-buttons button:not(.cancel-btn):not(.switch-btn),
 .manual-buttons button:not(.cancel-btn):not(.switch-btn) {
-    background-color: #10b981; /* Verde esmeralda */
+    background-color: #b13c7e; /* Verde esmeralda */
     color: white;
 }
 
 .face-buttons button:not(.cancel-btn):not(.switch-btn):hover,
 .manual-buttons button:not(.cancel-btn):not(.switch-btn):hover {
-    background-color: #059669; /* Verde más oscuro */
+    background-color: #68224a; /* Verde más oscuro */
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 6px #b13c7e68;
 }
 
 /* Inputs login manual */
@@ -105,9 +105,9 @@
     font-size: 1rem;
     
     /* Tema Oscuro para Inputs */
-    background-color: #374151; /* Fondo de input más claro que el contenedor */
+    background-color: #413751; /* Fondo de input más claro que el contenedor */
     color: #f3f4f6; /* Texto claro */
-    border: 1px solid #4b5563;
+    border: 1px solid #574b63;
 }
 .logo-box {
     width: 100%;

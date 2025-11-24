@@ -28,11 +28,11 @@ const TabPanel = ({ children, value, index }: any) => {
 const darkTheme = createTheme({
     palette: {
         mode: "dark",
-        primary: { main: "#90caf9" },
-        secondary: { main: "#f48fb1" },
+        primary: { main: "#8c52ff81" },
+        secondary: { main: "#b13c7e63" },
         background: {
-            default: "#121212",
-            paper: "#1e1e1e",
+            default: "#0e1217",
+            paper: "#111827",
         },
     },
     components: {
@@ -69,7 +69,7 @@ export default function PanelGeneral({ }) {
         
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.default", backgroundColor: "transparent" }}>
+            <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.default", backgroundColor: "#0e1217" }}>
                 <Paper elevation={3} sx={{ mx: 4, mt: 4, borderRadius: 2 }}>
                     {isMobile ? (
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
@@ -77,22 +77,22 @@ export default function PanelGeneral({ }) {
                                 onClick={() => navigate("/")}
                                 variant="contained"
                                 sx={{
-                                    backgroundColor: "#2b2b2b",
+                                    backgroundColor: "#111827",
                                     color: "#fff",
                                     borderRadius: "30px",
                                     padding: "6px 12px",
                                     minWidth: "auto",
-                                    "&:hover": { backgroundColor: "#444" },
+                                    "&:hover": { backgroundColor: "#0e1217" },
                                 }}
                             >
-                                <IoArrowBackCircleSharp size={24} style={{ color: "#ff4b4b" }} />
+                                <IoArrowBackCircleSharp size={24} style={{ color: "#8c52ff" }} />
                             </Button>
                             <Select
                                 value={value}
                                 onChange={(e) => setValue(Number(e.target.value))}
                                 fullWidth
                                 sx={{
-                                    backgroundColor: "#1e1e1e",
+                                    backgroundColor: "#111827",
                                     color: "#fff",
                                     borderRadius: "10px",
                                     "& .MuiSvgIcon-root": { color: "#fff" },
@@ -113,16 +113,16 @@ export default function PanelGeneral({ }) {
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "8px",
-                                    backgroundColor: "#2b2b2b",
+                                    backgroundColor: "#0e1217",
                                     color: "#fff",
                                     borderRadius: "30px",
                                     padding: "8px 16px",
                                     textTransform: "none",
                                     fontWeight: "bold",
-                                    "&:hover": { backgroundColor: "#444" },
+                                    "&:hover": { backgroundColor: "#1c1922ff" },
                                 }}
                             >
-                                <IoArrowBackCircleSharp size={28} style={{ color: "#ff4b4b" }} />
+                                <IoArrowBackCircleSharp size={28} style={{ color: "#8c52ff" }} />
                             </Button>
                             <Tabs
                                 value={value}
@@ -154,10 +154,10 @@ export default function PanelGeneral({ }) {
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 2,
-                                    backgroundColor: "#1f1f1f",
+                                    backgroundColor: "#141120ff",
                                     borderRadius: "12px",
                                     padding: "6px 12px",
-                                    boxShadow: "0 0 10px rgba(0,0,0,0.3)",
+                                    boxShadow: "0 0 10px rgba(17, 14, 25, 0.3)",
                                 }}
                             >
                                 {usuario ? (
@@ -167,7 +167,7 @@ export default function PanelGeneral({ }) {
                                                 width: 38,
                                                 height: 38,
                                                 borderRadius: "50%",
-                                                backgroundColor: "#333",
+                                                backgroundColor: "#311e55",
                                                 display: "flex",
                                                 justifyContent: "center",
                                                 alignItems: "center",
