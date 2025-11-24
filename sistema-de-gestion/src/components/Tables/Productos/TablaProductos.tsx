@@ -14,7 +14,7 @@ const Tabla: React.FC = () => {
                 width: "100%",
                 borderRadius: 4,
                 overflow: "hidden",
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#0e1217",
                 color: "#e0e0e0",
                 boxShadow: "0px 4px 25px rgba(0,0,0,0.6)",
             }}
@@ -22,10 +22,10 @@ const Tabla: React.FC = () => {
             {/* Encabezado */}
             <Box
                 sx={{
-                    backgroundColor: "#121212",
+                    backgroundColor: "#111827",
                     py: 2,
                     px: 3,
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #150e23ff",
                     display: "flex",
                     justifyContent: "center", // 🔹 Centrado horizontal
                     alignItems: "center",
@@ -34,8 +34,7 @@ const Tabla: React.FC = () => {
                 <Typography
                     variant="h6"
                     sx={{
-                        fontWeight: "bold",
-                        color: "#90caf9",
+                        color: "#8c52ff",
                         textAlign: "center",
                         letterSpacing: "1px",
                     }}
@@ -52,25 +51,24 @@ const Tabla: React.FC = () => {
                 textColor="inherit"
                 TabIndicatorProps={{
                     style: {
-                        backgroundColor: "#00fff7ff",
+                        backgroundColor: "#b13c7e",
                         height: "4px",
                         borderRadius: "2px",
                     },
                 }}
                 sx={{
-                    backgroundColor: "#2b2b2b",
+                    backgroundColor: "#111827",
                     "& .MuiTab-root": {
                         textTransform: "none",
-                        fontWeight: "bold",
                         color: "#b0b0b0",
                         transition: "all 0.3s ease",
                     },
                     "& .Mui-selected": {
-                        color: "#42a5f5",
-                        backgroundColor: "#1e1e1e",
+                        color: "#8c52ff",
+                        backgroundColor: "#0e1217",
                     },
                     "& .MuiTabs-flexContainer": {
-                        borderBottom: "1px solid #333",
+                        borderBottom: "1px solid #150e23ff",
                     },
                 }}
             >
@@ -84,8 +82,8 @@ const Tabla: React.FC = () => {
                     mt: 1,
                     p: 3,
                     minHeight: 500,
-                    backgroundColor: "#121212",
-                    borderTop: "1px solid #333",
+                    backgroundColor: "#111827",
+                    borderTop: "1px solid #150e23ff",
                     borderRadius: "0 0 16px 16px",
                 }}
             >

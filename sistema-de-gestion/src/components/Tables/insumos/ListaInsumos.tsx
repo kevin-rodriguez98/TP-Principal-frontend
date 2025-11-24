@@ -95,9 +95,9 @@ const TablaInsumos: React.FC = () => {
                     const isLow = stock < umbral;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: isLow ? "#8c52ff" : "inherit" }}>{stock}</Typography>
+                            <Typography sx={{ color: isLow ? "red" : "#8c52ff" }}>{stock}</Typography>
                             {isLow && (
-                                <FaExclamationTriangle color="#b13c7e" title="debajo del umbral" />
+                                <FaExclamationTriangle color="red" title="debajo del umbral" />
                             )}
                         </Box>
                     );

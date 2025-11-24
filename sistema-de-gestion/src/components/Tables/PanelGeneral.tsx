@@ -10,6 +10,8 @@ import TablaOrden from "./ordenes/TablaOrden";
 import TablaRegistro from "./registros/TablaRegistro";
 import { useUsuarios } from "../../Context/UsuarioContext";
 import TablaProductos from "./Productos/TablaProductos";
+import { FiBox, FiFileText, FiPackage, FiCpu } from "react-icons/fi";
+
 
 
 
@@ -118,7 +120,6 @@ export default function PanelGeneral({ }) {
                                     borderRadius: "30px",
                                     padding: "8px 16px",
                                     textTransform: "none",
-                                    fontWeight: "bold",
                                     "&:hover": { backgroundColor: "#1c1922ff" },
                                 }}
                             >
@@ -143,10 +144,26 @@ export default function PanelGeneral({ }) {
                                     },
                                 }}
                             >
-                                <Tab label="Gestión de Insumos" />
-                                <Tab label="Registros" />
-                                <Tab label="Productos" />
-                                <Tab label="Órdenes de Producción" />
+                                  <Tab
+                                        icon={<FiBox size={18} />}
+                                        iconPosition="start"
+                                        label="Gestión de Insumos"
+                                    />
+                                    <Tab
+                                        icon={<FiFileText size={18} />}
+                                        iconPosition="start"
+                                        label="Registros"
+                                    />
+                                    <Tab
+                                        icon={<FiPackage size={18} />}
+                                        iconPosition="start"
+                                        label="Productos"
+                                    />
+                                    <Tab
+                                        icon={<FiCpu size={18} />}
+                                        iconPosition="start"
+                                        label="Órdenes de Producción"
+                                    />
                             </Tabs>
                             <Box
                                 sx={{

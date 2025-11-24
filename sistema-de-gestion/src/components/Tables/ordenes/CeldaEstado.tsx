@@ -11,10 +11,10 @@ interface Props {
 }
 
 const colorEstado: Record<string, string> = {
-    [estados.evaluacion]: "dodgerblue",
-    [estados.enProduccion]: "gold",
-    [estados.finalizada]: "limegreen",
-    [estados.cancelada]: "crimson",
+    [estados.evaluacion]: "#b062ce",
+    [estados.enProduccion]: "#f1c40f",
+    [estados.finalizada]: "#b13c7e",
+    [estados.cancelada]: "#d88346",
 };
 
 const styleModal = {

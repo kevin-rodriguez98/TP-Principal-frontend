@@ -11,7 +11,7 @@ import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, generarCodigoLote, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
@@ -417,7 +417,7 @@ const TablaOrden: React.FC = () => {
                         {/* Sección de datos obligatorios */}
                         <Box
                             sx={{
-                                backgroundColor: "#1e1e1e",
+                                backgroundColor: "#0e1217",
                                 borderRadius: 2,
                                 border: "1px solid #2a2a2a",
                                 boxShadow: "0 0 10px rgba(0,0,0,0.3)",
@@ -428,8 +428,7 @@ const TablaOrden: React.FC = () => {
                                 variant="subtitle1"
                                 sx={{
                                     mb: 2,
-                                    fontWeight: "bold",
-                                    color: "#64b5f6",
+                                                color: "#64b5f6",
                                     borderBottom: "1px solid #1976d2",
                                     pb: 1,
                                     textAlign: "center",
@@ -462,8 +461,7 @@ const TablaOrden: React.FC = () => {
                                 variant="subtitle1"
                                 sx={{
                                     mb: 2,
-                                    fontWeight: "bold",
-                                    color: "#b0bec5",
+                                                color: "#b0bec5",
                                     borderBottom: "1px solid #424242",
                                     pb: 1,
                                     textAlign: "center",

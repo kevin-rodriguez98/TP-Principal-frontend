@@ -51,7 +51,7 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
 
     return (
         <Box className="timeline-container">
-            <Typography variant="subtitle1" sx={{ mb: 1, color: "#15a017ff", fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1, color: "#b13c7e", fontWeight: 600 }}>
                 Trazabilidad de la Orden
             </Typography>
 
@@ -80,7 +80,7 @@ const HistorialEtapas: React.FC<HistorialEtapasProps> = ({ ordenId }) => {
             </ul>
 
             {ordenActual?.nota && (
-                <Box sx={{ mt: 1.5, p: 1.2, background: "#1e1e1e", borderRadius: 1 }}>
+                <Box sx={{ mt: 1.5, p: 1.2, background: "#0e1217", borderRadius: 1 }}>
                     <Typography variant="caption" sx={{ color: "#b0b0b0" }}>
                         📝 Nota: {ordenActual.nota}
                     </Typography>

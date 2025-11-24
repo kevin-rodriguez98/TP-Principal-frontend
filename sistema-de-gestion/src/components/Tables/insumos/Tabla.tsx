@@ -14,7 +14,7 @@ const Tabla: React.FC = () => {
                 width: "100%",
                 borderRadius: 4,
                 overflow: "hidden",
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#0e1217",
                 color: "#e0e0e0",
                 boxShadow: "0px 4px 25px rgba(0,0,0,0.6)",
             }}
@@ -34,7 +34,6 @@ const Tabla: React.FC = () => {
                 <Typography
                     variant="h6"
                     sx={{
-                        fontWeight: "bold",
                         color: "#8c52ff",
                         textAlign: "center",
                         letterSpacing: "1px",
@@ -61,7 +60,6 @@ const Tabla: React.FC = () => {
                     backgroundColor: "#130f25ff",
                     "& .MuiTab-root": {
                         textTransform: "none",
-                        fontWeight: "bold",
                         color: "#b0b0b0",
                         transition: "all 0.3s ease",
                     },

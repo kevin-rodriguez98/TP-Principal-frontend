@@ -37,7 +37,6 @@ export default function ModalReceta({
 
                 <DialogTitle
                     sx={{
-                        fontWeight: "bold",
                         position: "relative",
                         bgcolor: "#1f1f1f",
                         color: "white",

@@ -7,7 +7,7 @@ import { ProductosContext } from "../../../Context/ProductosContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
@@ -77,7 +77,7 @@ const TablaEgreso: React.FC = () => {
                 const nombre = row.original.nombre || "";
                 const marca = row.original.marca || "";
                 const categoria = row.original.categoria || "";
-                const color = "#00d0ffff";
+                const color = "#8c52ff";
 
                 return (
                     <Tooltip title={`${nombre} - ${marca} - ${categoria}`} arrow>
@@ -248,7 +248,7 @@ const TablaEgreso: React.FC = () => {
                     display: "flex",
                     gap: 25,
                     padding: 2,
-                    backgroundColor: "#2b2b2bff",
+                    backgroundColor: "#111827",
                     borderRadius: "10px",
                     color: "#fff",
                 }}
@@ -296,7 +296,7 @@ const TablaEgreso: React.FC = () => {
             <>
                 <DialogTitle
                     variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                    sx={{ fontWeight: "bold", color: "#8c52ff", textAlign: "center" }}
                 >
                     Nuevo egreso
                 </DialogTitle>

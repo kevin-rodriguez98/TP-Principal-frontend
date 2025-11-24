@@ -8,7 +8,7 @@ import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 
 
-const ESTILOS_CABECERA = { style: { color: "#15a017ff" } };
+const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 const PROVEEDORES_BASE = [
     "Molinos Río de la Plata",
     "Arcor",
@@ -81,7 +81,7 @@ const TablaIngreso: React.FC = () => {
                 Cell: ({ row }) => {
                     const tipo = row.original.tipo || "INGRESO";
                     const codigo = row.original.codigo;
-                    const color = "#ffff00ff";
+                    const color = "#b13c7e";
 
                     const nombre = row.original.nombre || "";
                     const marca = row.original.marca || "";
@@ -287,7 +287,7 @@ const TablaIngreso: React.FC = () => {
                     display: "flex",
                     gap: 25,
                     padding: 2,
-                    backgroundColor: "#2b2b2bff",
+                    backgroundColor: "#111827",
                     borderRadius: "10px",
                     color: "#fff",
                 }}
@@ -342,7 +342,7 @@ const TablaIngreso: React.FC = () => {
             <>
                 <DialogTitle
                     variant="h5"
-                    sx={{ fontWeight: "bold", color: "#1976d2", textAlign: "center" }}
+                    sx={{ fontWeight: "bold", color: "#8c52ff", textAlign: "center" }}
                 >
                     Nuevo ingreso
                 </DialogTitle>
