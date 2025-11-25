@@ -10,6 +10,7 @@ import ModalInfoProducto from "./modals/VerInfo";
 import ModalReceta from "./modals/modalReceta";
 import { RecetaContext } from "../../../Context/RecetaContext";
 import { useUsuarios } from "../../../Context/UsuarioContext";
+import { PERMISOS } from "../../../Context/PanelContext";
 
 
 
@@ -28,6 +29,9 @@ const TablaProductos: React.FC = () => {
   // MODAL'S
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [openInfoModal, setOpenInfoModal] = useState(false);
+
+    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
 
   const limpiarError = (campo: string) =>
@@ -333,6 +337,7 @@ const TablaProductos: React.FC = () => {
           gap: 2,
         }}
       >
+        {permisos.crearProductos && (
         <Button
           variant="contained"
           onClick={() => table.setCreatingRow(true)}
@@ -341,6 +346,7 @@ const TablaProductos: React.FC = () => {
           <span className="texto-boton">Nuevo Producto</span>
           <span className="icono-boton">➕</span>
         </Button>
+  )}
         <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
           <Typography variant="h5" color="primary" className="titulo-lista-insumos">
             Lista de Productos

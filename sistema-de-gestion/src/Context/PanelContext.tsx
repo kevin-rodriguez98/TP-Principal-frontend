@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { InsumoContext } from "./InsumoContext";
+import { useUsuarios } from "./UsuarioContext";
 
+const PanelInsumos = () => {
+    const { usuario } = useUsuarios();
+    const rol = usuario?.rol as keyof typeof PERMISOS;
+    
+}
 export interface Notificacion {
     id: string;
     codigoInsumo?: string; // identificador único para evitar duplicados
@@ -100,3 +106,38 @@ export const PanelProvider = ({ children }: NotifyProviderProps) => {
         </PanelContext.Provider>
     );
 };
+
+
+export const PERMISOS = {
+    operario: {
+        crearInsumos: false,
+        crearProductos: false,
+        cambiarEstadoOrden: false,
+        verReportes: false,
+        administrarUsuarios: false,
+    },
+
+    supervisor: {
+        crearInsumos: true,
+        crearProductos: true,
+        cambiarEstadoOrden: true,
+        verReportes: false,
+        administrarUsuarios: false,
+    },
+
+    administrador: {
+        crearInsumos: true,
+        crearProductos: true,
+        cambiarEstadoOrden: true,
+        verReportes: true,
+        administrarUsuarios: true,
+    },
+
+    gerente: {
+        crearInsumos: false,
+        crearProductos: false,
+        cambiarEstadoOrden: false,
+        verReportes: true,
+        administrarUsuarios: false,
+    }
+} as const;

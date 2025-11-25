@@ -10,6 +10,10 @@ import { useToUpper } from "../../../hooks/useToUpper";
 import MapIcon from "@mui/icons-material/Map";
 import ModalMapaAlmacen from "./modals/modalMapa";
 import ModalLocacionInsumo from "./modals/modalAddLocacion";
+import { useUsuarios } from "../../../Context/UsuarioContext";
+import { PERMISOS } from "../../../Context/PanelContext";
+
+
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
@@ -26,6 +30,9 @@ const TablaInsumos: React.FC = () => {
         estante: "",
         posicion: "",
     });
+    const { usuario } = useUsuarios();
+    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const handleOpenMapa = (insumo: Insumo) => {
         setInsumoSeleccionado(insumo);
@@ -188,15 +195,6 @@ const TablaInsumos: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
-
     const handleSaveInsumo: MRT_TableOptions<Insumo>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
         const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
@@ -324,16 +322,20 @@ const TablaInsumos: React.FC = () => {
         ),
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: "flex", gap: "1rem" }}>
-                <Tooltip title="Editar">
-                    <IconButton onClick={() => table.setEditingRow(row)}>
+                {permisos.crearInsumos && (
+                    <Tooltip title="Editar">
+                        <IconButton onClick={() => table.setEditingRow(row)}>
                         <EditIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Eliminar">
-                    <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
+                        </IconButton>
+                    </Tooltip>
+                    )}
+                    {permisos.crearInsumos && (
+                    <Tooltip title="Eliminar">
+                        <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
                         <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                        </IconButton>
+                    </Tooltip>
+                    )}
                 <Tooltip title="Mapa">
                     <IconButton color="primary" onClick={() => handleOpenMapa(row.original)}>
                         <MapIcon />
@@ -351,14 +353,16 @@ const TablaInsumos: React.FC = () => {
                     gap: 2,
                 }}
             >
-                <Button
-                    variant="contained"
-                    onClick={() => table.setCreatingRow(true)}
-                    className="boton-agregar-insumo"
-                >
-                    <span className="texto-boton">Agregar Insumo</span>
-                    <span className="icono-boton">➕</span>
-                </Button>
+                {permisos.crearInsumos && (
+                    <Button
+                        variant="contained"
+                        onClick={() => table.setCreatingRow(true)}
+                        className="boton-agregar-insumo"
+                    >
+                        <span className="texto-boton">Agregar Insumo</span>
+                        <span className="icono-boton">➕</span>
+                    </Button>
+                    )}
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
                     <Typography variant="h5" color="#b13c7e" className="titulo-lista-insumos">
                         Insumos
