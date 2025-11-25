@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Button } from "@mui/material";
 
 import { type Locacion } from "../../../../Context/InsumoContext"
-import { ESTANTES } from "../../../estaticos/MapaAlmacen";
+import { ESTANTES } from "../../../../data/data";
 
 interface Props {
     open: boolean;

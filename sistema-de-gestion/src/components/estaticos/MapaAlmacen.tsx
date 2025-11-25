@@ -1,319 +1,16 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Stage, Layer, Rect, Text, Group, Label, Tag, Circle, } from "react-konva";
 import { InsumoContext } from "../../Context/InsumoContext";
 import { Autocomplete, TextField } from "@mui/material";
 import Konva from "konva";
+import { SECTORES, ESTANTES, type Estante } from "../../data/data"
 
-
-
-type Props = {
+export type Props = {
     codigo: string;
     sector?: string;
     estante?: string;
     posicion?: string;
 };
-
-export interface Posiciones {
-    [key: string]: { x: number; y: number };
-}
-export interface Estante {
-    id: string;
-    sectorId: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    posiciones: Posiciones;
-}
-
-type Sector = {
-    id: string;
-    name: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    color: string;
-};
-
-export const SECTORES: Sector[] = [
-    { id: "recepcion", name: "Recepción", x: 20, y: 20, width: 350, height: 150, color: "#FFE9C6" },
-    { id: "camara-mp", name: "Cámara Insumos (Frío)", x: 400, y: 20, width: 300, height: 150, color: "#CFEFFF" },
-    { id: "camara-pt", name: "Cámara Prod. Terminados", x: 740, y: 20, width: 300, height: 150, color: "#D8F5D8" },
-    { id: "packaging", name: "Depósito Packaging", x: 20, y: 200, width: 350, height: 220, color: "#F3DCFF" },
-    { id: "insumos-secos", name: "Depósito Insumos Secos", x: 400, y: 200, width: 640, height: 220, color: "#FFF9CC" },
-    { id: "despacho", name: "Área Despacho", x: 20, y: 440, width: 1020, height: 150, color: "#FFD6D6" },
-];
-
-export const ESTANTES: Estante[] = [
-    // ===================== RECEPCIÓN MP =====================
-    {
-        id: "rec-1",
-        sectorId: "recepcion",
-        x: 40,
-        y: 60,
-        width: 140,
-        height: 60,
-        posiciones: {
-            A1: { x: 20, y: 20 },
-            A2: { x: 60, y: 20 },
-            A3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "rec-2",
-        sectorId: "recepcion",
-        x: 200,
-        y: 60,
-        width: 140,
-        height: 60,
-        posiciones: {
-            A1: { x: 20, y: 20 },
-            A2: { x: 60, y: 20 },
-            A3: { x: 100, y: 20 },
-        },
-    },
-
-    // ===================== CÁMARA MP (FRÍO) =====================
-    {
-        id: "cm-1",
-        sectorId: "camara-mp",
-        x: 420,
-        y: 70,
-        width: 120,
-        height: 60,
-        posiciones: {
-            B1: { x: 20, y: 20 },
-            B2: { x: 60, y: 20 },
-        },
-    },
-    {
-        id: "cm-2",
-        sectorId: "camara-mp",
-        x: 560,
-        y: 70,
-        width: 120,
-        height: 60,
-        posiciones: {
-            B1: { x: 20, y: 20 },
-            B2: { x: 60, y: 20 },
-        },
-    },
-
-    // ===================== CÁMARA PRODUCTOS TERMINADOS =====================
-    {
-        id: "p-1",
-        sectorId: "camara-pt",
-        x: 760,
-        y: 70,
-        width: 120,
-        height: 60,
-        posiciones: {
-            C1: { x: 20, y: 20 },
-            C2: { x: 60, y: 20 },
-        },
-    },
-    {
-        id: "p-2",
-        sectorId: "camara-pt",
-        x: 900,
-        y: 70,
-        width: 120,
-        height: 60,
-        posiciones: {
-            C1: { x: 20, y: 20 },
-            C2: { x: 60, y: 20 },
-        },
-    },
-
-    // ===================== DEPÓSITO PACKAGING =====================
-    {
-        id: "pack-1",
-        sectorId: "packaging",
-        x: 40,
-        y: 240,
-        width: 140,
-        height: 70,
-        posiciones: {
-            D1: { x: 20, y: 20 },
-            D2: { x: 60, y: 20 },
-            D3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "pack-2",
-        sectorId: "packaging",
-        x: 200,
-        y: 240,
-        width: 140,
-        height: 70,
-        posiciones: {
-            D1: { x: 20, y: 20 },
-            D2: { x: 60, y: 20 },
-            D3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "pack-3",
-        sectorId: "packaging",
-        x: 40,
-        y: 330,
-        width: 140,
-        height: 70,
-        posiciones: {
-            D4: { x: 20, y: 20 },
-            D5: { x: 60, y: 20 },
-            D6: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "pack-4",
-        sectorId: "packaging",
-        x: 200,
-        y: 330,
-        width: 140,
-        height: 70,
-        posiciones: {
-            D4: { x: 20, y: 20 },
-            D5: { x: 60, y: 20 },
-            D6: { x: 100, y: 20 },
-        },
-    },
-
-    // ===================== INSUMOS SECOS =====================
-    {
-        id: "ins-1",
-        sectorId: "insumos-secos",
-        x: 420,
-        y: 240,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E1: { x: 20, y: 20 },
-            E2: { x: 60, y: 20 },
-            E3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "ins-2",
-        sectorId: "insumos-secos",
-        x: 600,
-        y: 240,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E1: { x: 20, y: 20 },
-            E2: { x: 60, y: 20 },
-            E3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "ins-3",
-        sectorId: "insumos-secos",
-        x: 780,
-        y: 240,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E1: { x: 20, y: 20 },
-            E2: { x: 60, y: 20 },
-            E3: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "ins-4",
-        sectorId: "insumos-secos",
-        x: 420,
-        y: 330,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E4: { x: 20, y: 20 },
-            E5: { x: 60, y: 20 },
-            E6: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "ins-5",
-        sectorId: "insumos-secos",
-        x: 600,
-        y: 330,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E4: { x: 20, y: 20 },
-            E5: { x: 60, y: 20 },
-            E6: { x: 100, y: 20 },
-        },
-    },
-    {
-        id: "ins-6",
-        sectorId: "insumos-secos",
-        x: 780,
-        y: 330,
-        width: 160,
-        height: 70,
-        posiciones: {
-            E4: { x: 20, y: 20 },
-            E5: { x: 60, y: 20 },
-            E6: { x: 100, y: 20 },
-        },
-    },
-
-    // ===================== DESPACHO =====================
-    {
-        id: "desp-1",
-        sectorId: "despacho",
-        x: 40,
-        y: 480,
-        width: 200,
-        height: 90,
-        posiciones: {
-            F1: { x: 30, y: 30 },
-            F2: { x: 90, y: 30 },
-            F3: { x: 150, y: 30 },
-        },
-    },
-    {
-        id: "desp-2",
-        sectorId: "despacho",
-        x: 260,
-        y: 480,
-        width: 200,
-        height: 90,
-        posiciones: {
-            F1: { x: 30, y: 30 },
-            F2: { x: 90, y: 30 },
-            F3: { x: 150, y: 30 },
-        },
-    },
-    {
-        id: "desp-3",
-        sectorId: "despacho",
-        x: 480,
-        y: 480,
-        width: 200,
-        height: 90,
-        posiciones: {
-            F1: { x: 30, y: 30 },
-            F2: { x: 90, y: 30 },
-            F3: { x: 150, y: 30 },
-        },
-    },
-    {
-        id: "desp-4",
-        sectorId: "despacho",
-        x: 700,
-        y: 480,
-        width: 200,
-        height: 90,
-        posiciones: {
-            F1: { x: 30, y: 30 },
-            F2: { x: 90, y: 30 },
-            F3: { x: 150, y: 30 },
-        },
-    },
-];
 
 
 export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
@@ -328,29 +25,25 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const { insumos } = useContext(InsumoContext)!;
     const [searchError, setSearchError] = useState<string | null>(null);
     const [marker, setMarker] = useState<{ x: number; y: number; label: string } | null>(null);
-const pulseRef = useRef<Konva.Circle>(null);
+    const pulseRef = useRef<Konva.Circle>(null);
 
 
-useEffect(() => {
-    if (!pulseRef.current) return;
 
-    const circle = pulseRef.current;
-
-    const anim = new Konva.Animation((frame) => {
-        if (!frame) return;
-
-        const scale = 1 + Math.sin(frame.time / 300) * 0.4;
-        const opacity = 0.6 - Math.sin(frame.time / 300) * 0.4;
-
-        circle.scale({ x: scale, y: scale });
-        circle.opacity(opacity);
-    });
-    
-    anim.start();
-    return () => {
-        anim.stop(); 
-    };
-}, [marker]);
+    useEffect(() => {
+        if (!pulseRef.current) return;
+        const circle = pulseRef.current;
+        const anim = new Konva.Animation((frame) => {
+            if (!frame) return;
+            const scale = 1 + Math.sin(frame.time / 300) * 0.4;
+            const opacity = 0.6 - Math.sin(frame.time / 300) * 0.4;
+            circle.scale({ x: scale, y: scale });
+            circle.opacity(opacity);
+        });
+        anim.start();
+        return () => {
+            anim.stop();
+        };
+    }, [marker]);
 
     // Ajustar zoom inicial para que el mapa arranque más grande y centrado
     useEffect(() => {
@@ -405,26 +98,25 @@ useEffect(() => {
         return () => window.removeEventListener("resize", updateSize);
     }, []);
 
-    const centerOn = (x: number, y: number, zoom = 1.8) => {
-        const stage = stageRef.current;
-        if (!stage) return;
+const centerOn = useCallback((x: number, y: number, zoom = 1.8) => {
+    const stage = stageRef.current;
+    if (!stage) return;
 
-        const containerW = stage.width();
-        const containerH = stage.height();
+    const containerW = stage.width();
+    const containerH = stage.height();
+    const newScale = zoom;
 
-        const newScale = zoom;
-        // calcular nueva posición para que (x,y) quede en el centro del contenedor
-        const newX = -x * newScale + containerW / 2;
-        const newY = -y * newScale + containerH / 2;
+    const newX = -x * newScale + containerW / 2;
+    const newY = -y * newScale + containerH / 2;
 
-        setScale(newScale);
-        setPosition({ x: newX, y: newY });
+    stage.scale({ x: newScale, y: newScale });
+    stage.position({ x: newX, y: newY });
+    stage.batchDraw();
 
-        // aplicar directamente al stage
-        stage.scale({ x: newScale, y: newScale });
-        stage.position({ x: newX, y: newY });
-        stage.batchDraw();
-    };
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+}, []);
+
 
     // Manejo de rueda (zoom centrado en el puntero)
     // const handleWheel = (e: any) => {
@@ -517,15 +209,15 @@ useEffect(() => {
     };
 
     // click en estante: abrir modal (aquí simple panel)
-    const handleShelfClick = (shelf: Estante) => {
-        // position del mouse para tooltip (convertir a stage coords)
-        const stage = stageRef.current;
-        if (!stage) return;
+    // const handleShelfClick = (shelf: Estante) => {
+    //     // position del mouse para tooltip (convertir a stage coords)
+    //     const stage = stageRef.current;
+    //     if (!stage) return;
 
-        const pointer = stage.getPointerPosition();
-        setSelectedShelf(shelf);
-        setTooltip({ x: pointer ? pointer.x : shelf.x, y: pointer ? pointer.y : shelf.y, text: shelf.id });
-    };
+    //     const pointer = stage.getPointerPosition();
+    //     setSelectedShelf(shelf);
+    //     setTooltip({ x: pointer ? pointer.x : shelf.x, y: pointer ? pointer.y : shelf.y, text: shelf.id });
+    // };
 
     // render del popup/modal simple
     const renderModal = () => {
@@ -668,6 +360,99 @@ useEffect(() => {
     };
 
 
+    const sectoresRender = useMemo(() => {
+        return SECTORES.map((s) => (
+            <Group key={s.id}>
+                <Rect
+                    x={s.x}
+                    y={s.y}
+                    width={s.width}
+                    height={s.height}
+                    fill={s.color}
+                    stroke="#999"
+                    strokeWidth={2}
+                    cornerRadius={8}
+                    shadowColor="#000"
+                    shadowBlur={8}
+                    onMouseEnter={() => {
+                        const container = stageRef.current?.container();
+                        if (container) container.style.cursor = "pointer";
+                    }}
+                    onMouseLeave={() => {
+                        const container = stageRef.current?.container();
+                        if (container) container.style.cursor = "default";
+                    }}
+                    onClick={() => {
+                        const centerX = s.x + s.width / 2;
+                        const centerY = s.y + s.height / 2;
+                        centerOn(centerX, centerY, 1.6);
+                    }}
+                />
+                <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />
+                <Text
+                    x={s.x + 10}
+                    y={s.y + 30}
+                    text={s.id.includes("camara") ? "Requiere frío si aplica" : ""}
+                    fontSize={12}
+                />
+            </Group>
+        ));
+    }, [centerOn]);
+
+
+    const estantesRender = useMemo(() => {
+        return ESTANTES.map((sh) => {
+            const isHover = hoverShelf === sh.id;
+            const isSelected = selectedShelf?.id === sh.id;
+
+            return (
+                <Group key={sh.id}>
+                    <Rect
+                        x={sh.x}
+                        y={sh.y}
+                        width={sh.width}
+                        height={sh.height}
+                        fill={isSelected ? "#ffeb3b" : isHover ? "#90caf9" : "#e0e0e0"}
+                        stroke={isSelected ? "#f57f17" : "#666"}
+                        strokeWidth={isHover ? 3 : 2}
+                        cornerRadius={4}
+                        shadowBlur={isHover ? 10 : 4}
+                        onMouseEnter={() => {
+                            setHoverShelf(sh.id);
+                            const container = stageRef.current?.container();
+                            if (container) container.style.cursor = "pointer";
+
+                            setTooltip({
+                                x: sh.x + sh.width / 2,
+                                y: sh.y - 8,
+                                text: sh.id,
+                            });
+                        }}
+                        onMouseLeave={() => {
+                            setHoverShelf(null);
+                            setTooltip(null);
+                            const container = stageRef.current?.container();
+                            if (container) container.style.cursor = "default";
+                        }}
+                        // onClick={() => handleShelfClick(sh)}
+                    />
+
+                    <Text
+                        x={sh.x + 6}
+                        y={sh.y + 4}
+                        text={sh.id}
+                        fontSize={12}
+                        fill="#333"
+                        fontStyle="bold"
+                    />
+                </Group>
+            );
+        });
+    }, [hoverShelf, selectedShelf, {/*handleShelfClick*/}]);
+
+
+
+
     return (
         <div
             ref={containerRef}
@@ -788,8 +573,8 @@ useEffect(() => {
                 ref={containerRef}
                 style={{
                     width: "100%",
-                    height: "600px",  
-                    overflow: "auto",    
+                    height: "600px",
+                    overflow: "auto",
                     border: "1px solid #ccc",
                     position: "relative",
                 }}
@@ -837,9 +622,10 @@ useEffect(() => {
                     <Layer>
                         {/* Outer wall */}
                         {/* <Rect x={10} y={10} width={1100} height={680} stroke="#222" strokeWidth={6} cornerRadius={6} /> */}
-
+                        {sectoresRender}
+                        {estantesRender}
                         {/* Dibujar sectores */}
-                        {SECTORES.map((s) => (
+                        {/* {SECTORES.map((s) => (
                             <Group key={s.id}>
                                 <Rect
                                     x={s.x}
@@ -871,10 +657,10 @@ useEffect(() => {
                                 <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />
                                 <Text x={s.x + 10} y={s.y + 30} text={s.id.includes("camara") ? "Requiere frio si aplica" : ""} fontSize={12} />
                             </Group>
-                        ))}
+                        ))} */}
 
                         {/* Dibujar estantes (shelves) - clickeables */}
-                        {ESTANTES.map((sh) => {
+                        {/* {ESTANTES.map((sh) => {
                             const isHover = hoverShelf === sh.id;
                             const isSelected = selectedShelf?.id === sh.id;
                             return (
@@ -907,60 +693,59 @@ useEffect(() => {
                                         onClick={() => handleShelfClick(sh)}
                                     />
 
-                                    {/* etiqueta con número de estante */}
                                     <Text x={sh.x + 6} y={sh.y + 4} text={sh.id} fontSize={12} fill="#333" fontStyle="bold" />
                                 </Group>
                             );
-                        })}
+                        })} */}
 
-                       
-{marker && (
-    <Group>
-        {/* 🌟 Círculo principal */}
-        <Circle
-            x={marker.x}
-            y={marker.y}
-            radius={10}
-            fill="#ff3b3b"
-            stroke="#ff9e9e"
-            strokeWidth={3}
-            shadowBlur={15}
-            shadowColor="#ff4d4d"
-            shadowOpacity={0.8}
-        />
 
-        {/* 🔵 Círculo animado tipo pulso */}
-<Circle
-    ref={pulseRef}
-    x={marker.x}
-    y={marker.y}
-    radius={14}
-    stroke="#ff3b3b"
-    strokeWidth={2}
-    opacity={0.6}
-/>
+                        {marker && (
+                            <Group>
+                                {/* 🌟 Círculo principal */}
+                                <Circle
+                                    x={marker.x}
+                                    y={marker.y}
+                                    radius={10}
+                                    fill="#ff3b3b"
+                                    stroke="#ff9e9e"
+                                    strokeWidth={3}
+                                    shadowBlur={15}
+                                    shadowColor="#ff4d4d"
+                                    shadowOpacity={0.8}
+                                />
 
-        {/* 🏷 Label dark */}
-        <Group x={marker.x + 15} y={marker.y - 18}>
-            <Rect
-                width={marker.label.length * 8}
-                height={24}
-                fill="#1e1e1e"
-                cornerRadius={6}
-                shadowColor="black"
-                shadowBlur={8}
-                shadowOpacity={0.4}
-            />
-            <Text
-                text={marker.label}
-                fontSize={14}
-                fontStyle="bold"
-                padding={4}
-                fill="#ffffff"
-            />
-        </Group>
-    </Group>
-)}
+                                {/* 🔵 Círculo animado tipo pulso */}
+                                <Circle
+                                    ref={pulseRef}
+                                    x={marker.x}
+                                    y={marker.y}
+                                    radius={14}
+                                    stroke="#ff3b3b"
+                                    strokeWidth={2}
+                                    opacity={0.6}
+                                />
+
+                                {/* 🏷 Label dark */}
+                                <Group x={marker.x + 15} y={marker.y - 18}>
+                                    <Rect
+                                        width={marker.label.length * 8}
+                                        height={24}
+                                        fill="#1e1e1e"
+                                        cornerRadius={6}
+                                        shadowColor="black"
+                                        shadowBlur={8}
+                                        shadowOpacity={0.4}
+                                    />
+                                    <Text
+                                        text={marker.label}
+                                        fontSize={14}
+                                        fontStyle="bold"
+                                        padding={4}
+                                        fill="#ffffff"
+                                    />
+                                </Group>
+                            </Group>
+                        )}
 
 
 
