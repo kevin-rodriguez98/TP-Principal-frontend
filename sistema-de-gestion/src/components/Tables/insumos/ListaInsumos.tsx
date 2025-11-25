@@ -12,50 +12,58 @@ import ModalMapaAlmacen from "./modals/modalMapa";
 import ModalLocacionInsumo from "./modals/modalAddLocacion";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 import { PERMISOS } from "../../../Context/PanelContext";
+import { getAutocompleteFieldProps } from "../../../hooks/CampoAutoComplete";
+import { useValidationFields } from "../../../hooks/ValidacionesError";
 
 
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
+const CATEGORIAS_BASE = [
+    "Lácteos",
+    "Frutas",
+    "Cereales y granos",
+    "Bebidas",
+    "Aceites y grasas",
+    "Especias y condimentos",
+    "Panadería y repostería",
+    "Insumos Oficina",
+    "Almacén",
+    "Etiquetado",
+    "Otros"
+];
+const MARCAS_BASE = [
+    "La Serenísima",
+    "Bonafide",
+    "Molinos Río de la Plata",
+    "Coca-Cola",
+    "Cargill",
+    "Knorr",
+    "Bimbo",
+    "Staples",
+    "Gallo",
+    "Etiqueta Fácil",
+    "Otros"
+];
+const UNIDADES = ["Unidad", "Litros ", "Gramos ", "Kilogramos", "Toneladas"];
+
+
 
 const TablaInsumos: React.FC = () => {
     const { insumos, handleAddInsumo, handleUpdateInsumo, handleDelete, isLoading, error, obtenerSiguienteCodigo } = useContext(InsumoContext)!;
-    const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
     const { toUpperObject } = useToUpper();
     const [openMapa, setOpenMapa] = useState(false);
     const [insumoSeleccionado, setInsumoSeleccionado] = useState<Insumo | null>(null);
     const [openLocacion, setOpenLocacion] = useState(false);
+    const { usuario } = useUsuarios();
+    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
+    const { validationErrors, setValidationErrors, limpiarError, baseTextFieldProps } = useValidationFields();
+    const [insumoTemp, setInsumoTemp] = useState<Insumo | null>(null);
     const [locacionTemp, setLocacionTemp] = useState({
         deposito: "",
         sector: "",
         estante: "",
         posicion: "",
-    });
-    const { usuario } = useUsuarios();
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
-    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
-
-    const handleOpenMapa = (insumo: Insumo) => {
-        setInsumoSeleccionado(insumo);
-        setOpenMapa(true);
-    };
-
-    const handleCloseMapa = () => {
-        setOpenMapa(false);
-        setInsumoSeleccionado(null);
-    };
-
-
-    const limpiarError = (campo: string) =>
-        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
-
-    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-        required: true,
-        error: !!validationErrors[campo],
-        helperText: validationErrors[campo] ? (
-            <span style={{ color: "#8c52ff" }}>{validationErrors[campo]}</span>
-        ) : null,
-        onFocus: () => limpiarError(campo),
-        ...extraProps,
     });
 
 
@@ -76,26 +84,55 @@ const TablaInsumos: React.FC = () => {
                 muiEditTextFieldProps: baseTextFieldProps("nombre"),
             },
             {
+                accessorKey: "marca",
+                header: "Marca",
+                editVariant: "select",
+                editSelectOptions: MARCAS_BASE,
+                muiTableHeadCellProps: ESTILOS_CABECERA,
+                muiEditTextFieldProps: ({ row, table }) =>
+                    getAutocompleteFieldProps({
+                        row,
+                        table,
+                        campo: "marca",
+                        opciones: MARCAS_BASE,
+                        validationErrors,
+                        limpiarError,
+                    }),
+                Cell: ({ row }) => row.original.marca || "—",
+            },
+            {
                 accessorKey: "categoria",
                 header: "Categoría",
                 editVariant: "select",
-                editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
+                editSelectOptions: CATEGORIAS_BASE,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("categoria"),
+                muiEditTextFieldProps: ({ row, table }) =>
+                    getAutocompleteFieldProps({
+                        row,
+                        table,
+                        campo: "categoria",
+                        opciones: CATEGORIAS_BASE,
+                        validationErrors,
+                        limpiarError,
+                    }),
+                Cell: ({ row }) => row.original.categoria || "—",
             },
-            {
-                accessorKey: "marca",
-                header: "Marca",
-                muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("marca"),
-            },
+
             {
                 accessorKey: "unidad",
                 header: "Unidad",
                 editVariant: "select",
-                editSelectOptions: ["Unidad", "Litros ", "Gramos ", "Kilogramos", "Toneladas"],
+                editSelectOptions: UNIDADES,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: baseTextFieldProps("unidad"),
+                muiEditTextFieldProps: ({ row, table }) =>
+                    getAutocompleteFieldProps({
+                        row,
+                        table,
+                        campo: "unidad",
+                        opciones: UNIDADES,
+                        validationErrors,
+                        limpiarError,
+                    }),
             },
             {
                 accessorKey: "stock",
@@ -159,12 +196,10 @@ const TablaInsumos: React.FC = () => {
     };
 
 
-    // Guarda temporalmente los datos del insumo en creación
-    const [insumoTemp, setInsumoTemp] = useState<Insumo | null>(null);
-
     const handleChangeLocacion = (campo: string, valor: string) => {
         setLocacionTemp((prev) => ({ ...prev, [campo]: valor }));
     };
+
     const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values }) => {
         const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
@@ -203,7 +238,15 @@ const TablaInsumos: React.FC = () => {
         setInsumoTemp(null);
     };
 
+    const handleOpenMapa = (insumo: Insumo) => {
+        setInsumoSeleccionado(insumo);
+        setOpenMapa(true);
+    };
 
+    const handleCloseMapa = () => {
+        setOpenMapa(false);
+        setInsumoSeleccionado(null);
+    };
 
     const handleSaveInsumo: MRT_TableOptions<Insumo>['onEditingRowSave'] = async ({ values, exitEditingMode }) => {
         const errores = validarCamposInsumo(values);
@@ -335,17 +378,17 @@ const TablaInsumos: React.FC = () => {
                 {permisos.crearInsumos && (
                     <Tooltip title="Editar">
                         <IconButton onClick={() => table.setEditingRow(row)}>
-                        <EditIcon />
+                            <EditIcon />
                         </IconButton>
                     </Tooltip>
-                    )}
-                    {permisos.crearInsumos && (
+                )}
+                {permisos.crearInsumos && (
                     <Tooltip title="Eliminar">
                         <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-                        <DeleteIcon />
+                            <DeleteIcon />
                         </IconButton>
                     </Tooltip>
-                    )}
+                )}
                 <Tooltip title="Mapa">
                     <IconButton color="primary" onClick={() => handleOpenMapa(row.original)}>
                         <MapIcon />
@@ -372,7 +415,7 @@ const TablaInsumos: React.FC = () => {
                         <span className="texto-boton">Agregar Insumo</span>
                         <span className="icono-boton">➕</span>
                     </Button>
-                    )}
+                )}
                 <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
                     <Typography variant="h5" color="#b13c7e" className="titulo-lista-insumos">
                         Insumos

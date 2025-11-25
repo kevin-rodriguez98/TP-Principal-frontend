@@ -82,7 +82,6 @@ export function Movimiento_insumo_contextProvider({ children }: Movimiento_insum
                 responsableApellido: item.empleado?.apellido || "",
                 legajo: item.empleado?.legajo || "",
             }));
-            console.log(data)
             setMovimiento_insumos(listaTransformada);
         } catch (err: any) {
             setError(err.message);

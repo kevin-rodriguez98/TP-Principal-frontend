@@ -51,7 +51,9 @@ export default function ModalLocacionInsumo({
                 <TextField
                     label="Depósito"
                     value="Depósito Central"
-                    disabled= {true}
+                    disabled={true}
+                    sx={{ mt: 1 }}
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* SECTOR */}
@@ -59,6 +61,8 @@ export default function ModalLocacionInsumo({
                     select
                     label="Sector"
                     value={locacion.sector}
+                    sx={{ mt: 1 }}
+                    InputLabelProps={{ shrink: true }}
                     onChange={(e) => {
                         const value = e.target.value;
                         onChange("sector", value);

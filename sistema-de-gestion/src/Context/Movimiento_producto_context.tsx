@@ -70,11 +70,7 @@ export function Movimiento_producto_contextProvider({ children }: Movimiento_pro
             setError(null);
             const response = await fetch(`${URL}/obtener`);
             if (!response.ok) await handleFetchError(response, "Error al obtener los movimientos.");
-
             const data = await response.json();
-            // console.log(data)
-
-
             const listaTransformada = data.map((item: any) => ({
                 ...item.movimientos,                 // todos los campos del movimiento
                 legajo: item.empleado?.legajo || "",

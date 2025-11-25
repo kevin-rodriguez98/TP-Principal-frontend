@@ -15,9 +15,8 @@ export default function ModalReceta({
     producto,
 }: any) {
 
-    const { insumosProducto } = useContext(RecetaContext)!;
+    const { insumosProducto, eliminarInsumoProducto } = useContext(RecetaContext)!;
     const { obtenerTiempoProduccionUnitario } = useContext(TiempoProduccionContext)!;
-
     const [openAgregar, setOpenAgregar] = useState(false);
     const [openModalTiempos, setOpenModalTiempos] = useState(false);
 
@@ -64,8 +63,8 @@ export default function ModalReceta({
                     sx={{
                         bgcolor: "#1f1f1f",
                         color: "white",
-                        maxHeight: "300px",    // 👈 altura máxima visible
-                        overflowY: "auto"       // 👈 scroll solo aquí
+                        maxHeight: "300px",
+                        overflowY: "auto"
                     }}
                 >
                     {insumosProducto.length === 0 ? (
@@ -79,21 +78,34 @@ export default function ModalReceta({
                                         marginBottom: "8px",
                                         padding: "6px 10px",
                                         borderRadius: "6px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
                                         transition: "background-color 0.5s",
                                         backgroundColor:
                                             highlightId === insumo.codigoInsumo
                                                 ? "rgba(0, 255, 100, 0.25)"
-                                                : "transparent"
+                                                : "transparent",
                                     }}
                                 >
                                     <Typography variant="body2">
                                         <strong>{insumo.nombreInsumo}</strong> — Cantidad:{" "}
                                         {insumo.cantidadNecesaria + " " + insumo.unidad}
                                     </Typography>
+                                    <IconButton
+                                        size="small"
+                                        color="error"
+                                        onClick={async () => {
+                                            await eliminarInsumoProducto(producto.codigo, insumo.codigoInsumo);
+                                        }}
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
                                 </li>
                             ))}
                         </Box>
                     )}
+
                 </DialogContent>
 
                 {/* 📌 BOTONES FIJOS — SIEMPRE VISIBLES */}

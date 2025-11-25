@@ -6,6 +6,7 @@ import SinResultados from "../../estaticos/SinResultados";
 import { InsumoContext } from "../../../Context/InsumoContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
+import { useValidationFields } from "../../../hooks/ValidacionesError";
 
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
@@ -27,21 +28,8 @@ const TablaIngreso: React.FC = () => {
     const { usuario } = useUsuarios();
     const { toUpperObject } = useToUpper();
     const [esOtroProveedor, setEsOtroProveedor] = useState(false);
+    const { validationErrors, setValidationErrors, limpiarError, baseTextFieldProps } = useValidationFields();
 
-
-    const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
-    const limpiarError = (campo: string) =>
-        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
-
-    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-        required: true,
-        error: !!validationErrors[campo],
-        helperText: validationErrors[campo] ? (
-            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
-        ) : null,
-        onFocus: () => limpiarError(campo),
-        ...extraProps,
-    });
 
     const columns = useMemo<MRT_ColumnDef<movimiento_insumo>[]>(
         () => [

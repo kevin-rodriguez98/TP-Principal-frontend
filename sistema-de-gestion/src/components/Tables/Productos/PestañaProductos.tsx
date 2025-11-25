@@ -11,6 +11,7 @@ import ModalReceta from "./modals/modalReceta";
 import { RecetaContext } from "../../../Context/RecetaContext";
 import { useUsuarios } from "../../../Context/UsuarioContext";
 import { PERMISOS } from "../../../Context/PanelContext";
+import { useValidationFields } from "../../../hooks/ValidacionesError";
 
 
 
@@ -21,33 +22,16 @@ const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
   const { obtenerInsumosNecesarios } = useContext(RecetaContext)!;
   const { usuario } = useUsuarios();
-
   const { toUpperObject } = useToUpper();
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+  const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
 
   // MODAL'S
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
-    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
-
-
-  const limpiarError = (campo: string) =>
-    setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
-
-  const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-    required: true,
-    error: !!validationErrors[campo],
-    helperText: validationErrors[campo] ? (
-      <span style={{ color: "red" }}>{validationErrors[campo]}</span>
-    ) : null,
-    onFocus: () => limpiarError(campo),
-    ...extraProps,
-  });
-
-
+  const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+  const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
     () => [
@@ -74,7 +58,7 @@ const TablaProductos: React.FC = () => {
         accessorKey: "categoria",
         header: "Categoría",
         editVariant: "select",
-        editSelectOptions: ["Lácteos", "Quesos", "Postres", "Crema", "Congelados", "Otros"],
+        editSelectOptions: ["Lácteos", "Quesos", "Postres", "Congelados", "Otros"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("categoria"),
       },
@@ -82,7 +66,7 @@ const TablaProductos: React.FC = () => {
         accessorKey: "linea",
         header: "Línea",
         editVariant: "select",
-        editSelectOptions: ["Light", "Entero", "Sin Lactosa", "Descremado", "Otro"],
+        editSelectOptions: ["Light", "Entero", "Sin Lactosa", "Descremado", "Sin TACC", "Vegano", "Otro"],
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: baseTextFieldProps("linea"),
       },
@@ -90,7 +74,6 @@ const TablaProductos: React.FC = () => {
         accessorKey: "presentacion",
         header: "Presentación",
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        
         muiEditTextFieldProps: baseTextFieldProps("presentacion", { type: "number", inputProps: { step: "0.01", min: 0 } }),
       },
       {
@@ -153,7 +136,7 @@ const TablaProductos: React.FC = () => {
 
     const nuevoProducto: Producto = {
       ...values, codigo, stock: 0,
-    legajoResponsable: values.legajoResponsable?.trim() !== "" ? values.legajoResponsable : usuario?.legajo,
+      legajoResponsable: values.legajoResponsable?.trim() !== "" ? values.legajoResponsable : usuario?.legajo,
     };
 
     const valoresEnMayus = toUpperObject(nuevoProducto);
@@ -338,15 +321,15 @@ const TablaProductos: React.FC = () => {
         }}
       >
         {permisos.crearProductos && (
-        <Button
-          variant="contained"
-          onClick={() => table.setCreatingRow(true)}
-          className="boton-agregar-insumo"
-        >
-          <span className="texto-boton">Nuevo Producto</span>
-          <span className="icono-boton">➕</span>
-        </Button>
-  )}
+          <Button
+            variant="contained"
+            onClick={() => table.setCreatingRow(true)}
+            className="boton-agregar-insumo"
+          >
+            <span className="texto-boton">Nuevo Producto</span>
+            <span className="icono-boton">➕</span>
+          </Button>
+        )}
         <Box sx={{ flexGrow: 1, textAlign: 'center', minWidth: 80 }}>
           <Typography variant="h5" color="primary" className="titulo-lista-insumos">
             Lista de Productos

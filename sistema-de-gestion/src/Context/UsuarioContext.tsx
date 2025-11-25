@@ -77,6 +77,7 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error("Error al cargar empleados");
 
       const data = await res.json();
+      console.log(data)
       setEmpleados(data);
 
     } catch (err: any) {

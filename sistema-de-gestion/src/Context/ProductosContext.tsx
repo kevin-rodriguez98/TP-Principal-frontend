@@ -87,7 +87,6 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       if (!response.ok) await handleFetchError(response, "Error al obtener los productos");
 
       const data = await response.json();
-      console.log(data)
       const listaTransformada = data.map((item: any) => ({
         ...item.producto,                 // todos los campos del movimiento
         legajoResponsable: item.empleado?.legajo || "",
