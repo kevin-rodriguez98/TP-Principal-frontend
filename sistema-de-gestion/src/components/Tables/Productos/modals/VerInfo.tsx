@@ -21,7 +21,7 @@ export default function ModalInfoProducto({ open, onClose, productoInfo }: any) 
                         <Typography><b>Stock:</b> {productoInfo.stock}</Typography>
                         <Typography><b>Fecha Creación:</b> {productoInfo.fechaCreacion}</Typography>
                         <Typography>
-                            <b>Responsable:</b> {productoInfo.legajo} - {productoInfo.responsableApellido} {productoInfo.responsableNombre}
+                            <b>Responsable:</b> {productoInfo.legajoResponsable} - {productoInfo.responsableApellido} {productoInfo.responsableNombre}
                         </Typography>
                     </>
                 )}

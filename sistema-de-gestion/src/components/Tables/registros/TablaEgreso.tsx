@@ -17,7 +17,7 @@ const TablaEgreso: React.FC = () => {
 
     const { toUpperObject } = useToUpper();
 
-    
+
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
 
@@ -184,12 +184,9 @@ const TablaEgreso: React.FC = () => {
         const nuevaOrden = {
             ...values,
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "EGRESO",
-            legajo: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
-
+            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
         };
-
         const valoresEnMayus = toUpperObject(nuevaOrden);
-
         setValidationErrors({});
         await handleAdd_Movimiento_producto(valoresEnMayus);
         table.setCreatingRow(null);

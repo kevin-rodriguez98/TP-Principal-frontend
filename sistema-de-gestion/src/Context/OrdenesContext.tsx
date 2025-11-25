@@ -160,6 +160,7 @@ export function OrdenProduccionProvider({ children }: OrdenProviderProps) {
         ...orden,
         responsableNombre: orden.empleado?.nombre || "",
         responsableApellido: orden.empleado?.apellido || "",
+        legajo: orden.empleado?.legajo || "",
       }));
       setOrdenes(ordenesConEmpleado);
     } catch (err: any) {
