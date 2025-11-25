@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_Row, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
-import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton,Tooltip, Typography, } from "@mui/material";
+import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { InsumoContext, type Insumo } from "../../../Context/InsumoContext";
@@ -106,12 +106,22 @@ const TablaInsumos: React.FC = () => {
                 Cell: ({ row }) => {
                     const stock = row.original.stock;
                     const umbral = row.original.umbralMinimoStock;
-                    const isLow = stock < umbral;
+                    const isZero = stock === 0;
+                    const isLow = stock > 0 && stock < umbral;
+                    const color = isZero
+                        ? "red"
+                        : isLow
+                            ? "yellow"
+                            : "#1fff02ff";
+                    const iconColor = isZero ? "red" : isLow ? "gold" : null;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: isLow ? "red" : "#8c52ff" }}>{stock}</Typography>
-                            {isLow && (
-                                <FaExclamationTriangle color="red" title="debajo del umbral" />
+                            <Typography sx={{ color }}>{stock}</Typography>
+                            {(isZero || isLow) && (
+                                <FaExclamationTriangle
+                                    color={iconColor || undefined}
+                                    title={isZero ? "Sin stock" : "Debajo del umbral"}
+                                />
                             )}
                         </Box>
                     );
@@ -126,7 +136,7 @@ const TablaInsumos: React.FC = () => {
                     const umbral = row.original.umbralMinimoStock;
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "#f1c40f" }}>{umbral}</Typography>
+                            <Typography sx={{ color: "#d88346" }}>{umbral}</Typography>
                         </Box>
                     );
                 },
@@ -155,7 +165,7 @@ const TablaInsumos: React.FC = () => {
     const handleChangeLocacion = (campo: string, valor: string) => {
         setLocacionTemp((prev) => ({ ...prev, [campo]: valor }));
     };
-    const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values}) => {
+    const handleCreateInsumo: MRT_TableOptions<Insumo>["onCreatingRowSave"] = async ({ values }) => {
         const errores = validarCamposInsumo(values);
         if (Object.keys(errores).length > 0) {
             setValidationErrors(errores);
@@ -218,9 +228,9 @@ const TablaInsumos: React.FC = () => {
         columnResizeMode: 'onEnd',
         createDisplayMode: "modal",
         defaultColumn: {
-            minSize: 80, 
-            maxSize: 900, 
-            size: 110, 
+            minSize: 80,
+            maxSize: 900,
+            size: 110,
             grow: 1,
             enableResizing: true,
         },

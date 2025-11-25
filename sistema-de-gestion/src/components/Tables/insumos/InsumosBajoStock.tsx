@@ -41,16 +41,33 @@ const InsumosBajoStock: React.FC = () => {
             {
                 accessorKey: "stock",
                 header: "Stock",
+                enableEditing: false,
                 muiTableHeadCellProps: ESTILOS_CABECERA,
-                muiEditTextFieldProps: {
-                    type: "number",
-                },
                 Cell: ({ row }) => {
                     const stock = row.original.stock;
+                    const umbral = row.original.umbralMinimoStock;
+                    const isZero = stock === 0;
+                    const isLow = stock > 0 && stock < umbral;
+                    // Elegir color según estado
+                    const color = isZero
+                        ? "red"
+                        : isLow
+                            ? "yellow"
+                            : "#1fff02ff";
+
+                    // Elegir ícono (solo advertencias)
+                    const iconColor = isZero ? "red" : isLow ? "gold" : null;
+
                     return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                            <Typography sx={{ color: "#8c52ff" }}>{stock}</Typography>
-                            <FaExclamationTriangle color="#8c52ff" title="debajo del umbral" />
+                            <Typography sx={{ color }}>{stock}</Typography>
+
+                            {(isZero || isLow) && (
+                                <FaExclamationTriangle
+                                    color={iconColor || undefined}
+                                    title={isZero ? "Sin stock" : "Debajo del umbral"}
+                                />
+                            )}
                         </Box>
                     );
                 },

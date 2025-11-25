@@ -120,7 +120,7 @@ const TablaProductos: React.FC = () => {
         enableEditing: false,
         muiTableHeadCellProps: ESTILOS_CABECERA,
         muiEditTextFieldProps: { value: `${usuario?.legajo}` },
-        Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
+        Cell: ({ row }) => `${row.original.legajoResponsable} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
 
       },
     ],
@@ -153,7 +153,7 @@ const TablaProductos: React.FC = () => {
 
     const nuevoProducto: Producto = {
       ...values, codigo, stock: 0,
-      legajoResponsable: values.legajo && values.legajo.trim() !== "" ? values.legajo : "100",
+    legajoResponsable: values.legajoResponsable?.trim() !== "" ? values.legajoResponsable : usuario?.legajo,
     };
 
     const valoresEnMayus = toUpperObject(nuevoProducto);

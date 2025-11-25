@@ -17,8 +17,6 @@ export interface Producto {
   lote: string;
   fechaCreacion: string;
 
-
-  legajo: string;
   responsableNombre: string;
   responsableApellido: string;
 }
@@ -89,9 +87,10 @@ export function ProductosProvider({ children }: ProductosProviderProps) {
       if (!response.ok) await handleFetchError(response, "Error al obtener los productos");
 
       const data = await response.json();
+      console.log(data)
       const listaTransformada = data.map((item: any) => ({
         ...item.producto,                 // todos los campos del movimiento
-        legajo: item.empleado?.legajo || "",
+        legajoResponsable: item.empleado?.legajo || "",
         responsableNombre: item.empleado?.nombre || "",
         responsableApellido: item.empleado?.apellido || "",
       }));

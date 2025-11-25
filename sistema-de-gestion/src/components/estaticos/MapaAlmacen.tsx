@@ -2,6 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Text, Group, Label, Tag, Circle, } from "react-konva";
 import { InsumoContext } from "../../Context/InsumoContext";
 import { Autocomplete, TextField } from "@mui/material";
+import Konva from "konva";
+
 
 
 type Props = {
@@ -326,34 +328,43 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     const { insumos } = useContext(InsumoContext)!;
     const [searchError, setSearchError] = useState<string | null>(null);
     const [marker, setMarker] = useState<{ x: number; y: number; label: string } | null>(null);
-    // const searchRef = useRef<HTMLInputElement | null>(null);
+const pulseRef = useRef<Konva.Circle>(null);
 
 
-    // Ajustar zoom inicial para mostrar todo el mapa dentro del Stage
+useEffect(() => {
+    if (!pulseRef.current) return;
+
+    const circle = pulseRef.current;
+
+    const anim = new Konva.Animation((frame) => {
+        if (!frame) return;
+
+        const scale = 1 + Math.sin(frame.time / 300) * 0.4;
+        const opacity = 0.6 - Math.sin(frame.time / 300) * 0.4;
+
+        circle.scale({ x: scale, y: scale });
+        circle.opacity(opacity);
+    });
+    
+    anim.start();
+    return () => {
+        anim.stop(); 
+    };
+}, [marker]);
+
+    // Ajustar zoom inicial para que el mapa arranque más grande y centrado
     useEffect(() => {
         if (!stageRef.current) return;
-
         const stage = stageRef.current;
-
         const containerW = stageSize.width;
-        const containerH = stageSize.height;
-
-        // Tamaño real del mapa (rectángulo externo que dibujaste)
         const mapWidth = 1100;
-        const mapHeight = 680;
-
-        // Escala mínima para que el mapa completo entre
-        const scaleFit = Math.min(containerW / mapWidth, containerH / mapHeight);
-
-        // Centrar el mapa
-        const offsetX = (containerW - mapWidth * scaleFit) / 2;
+        const initialZoom = containerW / mapWidth;
+        // Centrar verticalmente
+        const offsetX = 0; // ya encaja horizontalmente
         const offsetY = 0;
-
-        setScale(scaleFit);
+        setScale(initialZoom);
         setPosition({ x: offsetX, y: offsetY });
-
-        // Aplicar a Konva stage
-        stage.scale({ x: scaleFit, y: scaleFit });
+        stage.scale({ x: initialZoom, y: initialZoom });
         stage.position({ x: offsetX, y: offsetY });
         stage.batchDraw();
     }, [stageSize]);
@@ -361,20 +372,16 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     useEffect(() => {
         if (!estante) return;          // si no vino desde la tabla → no hacer nada
         if (!codigo) return;
-
         const shelf = ESTANTES.find(s => s.id === estante);
         if (!shelf) return;
-
         let targetX = shelf.x + shelf.width / 2;
         let targetY = shelf.y + shelf.height / 2;
-
         if (posicion && shelf.posiciones?.[posicion]) {
             targetX = shelf.x + shelf.posiciones[posicion].x;
             targetY = shelf.y + shelf.posiciones[posicion].y;
         }
-
         // mover cámara
-        centerOn(targetX, targetY, 2.2);
+        centerOn(targetX, targetY, 2.5);
 
         // colocar marker
         setMarker({
@@ -420,46 +427,45 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     };
 
     // Manejo de rueda (zoom centrado en el puntero)
-    const handleWheel = (e: any) => {
-        e.evt.preventDefault();
-        const stage = stageRef.current;
-        if (!stage) return;
+    // const handleWheel = (e: any) => {
+    //     e.evt.preventDefault();
+    //     const stage = stageRef.current;
+    //     if (!stage) return;
 
-        const oldScale = stage.scaleX();
-        const pointer = stage.getPointerPosition();
-        if (!pointer) return;
+    //     const oldScale = stage.scaleX();
+    //     const pointer = stage.getPointerPosition();
+    //     if (!pointer) return;
 
-        const scaleBy = 1.05;
+    //     const scaleBy = 1.05;
 
-        // Calcular nuevo scale
-        let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+    //     // Calcular nuevo scale
+    //     let newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
 
-        // 🔒 límites del zoom
-        const MIN_SCALE = 0.8;   // no permite achicar más que esto
-        const MAX_SCALE = 3;     // opcional
+    //     // 🔒 límites del zoom
+    //     const MIN_SCALE = 0.8;   // no permite achicar más que esto
+    //     const MAX_SCALE = 3;     // opcional
 
-        if (newScale < MIN_SCALE) newScale = MIN_SCALE;
-        if (newScale > MAX_SCALE) newScale = MAX_SCALE;
+    //     if (newScale < MIN_SCALE) newScale = MIN_SCALE;
+    //     if (newScale > MAX_SCALE) newScale = MAX_SCALE;
 
-        // zoom centrado en el puntero
-        const mousePointTo = {
-            x: (pointer.x - stage.x()) / oldScale,
-            y: (pointer.y - stage.y()) / oldScale,
-        };
+    //     // zoom centrado en el puntero
+    //     const mousePointTo = {
+    //         x: (pointer.x - stage.x()) / oldScale,
+    //         y: (pointer.y - stage.y()) / oldScale,
+    //     };
 
-        const newPos = {
-            x: pointer.x - mousePointTo.x * newScale,
-            y: pointer.y - mousePointTo.y * newScale,
-        };
+    //     const newPos = {
+    //         x: pointer.x - mousePointTo.x * newScale,
+    //         y: pointer.y - mousePointTo.y * newScale,
+    //     };
 
-        stage.scale({ x: newScale, y: newScale });
-        stage.position(newPos);
-        stage.batchDraw();
+    //     stage.scale({ x: newScale, y: newScale });
+    //     stage.position(newPos);
+    //     stage.batchDraw();
 
-        setScale(newScale);
-        setPosition(newPos);
-    };
-
+    //     setScale(newScale);
+    //     setPosition(newPos);
+    // };
 
     // buscar producto y centrar en su estante
     const handleSearch = (codigoBuscado: string) => {
@@ -510,8 +516,6 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
         setSelectedShelf(null);
     };
 
-
-
     // click en estante: abrir modal (aquí simple panel)
     const handleShelfClick = (shelf: Estante) => {
         // position del mouse para tooltip (convertir a stage coords)
@@ -526,66 +530,143 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
     // render del popup/modal simple
     const renderModal = () => {
         if (!selectedShelf) return null;
+
         return (
-            <div
-                style={{
-                    position: "fixed",
-                    top: "18%",
-                    left: "50%",
-                    transform: "translate(-50%, 0)",
-                    width: 340,
-                    background: "#fff",
-                    borderRadius: 10,
-                    boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
-                    padding: 16,
-                    zIndex: 9999,
-                }}
-            >
-                <h3 style={{ margin: 0 }}>{`Estante ${selectedShelf.id}`}</h3>
-                <p style={{ marginTop: 8 }}>
-                    Sector: <strong>{selectedShelf.sectorId}</strong>
-                </p>
-                <p style={{ marginTop: 8 }}>ID interno: {selectedShelf.id}</p>
-                <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                    <button onClick={() => setSelectedShelf(null)} style={{ padding: "8px 12px" }}>
-                        Cerrar
-                    </button>
+            <>
+                {/* Overlay oscuro */}
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        background: "rgba(0, 0, 0, 0.45)",
+                        backdropFilter: "blur(3px)",
+                        zIndex: 9998,
+                    }}
+                    onClick={() => setSelectedShelf(null)}
+                />
+
+                {/* Modal */}
+                <div
+                    style={{
+                        position: "fixed",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "360px",
+                        background: "#ffffff",
+                        borderRadius: "16px",
+                        padding: "22px",
+                        boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
+                        zIndex: 9999,
+                        animation: "fadeIn 0.2s ease-out",
+                        fontFamily: "Inter, sans-serif",
+                    }}
+                >
+                    {/* Botón cerrar */}
                     <button
-                        onClick={() => {
-                            // ejemplo: marcar producto simulado
-                            setMarker({
-                                x: selectedShelf.x + selectedShelf.width / 2,
-                                y: selectedShelf.y + selectedShelf.height / 2,
-                                label: selectedShelf.id,
-                            });
-                            setSelectedShelf(null);
+                        onClick={() => setSelectedShelf(null)}
+                        style={{
+                            position: "absolute",
+                            top: 10,
+                            right: 12,
+                            background: "transparent",
+                            border: "none",
+                            fontSize: "20px",
+                            cursor: "pointer",
+                            opacity: 0.6,
                         }}
-                        style={{ padding: "8px 12px" }}
                     >
-                        Marcar estante
+                        ✕
                     </button>
+
+                    <h2
+                        style={{
+                            margin: 0,
+                            marginBottom: 10,
+                            fontSize: "20px",
+                            fontWeight: 700,
+                        }}
+                    >
+                        Estante {selectedShelf.id}
+                    </h2>
+
+                    <p style={{ margin: "4px 0", fontSize: "15px" }}>
+                        Sector:{" "}
+                        <strong style={{ fontWeight: 600 }}>
+                            {selectedShelf.sectorId}
+                        </strong>
+                    </p>
+
+                    <p style={{ margin: "4px 0", fontSize: "14px", opacity: 0.8 }}>
+                        ID interno: {selectedShelf.id}
+                    </p>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "10px",
+                            marginTop: "20px",
+                        }}
+                    >
+                        <button
+                            onClick={() => setSelectedShelf(null)}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: "8px",
+                                background: "#e5e5e5",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                            }}
+                        >
+                            Cerrar
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setMarker({
+                                    x:
+                                        selectedShelf.x +
+                                        selectedShelf.width / 2,
+                                    y:
+                                        selectedShelf.y +
+                                        selectedShelf.height / 2,
+                                    label: selectedShelf.id,
+                                });
+                                setSelectedShelf(null);
+                            }}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: "8px",
+                                background: "#1976d2",
+                                color: "white",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: 600,
+                            }}
+                        >
+                            Marcar estante
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                {/* Animación */}
+                <style>
+                    {`
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translate(-50%, -45%); }
+                        to { opacity: 1; transform: translate(-50%, -50%); }
+                    }
+                `}
+                </style>
+            </>
         );
     };
 
-    // dibujar pasillos (aisles) - ejemplo simple: líneas o rects entre racks
-    // const renderAisles = () => {
-    //     // para este ejemplo, colocamos 3 pasillos verticales dentro del área de insumos secos
-    //     const aX = [SECTORES[4].x + 150, SECTORES[4].x + 350, SECTORES[4].x + 550];
-    //     return aX.map((ax, i) => (
-    //         <Rect
-    //             key={`aisle-${i}`}
-    //             x={ax}
-    //             y={SECTORES[4].y + 10}
-    //             width={20}
-    //             height={SECTORES[4].height - 20}
-    //             fill={"#ffffff"}
-    //             opacity={0.6}
-    //             stroke={"#e0e0e0"}
-    //         />
-    //     ));
-    // };
 
     return (
         <div
@@ -703,194 +784,198 @@ export default function MapaAlmacenPro({ codigo, estante, posicion, }: Props) {
                 )}
             </div>
 
-            <Stage
-                ref={stageRef}
-                width={stageSize.width}
-                height={stageSize.height}
-                draggable
-                x={position.x}
-                y={position.y}
-                scaleX={scale}
-                scaleY={scale}
-                onWheel={handleWheel}
-                dragBoundFunc={(pos) => {
-                    const stage = stageRef.current;
-                    if (!stage) return pos;
-
-                    const mapWidth = 1100;  // tu tamaño de mapa real
-                    const mapHeight = 680;
-
-                    const scaledW = mapWidth * stage.scaleX();
-                    const scaledH = mapHeight * stage.scaleY();
-
-                    const containerW = stage.width();
-                    const containerH = stage.height();
-
-                    // límites para que no "escape"
-                    const minX = containerW - scaledW;
-                    const minY = containerH - scaledH;
-                    const maxX = 0;
-                    const maxY = 0;
-
-                    return {
-                        x: Math.min(maxX, Math.max(minX, pos.x)),
-                        y: Math.min(maxY, Math.max(minY, pos.y)),
-                    };
+            <div
+                ref={containerRef}
+                style={{
+                    width: "100%",
+                    height: "600px",  
+                    overflow: "auto",    
+                    border: "1px solid #ccc",
+                    position: "relative",
                 }}
-                onDragEnd={(e) => {
-                    setPosition({ x: e.target.x(), y: e.target.y() });
-                }}
-            // style={{ border: "1px solid #ddd", borderRadius: 8, background: "transparent" }}
             >
-                <Layer>
-                    {/* Outer wall */}
-                    {/* <Rect x={10} y={10} width={1100} height={680} stroke="#222" strokeWidth={6} cornerRadius={6} /> */}
 
-                    {/* Dibujar sectores */}
-                    {SECTORES.map((s) => (
-                        <Group key={s.id}>
-                            <Rect
-                                x={s.x}
-                                y={s.y}
-                                width={s.width}
-                                height={s.height}
-                                fill={s.color}
-                                stroke="#999"
-                                strokeWidth={2}
-                                cornerRadius={8}
-                                shadowColor="#000"
-                                shadowBlur={8}
-                                onMouseEnter={() => {
-                                    // opcional: cambiar cursor
-                                    const container = stageRef.current?.container();
-                                    if (container) container.style.cursor = "pointer";
-                                }}
-                                onMouseLeave={() => {
-                                    const container = stageRef.current?.container();
-                                    if (container) container.style.cursor = "default";
-                                }}
-                                onClick={() => {
-                                    // centrar en sector
-                                    const centerX = s.x + s.width / 2;
-                                    const centerY = s.y + s.height / 2;
-                                    centerOn(centerX, centerY, 1.6);
-                                }}
-                            />
-                            <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />
-                            <Text x={s.x + 10} y={s.y + 30} text={s.id.includes("camara") ? "Requiere frio si aplica" : ""} fontSize={12} />
-                        </Group>
-                    ))}
+                <Stage
+                    ref={stageRef}
+                    width={stageSize.width}
+                    height={stageSize.height}
+                    draggable
+                    x={position.x}
+                    y={position.y}
+                    scaleX={scale}
+                    scaleY={scale}
+                    // onWheel={handleWheel}
+                    dragBoundFunc={(pos) => {
+                        const stage = stageRef.current;
+                        if (!stage) return pos;
 
-                    {/* Aisles */}
-                    {/* {renderAisles()} */}
+                        const mapWidth = 1100;  // tu tamaño de mapa real
+                        const mapHeight = 680;
 
-                    {/* Dibujar estantes (shelves) - clickeables */}
-                    {ESTANTES.map((sh) => {
-                        const isHover = hoverShelf === sh.id;
-                        const isSelected = selectedShelf?.id === sh.id;
-                        return (
-                            <Group key={sh.id}>
+                        const scaledW = mapWidth * stage.scaleX();
+                        const scaledH = mapHeight * stage.scaleY();
+
+                        const containerW = stage.width();
+                        const containerH = stage.height();
+
+                        // límites para que no "escape"
+                        const minX = containerW - scaledW;
+                        const minY = containerH - scaledH;
+                        const maxX = 0;
+                        const maxY = 0;
+
+                        return {
+                            x: Math.min(maxX, Math.max(minX, pos.x)),
+                            y: Math.min(maxY, Math.max(minY, pos.y)),
+                        };
+                    }}
+                    onDragEnd={(e) => {
+                        setPosition({ x: e.target.x(), y: e.target.y() });
+                    }}
+                // style={{ border: "1px solid #ddd", borderRadius: 8, background: "transparent" }}
+                >
+                    <Layer>
+                        {/* Outer wall */}
+                        {/* <Rect x={10} y={10} width={1100} height={680} stroke="#222" strokeWidth={6} cornerRadius={6} /> */}
+
+                        {/* Dibujar sectores */}
+                        {SECTORES.map((s) => (
+                            <Group key={s.id}>
                                 <Rect
-                                    x={sh.x}
-                                    y={sh.y}
-                                    width={sh.width}
-                                    height={sh.height}
-                                    fill={isSelected ? "#ffeb3b" : isHover ? "#90caf9" : "#e0e0e0"}
-                                    stroke={isSelected ? "#f57f17" : "#666"}
-                                    strokeWidth={isHover ? 3 : 2}
-                                    cornerRadius={4}
-                                    shadowBlur={isHover ? 10 : 4}
+                                    x={s.x}
+                                    y={s.y}
+                                    width={s.width}
+                                    height={s.height}
+                                    fill={s.color}
+                                    stroke="#999"
+                                    strokeWidth={2}
+                                    cornerRadius={8}
+                                    shadowColor="#000"
+                                    shadowBlur={8}
                                     onMouseEnter={() => {
-                                        setHoverShelf(sh.id);
-                                        const stage = stageRef.current;
-                                        const container = stage?.container();
+                                        // opcional: cambiar cursor
+                                        const container = stageRef.current?.container();
                                         if (container) container.style.cursor = "pointer";
-                                        // tooltip near shelf (stage coordinates)
-                                        setTooltip({ x: sh.x + sh.width / 2, y: sh.y - 8, text: sh.id });
                                     }}
                                     onMouseLeave={() => {
-                                        setHoverShelf(null);
-                                        setTooltip(null);
-                                        const stage = stageRef.current;
-                                        const container = stage?.container();
+                                        const container = stageRef.current?.container();
                                         if (container) container.style.cursor = "default";
                                     }}
-                                    onClick={() => handleShelfClick(sh)}
+                                    onClick={() => {
+                                        // centrar en sector
+                                        const centerX = s.x + s.width / 2;
+                                        const centerY = s.y + s.height / 2;
+                                        centerOn(centerX, centerY, 1.6);
+                                    }}
                                 />
-
-                                {/* etiqueta con número de estante */}
-                                <Text x={sh.x + 6} y={sh.y + 4} text={sh.id} fontSize={12} fill="#333" fontStyle="bold" />
+                                <Text x={s.x + 10} y={s.y + 8} text={s.name} fontSize={16} fontStyle="bold" />
+                                <Text x={s.x + 10} y={s.y + 30} text={s.id.includes("camara") ? "Requiere frio si aplica" : ""} fontSize={12} />
                             </Group>
-                        );
-                    })}
+                        ))}
 
-                    {/* Marker del insumo buscado */}
-                    {marker && (
-                        <Group>
+                        {/* Dibujar estantes (shelves) - clickeables */}
+                        {ESTANTES.map((sh) => {
+                            const isHover = hoverShelf === sh.id;
+                            const isSelected = selectedShelf?.id === sh.id;
+                            return (
+                                <Group key={sh.id}>
+                                    <Rect
+                                        x={sh.x}
+                                        y={sh.y}
+                                        width={sh.width}
+                                        height={sh.height}
+                                        fill={isSelected ? "#ffeb3b" : isHover ? "#90caf9" : "#e0e0e0"}
+                                        stroke={isSelected ? "#f57f17" : "#666"}
+                                        strokeWidth={isHover ? 3 : 2}
+                                        cornerRadius={4}
+                                        shadowBlur={isHover ? 10 : 4}
+                                        onMouseEnter={() => {
+                                            setHoverShelf(sh.id);
+                                            const stage = stageRef.current;
+                                            const container = stage?.container();
+                                            if (container) container.style.cursor = "pointer";
+                                            // tooltip near shelf (stage coordinates)
+                                            setTooltip({ x: sh.x + sh.width / 2, y: sh.y - 8, text: sh.id });
+                                        }}
+                                        onMouseLeave={() => {
+                                            setHoverShelf(null);
+                                            setTooltip(null);
+                                            const stage = stageRef.current;
+                                            const container = stage?.container();
+                                            if (container) container.style.cursor = "default";
+                                        }}
+                                        onClick={() => handleShelfClick(sh)}
+                                    />
 
-                            {/* 🔵 Círculo principal */}
-                            <Circle
-                                x={marker.x}
-                                y={marker.y}
-                                radius={12}
-                                fill="#ff4444"
-                                stroke="#b30000"
-                                strokeWidth={3}
-                                shadowColor="black"
-                                shadowBlur={10}
-                                shadowOpacity={0.4}
-                            />
+                                    {/* etiqueta con número de estante */}
+                                    <Text x={sh.x + 6} y={sh.y + 4} text={sh.id} fontSize={12} fill="#333" fontStyle="bold" />
+                                </Group>
+                            );
+                        })}
 
-                            {/* ✨ Círculo de "pulso" */}
-                            <Circle
-                                x={marker.x}
-                                y={marker.y}
-                                radius={20}
-                                fill="transparent"
-                                stroke="#ff4444"
-                                strokeWidth={2}
-                                opacity={0.5}
-                                listening={false}
-                            />
+                       
+{marker && (
+    <Group>
+        {/* 🌟 Círculo principal */}
+        <Circle
+            x={marker.x}
+            y={marker.y}
+            radius={10}
+            fill="#ff3b3b"
+            stroke="#ff9e9e"
+            strokeWidth={3}
+            shadowBlur={15}
+            shadowColor="#ff4d4d"
+            shadowOpacity={0.8}
+        />
 
-                            {/* 🏷️ Label con fondo */}
-                            <Group x={marker.x + 15} y={marker.y - 18}>
-                                <Rect
-                                    width={marker.label.length * 7.5}
-                                    height={22}
-                                    fill="white"
-                                    cornerRadius={6}
-                                    shadowColor="black"
-                                    shadowBlur={5}
-                                    shadowOpacity={0.3}
-                                />
-                                <Text
-                                    text={marker.label}
-                                    fontSize={14}
-                                    fontStyle="bold"
-                                    padding={4}
-                                    fill="#333"
-                                />
+        {/* 🔵 Círculo animado tipo pulso */}
+<Circle
+    ref={pulseRef}
+    x={marker.x}
+    y={marker.y}
+    radius={14}
+    stroke="#ff3b3b"
+    strokeWidth={2}
+    opacity={0.6}
+/>
+
+        {/* 🏷 Label dark */}
+        <Group x={marker.x + 15} y={marker.y - 18}>
+            <Rect
+                width={marker.label.length * 8}
+                height={24}
+                fill="#1e1e1e"
+                cornerRadius={6}
+                shadowColor="black"
+                shadowBlur={8}
+                shadowOpacity={0.4}
+            />
+            <Text
+                text={marker.label}
+                fontSize={14}
+                fontStyle="bold"
+                padding={4}
+                fill="#ffffff"
+            />
+        </Group>
+    </Group>
+)}
+
+
+
+                        {/* Tooltip simple */}
+                        {tooltip && (
+                            <Group x={tooltip.x} y={tooltip.y - 20}>
+                                <Label>
+                                    <Tag fill="black" opacity={0.8} cornerRadius={6} />
+                                    <Text text={tooltip.text} fill="white" padding={6} />
+                                </Label>
                             </Group>
-
-                        </Group>
-                    )}
-
-
-
-
-                    {/* Tooltip simple */}
-                    {tooltip && (
-                        <Group x={tooltip.x} y={tooltip.y - 20}>
-                            <Label>
-                                <Tag fill="black" opacity={0.8} cornerRadius={6} />
-                                <Text text={tooltip.text} fill="white" padding={6} />
-                            </Label>
-                        </Group>
-                    )}
-                </Layer>
-            </Stage>
-
+                        )}
+                    </Layer>
+                </Stage>
+            </div>
             {/* Modal simple para estante */}
             {renderModal()}
         </div>
