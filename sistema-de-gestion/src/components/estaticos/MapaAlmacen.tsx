@@ -713,7 +713,7 @@ useEffect(() => {
 
                                     // fondo campo
                                     "& .MuiInputBase-root": {
-                                        backgroundColor: "#2c2c2c",
+                                        backgroundColor: "#0e1217",
                                         color: "white",
                                     },
 
@@ -749,25 +749,25 @@ useEffect(() => {
 
                             // estilo del dropdown
                             "& .MuiAutocomplete-paper": {
-                                backgroundColor: "#2c2c2c",
+                                backgroundColor: "#0e1217 ",
                                 color: "white",
                             },
 
                             // estilo de cada ítem
                             "& .MuiAutocomplete-option": {
-                                backgroundColor: "#2c2c2c",
+                                backgroundColor: "#0e1217 ",
                                 color: "white",
                                 "&:hover": {
-                                    backgroundColor: "#3a3a3a",
+                                    backgroundColor: "#111827",
                                 },
                                 "&.Mui-focused": {
-                                    backgroundColor: "#444",
+                                    backgroundColor: "#1a2131ff",
                                 },
                                 "&.Mui-selected": {
-                                    backgroundColor: "#555",
+                                    backgroundColor: "#0a070eff",
                                 },
                                 "&.Mui-selected:hover": {
-                                    backgroundColor: "#666",
+                                    backgroundColor: "#0f0227ff ",
                                 },
                             },
                         }}

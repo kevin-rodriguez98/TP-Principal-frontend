@@ -27,7 +27,8 @@
     "react-konva": "^19.2.0",
     "react-router-dom": "^7.9.3",
     "react-toastify": "^11.0.5",
-    "recharts": "^3.4.1"
+    "recharts": "^3.4.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
