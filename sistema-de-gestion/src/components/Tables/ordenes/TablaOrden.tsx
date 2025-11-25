@@ -9,6 +9,7 @@ import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
+import { PERMISOS } from "../../../Context/PanelContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
@@ -21,6 +22,8 @@ const TablaOrden: React.FC = () => {
     const { toUpperObject } = useToUpper();
     const limpiarError = (campo: string) =>
         setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
+    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const baseTextFieldProps = (campo: string, extraProps = {}) => ({
         required: true,
