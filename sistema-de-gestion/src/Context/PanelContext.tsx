@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { InsumoContext } from "./InsumoContext";
-import { useUsuarios } from "./UsuarioContext";
+// import { useUsuarios } from "./UsuarioContext";
 
-const PanelInsumos = () => {
-    const { usuario } = useUsuarios();
-    const rol = usuario?.rol as keyof typeof PERMISOS;
+// const PanelInsumos = () => {
+//     const { usuario } = useUsuarios();
+//     const rol = usuario?.rol as keyof typeof PERMISOS;
     
-}
+// }
 export interface Notificacion {
     id: string;
     codigoInsumo?: string; // identificador único para evitar duplicados

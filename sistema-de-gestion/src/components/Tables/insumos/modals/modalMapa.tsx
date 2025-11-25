@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import MapaAlmacenPro from "../../../estaticos/MapaAlmacen";
+import MapaAlmacenPro from "../../../mapa/MapaAlmacen";
 import { type Insumo } from "../../../../Context/InsumoContext";
 
 interface Props {

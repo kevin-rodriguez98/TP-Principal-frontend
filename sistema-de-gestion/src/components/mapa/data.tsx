@@ -1,5 +1,4 @@
 
-
 export interface Posiciones {
     [key: string]: { x: number; y: number };
 }
