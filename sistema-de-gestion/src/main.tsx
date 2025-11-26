@@ -10,18 +10,18 @@ import { Movimiento_producto_contextProvider } from './Context/Movimiento_produc
 import { PanelProvider } from './Context/PanelContext'
 import { OrdenProduccionProvider } from './Context/OrdenesContext'
 import { ProductosProvider } from './Context/ProductosContext';
-import { FaceAuthProvider } from './Context/FaceAuthContext';
 import { RecetaProvider } from './Context/RecetaContext';
 import { ModalProvider } from './components/modal/ModalContext';
 import { UsuarioProvider } from './Context/UsuarioContext';
+import { AuthProvider } from './Context/AuthContext';
 import { TiempoProduccionProvider } from './Context/TiempoProduccionContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Router>
       <ModalProvider>
-        <FaceAuthProvider>
-          <UsuarioProvider>
+        <UsuarioProvider>
+          <AuthProvider>
             <OpProvider>
               <InsumoProvider>
                 <PanelProvider>
@@ -53,8 +53,8 @@ createRoot(document.getElementById('root')!).render(
                 </PanelProvider>
               </InsumoProvider>
             </OpProvider>
-          </UsuarioProvider>
-        </FaceAuthProvider>
+          </AuthProvider>
+        </UsuarioProvider>
       </ModalProvider>
     </Router>
   </StrictMode>,

@@ -1,86 +1,86 @@
 import { Routes, Route } from "react-router-dom";
-import { useContext} from "react";
+import { useContext } from "react";
 
 import Menu from "./pages/Menu";
 import "./app.css";
-import FaceLogin from "./login/FaceLogin.tsx";
-import PanelGeneral from "./components/Tables/PanelGeneral.tsx";
-import PanelUsuarios from "./pages/PanelUsuarios.tsx";
-import ReportesInsumos from "./pages/ReportesInsumos.tsx";
-import ReportesOrdenes from "./pages/ReportesOrdenes.tsx";
-
-
-import { ModalContext } from "./components/modal/ModalContext.tsx";
-import Modal from "./components/modal/Modal.tsx";
-// import { useUsuarios } from "./Context/UsuarioContext";
-import ProtectedRoute from "./ProtectedRoute.tsx";
+import Login from "./pages/Login";
+import PanelGeneral from "./components/Tables/PanelGeneral";
+import PanelUsuarios from "./pages/PanelUsuarios";
+import ReportesInsumos from "./pages/ReportesInsumos";
+import ReportesOrdenes from "./pages/ReportesOrdenes";
+import { ModalContext } from "./components/modal/ModalContext";
+import Modal from "./components/modal/Modal";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./ProtectedRoute";
 
 // URL´s SERVER
-export const URL = "https://tp-principal-backend.onrender.com/"
+export const URL = "https://tp-principal-backend.onrender.com/";
 
-export const URL_ordenes = "https://tp-principal-backend.onrender.com/orden-produccion";
-export const URL_insumos = "https://tp-principal-backend.onrender.com/insumos";
-export const URL_ingresos = "https://tp-principal-backend.onrender.com/movimiento-insumo";
-export const URL_egresos = "https://tp-principal-backend.onrender.com/movimiento-producto";
-export const URL_productos = "https://tp-principal-backend.onrender.com/productos";
-export const URL_estimacion = "https://tp-principal-backend.onrender.com/tiempo-produccion";
-export const URL_recetas = "https://tp-principal-backend.onrender.com/recetas";
-export const URL_empleados = "https://tp-principal-backend.onrender.com/empleados";
+export const URL_ordenes = `${URL}orden-produccion`;
+export const URL_insumos = `${URL}insumos`;
+export const URL_ingresos = `${URL}movimiento-insumo`;
+export const URL_egresos = `${URL}movimiento-producto`;
+export const URL_productos = `${URL}productos`;
+export const URL_estimacion = `${URL}tiempo-produccion`;
+export const URL_recetas = `${URL}recetas`;
+export const URL_empleados = `${URL}empleados`;
 
 function App() {
   const { modal, setModal } = useContext(ModalContext)!;
 
-  // const { usuario, modificarPassword } = useUsuarios();
-
-  // const [showPasswordModal, setShowPasswordModal] = useState(false);
-
-  // const handlePasswordChange = async (_actual: string, nueva: string) => {
-  //   if (!usuario) return;
-
-  //   try {
-  //     await modificarPassword(usuario.legajo, nueva);
-  //     setShowPasswordModal(false);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
   return (
     <>
       <Routes>
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Menu />
-          </ProtectedRoute>
-        } />
+        <Route path="/login" element={<Login />} />
 
-        <Route path="/login" element={<FaceLogin />} />
+        <Route
+          path="/menu"
+          element={
+            // <ProtectedRoute>
+              <Menu />
+            // </ProtectedRoute>
+          }
+        />
 
-        <Route path="/PanelGestion/:id" element={
-          <ProtectedRoute>
-            <PanelGeneral />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/PanelGestion/:id"
+          element={
+            // <ProtectedRoute>
+              <PanelGeneral />
+            // </ProtectedRoute>
+          }
+        />
 
-        <Route path="/usuarios" element={
-          <ProtectedRoute>
+        <Route
+          path="/usuarios"
+          element={
+            // <ProtectedRoute >
             <PanelUsuarios />
-          </ProtectedRoute>
-        } />
+            // </ProtectedRoute>
+          }
+        />
 
-        <Route path="/reportes/insumos" element={
-          <ProtectedRoute>
+        <Route
+          path="/reportes/insumos"
+          element={
+            // <ProtectedRoute>
             <ReportesInsumos />
-          </ProtectedRoute>
-        } />
+            // </ProtectedRoute>
+          }
+        />
 
-        <Route path="/reportes/ordenes" element={
-          <ProtectedRoute>
+        <Route
+          path="/reportes/ordenes"
+          element={
+            // <ProtectedRoute>
             <ReportesOrdenes />
-          </ProtectedRoute>
-        } />
+            // </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
+      {/* Modal global */}
       {modal && (
         <Modal
           tipo={modal.tipo}

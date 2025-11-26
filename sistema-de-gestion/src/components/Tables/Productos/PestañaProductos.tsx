@@ -9,9 +9,9 @@ import SinResultados from "../../estaticos/SinResultados";
 import ModalInfoProducto from "./modals/VerInfo";
 import ModalReceta from "./modals/modalReceta";
 import { RecetaContext } from "../../../Context/RecetaContext";
-import { useUsuarios } from "../../../Context/UsuarioContext";
 import { PERMISOS } from "../../../Context/PanelContext";
 import { useValidationFields } from "../../../hooks/ValidacionesError";
+import { AuthContext } from "../../../Context/AuthContext";
 
 
 
@@ -21,7 +21,7 @@ const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 const TablaProductos: React.FC = () => {
   const { productos, isLoading, error, handleAddProducto, handleEditProducto, handleDeleteProducto, obtenerSiguienteCodigo } = useContext(ProductosContext)!;
   const { obtenerInsumosNecesarios } = useContext(RecetaContext)!;
-  const { usuario } = useUsuarios();
+  const { user } = useContext(AuthContext)!;
   const { toUpperObject } = useToUpper();
   const [productoInfo, setProductoInfo] = useState<Producto | null>(null);
   const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
@@ -30,7 +30,7 @@ const TablaProductos: React.FC = () => {
   const [openModalReceta, setOpenModalReceta] = useState(false);
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
-  const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+  const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
   const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
   const columns = useMemo<MRT_ColumnDef<Producto>[]>(
@@ -102,7 +102,7 @@ const TablaProductos: React.FC = () => {
         header: "Responsable",
         enableEditing: false,
         muiTableHeadCellProps: ESTILOS_CABECERA,
-        muiEditTextFieldProps: { value: `${usuario?.legajo}` },
+        muiEditTextFieldProps: { value: `${user?.legajo}` },
         Cell: ({ row }) => `${row.original.legajoResponsable} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
 
       },
@@ -136,7 +136,7 @@ const TablaProductos: React.FC = () => {
 
     const nuevoProducto: Producto = {
       ...values, codigo, stock: 0,
-      legajoResponsable: values.legajoResponsable?.trim() !== "" ? values.legajoResponsable : usuario?.legajo,
+      legajoResponsable: values.legajoResponsable?.trim() !== "" ? values.legajoResponsable : user?.legajo,
     };
 
     const valoresEnMayus = toUpperObject(nuevoProducto);

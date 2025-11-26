@@ -8,8 +8,8 @@ import CeldaEtapa from "./CeldaEtapa";
 import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 import { useToUpper } from "../../../hooks/useToUpper";
-import { useUsuarios } from "../../../Context/UsuarioContext";
 import { useValidationFields } from "../../../hooks/ValidacionesError";
+import { AuthContext } from "../../../Context/AuthContext";
 // import { PERMISOS } from "../../../Context/PanelContext";
 
 
@@ -18,7 +18,7 @@ const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, generarCodigoLote, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
-    const { usuario } = useUsuarios();
+        const { user } = useContext(AuthContext)!;
     const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
     const { toUpperObject } = useToUpper();
 
@@ -113,7 +113,7 @@ const TablaOrden: React.FC = () => {
                     <CeldaEstado
                         idOrden={row.original.id}
                         estado={row.original.estado}
-                        legajo={usuario?.legajo ? usuario?.legajo : "100"}
+                        legajo={user?.legajo ? user?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         finalizarOrden={finalizarOrden}
                     />
@@ -132,7 +132,7 @@ const TablaOrden: React.FC = () => {
                         idOrden={row.original.id}
                         etapa={row.original.etapa}
                         estadoActual={row.original.estado}
-                        legajo={usuario?.legajo ? usuario?.legajo : "100"}
+                        legajo={user?.legajo ? user?.legajo : "100"}
                         notificarEtapa={notificarEtapa}
                         agregarNota={agregarNota}
                     // visible={row.original.estado === estados.enProduccion}
@@ -166,7 +166,7 @@ const TablaOrden: React.FC = () => {
                 accessorKey: "legajo",
                 header: "Responsable",
                 enableEditing: false,
-                muiEditTextFieldProps: { value: `${usuario?.legajo}` },
+                muiEditTextFieldProps: { value: `${user?.legajo}` },
                 Cell: ({ row }) => row.original.legajo || "—",
             },
             {
@@ -200,7 +200,7 @@ const TablaOrden: React.FC = () => {
         const nuevaOrden = {
             ...values,
             estado: values.estado?.trim() !== "" ? values.estado : estados.evaluacion,
-            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
+            legajo: values.legajo?.trim() !== "" ? values.legajo : user?.legajo,
             lote: generarCodigoLote(values.codigoProducto),
         };
 

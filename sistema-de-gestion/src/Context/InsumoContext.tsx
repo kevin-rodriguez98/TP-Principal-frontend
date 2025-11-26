@@ -65,7 +65,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         console.log(`Se ejecutó ${count} veces`, new Date().toISOString());
     }, [insumos]);
 
-    // ⚙️ Función reutilizable para manejar errores HTTP
     const handleFetchError = async (response: Response, defaultMessage: string) => {
         let errorMessage = defaultMessage;
         try {
@@ -84,7 +83,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         throw new Error(errorMessage);
     };
 
-    // 📦 Obtener todos los insumos
     const obtenerInsumos = async () => {
         setIsLoading(true);
         try {
@@ -105,7 +103,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         }
     };
 
-    // ⚠️ Obtener insumos con stock bajo
     const obtenerInsumosBajoStock = async () => {
         try {
             setError(null);
@@ -123,7 +120,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         }
     };
 
-    // ✅ Validar insumo antes de agregar o editar
     const validarInsumo = (insumo: Insumo, esEdicion: boolean) => {
         const errores: Record<string, string> = {};
         const codigoNormalizado = insumo.codigo.trim().toLowerCase();
@@ -149,7 +145,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         return errores;
     };
 
-    // ➕ Agregar insumo
     const handleAddInsumo = async (insumo: Insumo) => {
         const errores = validarInsumo(insumo, false);
         if (Object.keys(errores).length > 0) {
@@ -174,7 +169,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         }
     };
 
-    // ✏️ Editar insumo
     const handleUpdateInsumo = async (insumo: Insumo) => {
         const errores = validarInsumo(insumo, true);
         if (Object.keys(errores).length > 0) {
@@ -199,7 +193,6 @@ export function InsumoProvider({ children }: InsumoProviderProps) {
         }
     };
 
-    // 🗑️ Eliminar insumo con confirmación
     const handleDelete = (codigo: string) => {
         setModal({
             tipo: "confirm",

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FormControl, Select, MenuItem, Modal, Box, TextField, Button } from "@mui/material";
 import { estados, type Etapa, type ordenFinalizadaRequest } from "../../../Context/OrdenesContext";
 import { PERMISOS } from "../../../Context/PanelContext";
-import { useUsuarios } from "../../../Context/UsuarioContext";
+import { AuthContext } from "../../../Context/AuthContext";
 interface Props {
     idOrden: number;
     estado: (typeof estados)[keyof typeof estados];
@@ -40,8 +40,8 @@ const CeldaEstado: React.FC<Props> = ({
     const [openModal, setOpenModal] = useState(false);
     const [destino, setDestino] = useState("Almacen");
     const [cantidad, setCantidad] = useState("");
-    const {usuario} = useUsuarios();
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const { user } = useContext(AuthContext)!;
+    const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
     const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const puedeCambiarEstado = permisos?.cambiarEstadoOrden;

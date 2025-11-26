@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Box, Tabs, Tab, Typography, CssBaseline, Paper, Button } from "@mui/material";
 import { darkScrollbar } from "@mui/material";
@@ -8,9 +8,9 @@ import { Select, MenuItem, useMediaQuery, useTheme } from "@mui/material";
 import Tabla from "./insumos/Tabla";
 import TablaOrden from "./ordenes/TablaOrden";
 import TablaRegistro from "./registros/TablaRegistro";
-import { useUsuarios } from "../../Context/UsuarioContext";
 import TablaProductos from "./Productos/TablaProductos";
 import { FiBox, FiFileText, FiPackage, FiCpu } from "react-icons/fi";
+import { AuthContext } from "../../Context/AuthContext";
 
 
 
@@ -48,7 +48,7 @@ const darkTheme = createTheme({
 
 export default function PanelGeneral({ }) {
     const navigate = useNavigate();
-    const { logout, usuario } =  useUsuarios();
+    const { logout, user } = useContext(AuthContext)!;
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -68,7 +68,7 @@ export default function PanelGeneral({ }) {
     };
 
     return (
-        
+
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             <Box sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.default", backgroundColor: "#0e1217" }}>
@@ -76,7 +76,7 @@ export default function PanelGeneral({ }) {
                     {isMobile ? (
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/menu")}
                                 variant="contained"
                                 sx={{
                                     backgroundColor: "#111827",
@@ -100,27 +100,27 @@ export default function PanelGeneral({ }) {
                                     "& .MuiSvgIcon-root": { color: "#fff" },
                                 }}
                             >
-                                    <MenuItem value={0}>
-                                        <FiBox style={{ marginRight: 8 }} /> Gestión de Insumos
-                                    </MenuItem>
+                                <MenuItem value={0}>
+                                    <FiBox style={{ marginRight: 8 }} /> Gestión de Insumos
+                                </MenuItem>
 
-                                    <MenuItem value={1}>
-                                        <FiFileText style={{ marginRight: 8 }} /> Registros
-                                    </MenuItem>
+                                <MenuItem value={1}>
+                                    <FiFileText style={{ marginRight: 8 }} /> Registros
+                                </MenuItem>
 
-                                    <MenuItem value={2}>
-                                        <FiPackage style={{ marginRight: 8 }} /> Productos
-                                    </MenuItem>
+                                <MenuItem value={2}>
+                                    <FiPackage style={{ marginRight: 8 }} /> Productos
+                                </MenuItem>
 
-                                    <MenuItem value={3}>
-                                        <FiCpu style={{ marginRight: 8 }} /> Órdenes de Producción
-                                    </MenuItem>
+                                <MenuItem value={3}>
+                                    <FiCpu style={{ marginRight: 8 }} /> Órdenes de Producción
+                                </MenuItem>
                             </Select>
                         </Box>
                     ) : (
                         <Box sx={{ display: "flex", alignItems: "center", p: 2, gap: 2 }}>
                             <Button
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/menu")}
                                 variant="contained"
                                 sx={{
                                     display: "flex",
@@ -155,26 +155,26 @@ export default function PanelGeneral({ }) {
                                     },
                                 }}
                             >
-                                  <Tab
-                                        icon={<FiBox size={20} />}
-                                        iconPosition="start"
-                                        label="Gestión de Insumos"
-                                    />
-                                    <Tab
-                                        icon={<FiFileText size={20} />}
-                                        iconPosition="start"
-                                        label="Registros"
-                                    />
-                                    <Tab
-                                        icon={<FiPackage size={20} />}
-                                        iconPosition="start"
-                                        label="Productos"
-                                    />
-                                    <Tab
-                                        icon={<FiCpu size={20} />}
-                                        iconPosition="start"
-                                        label="Órdenes de Producción"
-                                    />
+                                <Tab
+                                    icon={<FiBox size={20} />}
+                                    iconPosition="start"
+                                    label="Gestión de Insumos"
+                                />
+                                <Tab
+                                    icon={<FiFileText size={20} />}
+                                    iconPosition="start"
+                                    label="Registros"
+                                />
+                                <Tab
+                                    icon={<FiPackage size={20} />}
+                                    iconPosition="start"
+                                    label="Productos"
+                                />
+                                <Tab
+                                    icon={<FiCpu size={20} />}
+                                    iconPosition="start"
+                                    label="Órdenes de Producción"
+                                />
                             </Tabs>
                             <Box
                                 sx={{
@@ -188,7 +188,7 @@ export default function PanelGeneral({ }) {
                                     boxShadow: "0 0 10px rgba(17, 14, 25, 0.3)",
                                 }}
                             >
-                                {usuario ? (
+                                {user ? (
                                     <>
                                         <Box
                                             sx={{
@@ -202,14 +202,14 @@ export default function PanelGeneral({ }) {
                                                 fontSize: "1.1rem",
                                             }}
                                         >
-                                            {usuario.nombre?.charAt(0).toUpperCase()}
+                                            {user.nombre?.charAt(0).toUpperCase()}
                                         </Box>
                                         <Box>
                                             <Typography sx={{ fontSize: "0.85rem", color: "gray" }}>
                                                 Sesión activa
                                             </Typography>
                                             <Typography sx={{ fontSize: "0.95rem", fontWeight: "bold", color: "green" }}>
-                                                {usuario.nombre}
+                                                {user.nombre}
                                             </Typography>
                                         </Box>
                                         <Button

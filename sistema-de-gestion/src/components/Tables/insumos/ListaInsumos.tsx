@@ -10,10 +10,10 @@ import { useToUpper } from "../../../hooks/useToUpper";
 import MapIcon from "@mui/icons-material/Map";
 import ModalMapaAlmacen from "./modals/modalMapa";
 import ModalLocacionInsumo from "./modals/modalAddLocacion";
-import { useUsuarios } from "../../../Context/UsuarioContext";
 import { PERMISOS } from "../../../Context/PanelContext";
 import { getAutocompleteFieldProps } from "../../../hooks/CampoAutoComplete";
 import { useValidationFields } from "../../../hooks/ValidacionesError";
+import { AuthContext } from "../../../Context/AuthContext";
 
 
 
@@ -54,8 +54,8 @@ const TablaInsumos: React.FC = () => {
     const [openMapa, setOpenMapa] = useState(false);
     const [insumoSeleccionado, setInsumoSeleccionado] = useState<Insumo | null>(null);
     const [openLocacion, setOpenLocacion] = useState(false);
-    const { usuario } = useUsuarios();
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const { user } = useContext(AuthContext)!;
+    const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
     const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
     const { validationErrors, setValidationErrors, limpiarError, baseTextFieldProps } = useValidationFields();
     const [insumoTemp, setInsumoTemp] = useState<Insumo | null>(null);

@@ -1,74 +1,39 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode, } from "react";
 import { toast } from "react-toastify";
 import { URL_empleados as URL } from "../App";
 
-// -------------------------------------------
-// MODELO EMPLEADO
-// -------------------------------------------
 export interface Empleado {
   legajo: string;
   nombre: string;
   apellido: string;
   area: string;
   rol: string;
-  isPrimerIngreso?: boolean;
 }
-
-// -------------------------------------------
-// INTERFAZ DEL CONTEXT
-// -------------------------------------------
 interface UsuarioContextType {
   empleados: Empleado[];
-  usuario: Empleado | null;
   cargando: boolean;
   isLoading: boolean;
   error: string | null;
-
-  // Login y sesión
-  login: (legajo: string, password: string) => Promise<Empleado>;
-  logout: () => void;
-
-  // ABM empleados
   agregarEmpleado: (empleado: Empleado) => Promise<void>;
   eliminarEmpleado: (legajo: string) => Promise<void>;
   modificarEmpleado: (empleado: Empleado) => Promise<void>;
   modificarPassword: (legajo: string, password: string) => Promise<void>;
-
-  // Getters
-  //obtenerEmpleado: (legajo: string) => Promise<Empleado | null>;
-
-  // Recargas
   cargarEmpleados: () => Promise<void>;
 }
 
-const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined);
+export const UsuarioContext = createContext<UsuarioContextType | undefined>(undefined);
 
-// -------------------------------------------
-// PROVIDER
-// -------------------------------------------
 export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
-  const [usuario, setUsuario] = useState<Empleado | null>(null);
   const [cargando, setCargando] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Cargar usuario del storage y lista
   useEffect(() => {
-    const stored = localStorage.getItem("usuario");
-    if (stored) setUsuario(JSON.parse(stored));
     cargarEmpleados();
   }, []);
 
-  // -------------------------------------------
-  // RECARGAR EMPLEADOS
-  // -------------------------------------------
   const cargarEmpleados = async () => {
     try {
       setCargando(true);
@@ -77,7 +42,6 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) throw new Error("Error al cargar empleados");
 
       const data = await res.json();
-      console.log(data)
       setEmpleados(data);
 
     } catch (err: any) {
@@ -88,64 +52,6 @@ export const UsuarioProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // -------------------------------------------
-  // RECARGA CON RETORNO (para FaceAuth/login)
-  // -------------------------------------------
-  // const recargarEmpleadosConRetorno = async (): Promise<Empleado[]> => {
-  //   try {
-  //     const res = await fetch(`${URL}/obtener-empleados`);
-  //     if (!res.ok) throw new Error("Error al obtener empleados");
-
-  //     const data = await res.json();
-  //     setEmpleados(data);
-  //     return data;
-  //   } catch {
-  //     toast.error("No se pudieron obtener los empleados");
-  //     return [];
-  //   }
-  // };
-
-  // -------------------------------------------
-  // LOGIN — POST body (nuevo)
-  // -------------------------------------------
-const login = async (legajo: string, password: string) => {
-  setIsLoading(true);
-
-  try {
-    const res = await fetch(`${URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ legajo, password })
-    });
-
-    if (!res.ok) {
-      throw new Error("Credenciales incorrectas");
-    }
-
-    const empleado: Empleado = await res.json();
-
-    setUsuario(empleado);
-    localStorage.setItem("usuario", JSON.stringify(empleado));
-
-    return empleado; // 👈 IMPORTANTE: DEVOLVER EL EMPLEADO
-
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  // -------------------------------------------
-  // LOGOUT
-  // -------------------------------------------
-  const logout = () => {
-    setUsuario(null);
-    localStorage.removeItem("usuario");
-    toast.info("Sesión cerrada");
-  };
-
-  // -------------------------------------------
-  // ABM: AGREGAR EMPLEADO
-  // -------------------------------------------
   const agregarEmpleado = async (nuevo: Empleado) => {
     try {
       setIsLoading(true);
@@ -169,9 +75,6 @@ const login = async (legajo: string, password: string) => {
     }
   };
 
-  // -------------------------------------------
-  // ABM: ELIMINAR EMPLEADO
-  // -------------------------------------------
   const eliminarEmpleado = async (legajo: string) => {
     try {
       setIsLoading(true);
@@ -194,9 +97,6 @@ const login = async (legajo: string, password: string) => {
     }
   };
 
-  // -------------------------------------------
-  // ABM: MODIFICAR EMPLEADO
-  // -------------------------------------------
   const modificarEmpleado = async (emp: Empleado) => {
     try {
       setIsLoading(true);
@@ -219,9 +119,6 @@ const login = async (legajo: string, password: string) => {
     }
   };
 
-  // -------------------------------------------
-  // ABM: MODIFICAR PASSWORD
-  // -------------------------------------------
   const modificarPassword = async (legajo: string, password: string) => {
     try {
       setIsLoading(true);
@@ -240,19 +137,13 @@ const login = async (legajo: string, password: string) => {
     }
   };
 
-  // -------------------------------------------
-  // EXPOSICIÓN DEL CONTEXTO
-  // -------------------------------------------
   return (
     <UsuarioContext.Provider
       value={{
         empleados,
-        usuario,
         cargando,
         isLoading,
         error,
-        login,
-        logout,
         agregarEmpleado,
         eliminarEmpleado,
         modificarEmpleado,
