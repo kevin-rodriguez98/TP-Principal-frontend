@@ -221,25 +221,29 @@ const desperdicioPorFecha = useMemo(() => {
   return Object.values(resultado);
 }, [ordenesFiltradas]);
 
-const produccionYDesperdicioPorProducto = ordenes.reduce((acc, o) => {
-  const producto = o.productoRequerido;
+const produccionYDesperdicioPorProducto = ordenesFiltradas
+  .filter(o => o.estado === estados.finalizada)
+  .reduce((acc, o) => {
+    const producto = o.productoRequerido ?? "SIN PRODUCTO";
 
-  const producido = o.stockProducidoReal;
-  const desperdicio = Math.max(o.stockRequerido - o.stockProducidoReal, 0);
+    const producido = o.stockProducidoReal ?? 0;
+    const requerido = o.stockRequerido ?? 0;
 
-  if (!acc[producto]) {
-    acc[producto] = { 
-      producto,
-      producido: 0,
-      desperdiciado: 0 
-    };
-  }
+    const desperdicio = Math.max(requerido - producido, 0);
 
-  acc[producto].producido += producido;
-  acc[producto].desperdiciado += desperdicio;
+    if (!acc[producto]) {
+      acc[producto] = { 
+        producto,
+        producido: 0,
+        desperdiciado: 0 
+      };
+    }
 
-  return acc;
-}, {} as any);
+    acc[producto].producido += producido;
+    acc[producto].desperdiciado += desperdicio;
+
+    return acc;
+  }, {} as Record<string, { producto: string; producido: number; desperdiciado: number }>);
 
 const desperdicioPorProductoArray = Object.values(produccionYDesperdicioPorProducto);
 
@@ -298,17 +302,18 @@ const resumenDesperdicio = useMemo(() => {
   let totalDesperdicio = 0;
 
   finalizadas.forEach((o) => {
-    const producido = o.stockProducidoReal ?? 0;
-    const requerido = o.stockRequerido ?? 0;
+    const producido = Number(o.stockProducidoReal) || 0;
+    const requerido = Number(o.stockRequerido) || 0;
 
-    let desperdicio = requerido - producido;
-    if (desperdicio < 0) desperdicio = 0;
+    // ❗ Si no produjo nada, NO considerarlo desperdicio
+    if (producido === 0) return;
+
+    const desperdicioReal = Math.max(requerido - producido, 0);
 
     totalProducido += producido;
-    totalDesperdicio += desperdicio;
+    totalDesperdicio += desperdicioReal;
   });
 
-  // Evitar división por cero
   const total = totalProducido + totalDesperdicio || 1;
 
   return [
