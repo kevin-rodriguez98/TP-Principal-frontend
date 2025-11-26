@@ -45,13 +45,10 @@ const ROLES_PERMISOS: Record<string, string[]> = {
     "Alta de Usuarios",
   ],
   ADMINISTRADOR: [
-    "Gestión de Stock",
-    "Gestión de Producción",
-    "Reportes",
     "Alta de Usuarios",
   ],
   SUPERVISOR: ["Gestión de Stock", "Gestión de Producción", "Seguimiento de Producción"],
-  OPERARIO: ["Gestión de Stock", "Seguimiento de Producción"],
+  OPERARIO: ["Gestión de Stock",    "Gestión de Producción", "Seguimiento de Producción"],
 };
 
 export function OpProvider({ children }: OpProviderProps) {

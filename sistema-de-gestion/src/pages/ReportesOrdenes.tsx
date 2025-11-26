@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState, useMemo } from "react";
-import { OrdenesContext, estados } from "../Context/OrdenesContext";
+import { OrdenesContext, estados, type OrdenProduccion } from "../Context/OrdenesContext";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer,
 } from "recharts";
 import ReportExport from "../components/estaticos/ReportExport";
 
-const COLORS = ["#8c52ff", "#f1c40f", "#b13c7e", "#d88346ff", "#b062ceff"];
+const COLORS = ["#b062ceff", "#8c52ff","#b13c7e", "#d88346ff",  "#f1c40f"];
 
 const ReportesOrdenes = () => {
   const { ordenes, filtrarOrdenes } = useContext(OrdenesContext)!;
@@ -72,6 +72,7 @@ const ReportesOrdenes = () => {
   const produccionDiaria = useMemo(() => {
   const resumen: Record<string, any> = {};
 
+ 
   ordenesFiltradas.forEach((o) => {
     const fecha = new Date(o.fechaCreacion);
     const dia = fecha.toLocaleDateString("es-AR", {
@@ -119,16 +120,19 @@ const ReportesOrdenes = () => {
   // -------------------------------
   // GRÁFICO: Producción por marca
   // -------------------------------
-  const produccionPorMarca = useMemo(() => {
-    const resumen: Record<string, number> = {};
-    ordenesFiltradas.forEach((o) => {
-      resumen[o.marca] = (resumen[o.marca] || 0) + 1;
-    });
-    return Object.entries(resumen).map(([marca, cantidad]) => ({
-      marca,
-      cantidad,
-    }));
-  }, [ordenesFiltradas]);
+const produccionPorEtapa = useMemo(() => {
+  const resumen: Record<string, number> = {};
+
+  ordenesFiltradas.forEach((o) => {
+    const etapa = o.etapa ?? "Sin Etapa";
+    resumen[etapa] = (resumen[etapa] || 0) + 1; // cuenta órdenes por etapa
+  });
+
+  return Object.entries(resumen).map(([etapa, cantidad]) => ({
+    etapa,
+    cantidad,
+  }));
+}, [ordenesFiltradas]);
 
 const variosMeses = useMemo(() => {
   return produccionMensual.length > 1;
@@ -182,6 +186,150 @@ const variosMeses = useMemo(() => {
     };
   }, [ordenesFiltradas]);
 
+
+const desperdicioPorFecha = useMemo(() => {
+  const finalizadas = ordenesFiltradas.filter(
+    (o: OrdenProduccion) => o.estado === estados.finalizada
+  );
+
+  const resultado: Record<
+    string,
+    { fecha: string; produccion: number; desperdicio: number }
+  > = {};
+
+  finalizadas.forEach((o) => {
+    const fecha = new Date(o.fechaCreacion).toLocaleDateString("es-AR");
+
+    if (!resultado[fecha]) {
+      resultado[fecha] = {
+        fecha,
+        produccion: 0,
+        desperdicio: 0,
+      };
+    }
+
+    const planificada = o.stockRequerido ?? 0;
+    const real = o.stockProducidoReal ?? 0;
+
+    let desperdicio = planificada - real;
+    if (desperdicio < 0) desperdicio = 0;
+
+    resultado[fecha].produccion += real;
+    resultado[fecha].desperdicio += desperdicio;
+  });
+
+  return Object.values(resultado);
+}, [ordenesFiltradas]);
+
+const produccionYDesperdicioPorProducto = ordenes.reduce((acc, o) => {
+  const producto = o.productoRequerido;
+
+  const producido = o.stockProducidoReal;
+  const desperdicio = Math.max(o.stockRequerido - o.stockProducidoReal, 0);
+
+  if (!acc[producto]) {
+    acc[producto] = { 
+      producto,
+      producido: 0,
+      desperdiciado: 0 
+    };
+  }
+
+  acc[producto].producido += producido;
+  acc[producto].desperdiciado += desperdicio;
+
+  return acc;
+}, {} as any);
+
+const desperdicioPorProductoArray = Object.values(produccionYDesperdicioPorProducto);
+
+const desperdicioMensual = useMemo(() => {
+  // Aplica SOLO cuando el usuario selecciona "todos"
+  if (ultimosXDias !== "todos") return [];
+
+  const finalizadas = ordenesFiltradas.filter(
+    (o: OrdenProduccion) => o.estado === estados.finalizada
+  );
+
+  const resultado: Record<
+    string,
+    { mes: string; clave: string; desperdicio: number; produccion: number }
+  > = {};
+
+  finalizadas.forEach((o) => {
+    const fecha = new Date(o.fechaCreacion);
+
+    const clave = `${fecha.getFullYear()}-${String(
+      fecha.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+    const mes = fecha.toLocaleString("es-AR", { month: "short" });
+
+    if (!resultado[clave]) {
+      resultado[clave] = {
+        clave,
+        mes,
+        desperdicio: 0,
+        produccion: 0,
+      };
+    }
+
+    const planificada = o.stockRequerido ?? 0;
+    const real = o.stockProducidoReal ?? 0;
+
+    let desperdicio = planificada - real;
+    if (desperdicio < 0) desperdicio = 0;
+
+    resultado[clave].desperdicio += desperdicio;
+    resultado[clave].produccion += real;
+  });
+
+  return Object.values(resultado).sort((a, b) =>
+    a.clave.localeCompare(b.clave)
+  );
+}, [ordenesFiltradas, ultimosXDias]);
+
+const resumenDesperdicio = useMemo(() => {
+  const finalizadas = ordenesFiltradas.filter(
+    (o: OrdenProduccion) => o.estado === estados.finalizada
+  );
+
+  let totalProducido = 0;
+  let totalDesperdicio = 0;
+
+  finalizadas.forEach((o) => {
+    const producido = o.stockProducidoReal ?? 0;
+    const requerido = o.stockRequerido ?? 0;
+
+    let desperdicio = requerido - producido;
+    if (desperdicio < 0) desperdicio = 0;
+
+    totalProducido += producido;
+    totalDesperdicio += desperdicio;
+  });
+
+  // Evitar división por cero
+  const total = totalProducido + totalDesperdicio || 1;
+
+  return [
+    {
+      name: "Producido",
+      value: Number(((totalProducido / total) * 100).toFixed(2)),
+    },
+    {
+      name: "Desperdiciado",
+      value: Number(((totalDesperdicio / total) * 100).toFixed(2)),
+    },
+  ];
+}, [ordenesFiltradas]);
+
+const renderPieLabelTotal = (props: any) => {
+  // props.payload es el item (ej: { name: 'Finalizadas', value: 10 })
+  const label = props.payload?.name ?? props.payload?.etapa ?? props.payload?.estado ?? "";
+  const value = props.value ?? props.payload?.value ?? 0;
+  return `${label}: ${value}`;
+};
+
   return (
     <div className="insumos-dashboard">
 
@@ -195,37 +343,68 @@ const variosMeses = useMemo(() => {
       {/* ---------------------------------- */}
       {/*            FILTROS                 */}
       {/* ---------------------------------- */}
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="date"
-          value={fechaFiltro}
-          onChange={(e) => {
-            setFechaFiltro(e.target.value);
-            setUltimosXDias("todos");
-          }}
-        />
+<h2
+  style={{
+    margin: 0,
+    color: "#5b088cff",
+    fontSize: "30px",
+    textAlign: "center",
+    width: "100%",
+  }}
+>
+  Reporte de ordenes de productos
+</h2>
+<div
+  style={{
+    display: "flex",
+    gap: "15px",
+    marginBottom: "20px",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <input
+    type="date"
+    value={fechaFiltro}
+    onChange={(e) => {
+      setFechaFiltro(e.target.value);
+      setUltimosXDias("todos");
+    }}
+    style={{
+      padding: "6px 10px",
+      borderRadius: "8px",
+      border: "1px solid #ccc",
+      background: "#fff",
+      color: "#333",
+      fontSize: "14px",
+      boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+    }}
+  />
 
-        <select
-          value={ultimosXDias}
-          onChange={(e) => {
-            const val = e.target.value;
-            setUltimosXDias(val === "todos" ? "todos" : Number(val));
-            setFechaFiltro("");
-          }}
-        >
-          <option value="todos">Todos</option>
-          <option value={7}>Últimos 7 días</option>
-          <option value={15}>Últimos 15 días</option>
-          <option value={30}>Últimos 30 días</option>
-        </select>
-      </div>
+  <select
+    value={ultimosXDias}
+    onChange={(e) => {
+      const val = e.target.value;
+      setUltimosXDias(val === "todos" ? "todos" : Number(val));
+      setFechaFiltro("");
+    }}
+    style={{
+      padding: "6px 10px",
+      borderRadius: "8px",
+      border: "1px solid #ccc",
+      background: "#fff",
+      color: "#333",
+      fontSize: "14px",
+      cursor: "pointer",
+      boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+    }}
+  >
+    <option value="todos">Todos</option>
+    <option value={7}>Últimos 7 días</option>
+    <option value={15}>Últimos 15 días</option>
+    <option value={30}>Últimos 30 días</option>
+  </select>
+</div>
 
       {/* ---------------------------------- */}
       {/*             RESUMEN                */}
@@ -266,10 +445,10 @@ const variosMeses = useMemo(() => {
           <XAxis dataKey="mes" />
           <YAxis allowDecimals={false} />
           <Tooltip />
-          <Line type="monotone" dataKey={estados.enProduccion} stroke="#82ca9d" />
-          <Line type="monotone" dataKey={estados.cancelada} stroke="#ff0000" />
-          <Line type="monotone" dataKey={estados.finalizada} stroke="#0088fe" />
-          <Line type="monotone" dataKey={estados.evaluacion} stroke="#aa00ff" />
+          <Line type="monotone" dataKey={estados.enProduccion} stroke="#8c52ff" />
+          <Line type="monotone" dataKey={estados.cancelada} stroke="#b13c7e" />
+          <Line type="monotone" dataKey={estados.finalizada} stroke="#d88346ff" />
+          <Line type="monotone" dataKey={estados.evaluacion} stroke="#f1c40f" />
         </LineChart>
       </ResponsiveContainer>
     </Card>
@@ -290,25 +469,25 @@ const variosMeses = useMemo(() => {
         <Line
           type="monotone"
           dataKey={estados.enProduccion}
-          stroke="#82ca9d"
+          stroke="#82ca8c52ff9d"
           name="En Producción"
         />
         <Line
           type="monotone"
           dataKey={estados.cancelada}
-          stroke="#ff0000"
+          stroke="#b13c7e"
           name="Cancelada"
         />
         <Line
           type="monotone"
           dataKey={estados.finalizada}
-          stroke="#0088fe"
+          stroke="#d88346ff"
           name="Finalizada"
         />
         <Line
           type="monotone"
           dataKey={estados.evaluacion}
-          stroke="#aa00ff"
+          stroke="#f1c40f"
           name="Evaluación"
         />
       </LineChart>
@@ -317,46 +496,53 @@ const variosMeses = useMemo(() => {
 )}
 
         {/* PIE: ESTADOS */}
-        <div className="pie-wrapper">
-          <Card titulo="Distribución de Estados (%)">
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={resumenEstados.data}
-                  dataKey="value"
-                  outerRadius={70}
-                  label
-                >
-                  {resumenEstados.data.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
+<div className="pie-wrapper">
+ <Card titulo="Producción vs Desperdicio (%)" className="pie-card">
+  <ResponsiveContainer width="100%" height={200}>
+    <PieChart>
+      <Pie
+        data={resumenDesperdicio}
+        dataKey="value"
+        nameKey="name"
+        innerRadius={40}   // dona
+        outerRadius={70}
+        paddingAngle={3}
+        label
+        labelLine={false}  
+      >
+        {resumenDesperdicio.map((_, i) => (
+          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+</Card>
 
           {/* POR MARCA */}
-          <Card titulo="Producción por Marca">
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={produccionPorMarca}
-                  dataKey="cantidad"
-                  nameKey="marca"
-                  outerRadius={70}
-                  label
-                >
-                  {produccionPorMarca.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
+<Card titulo="Producción por Etapa">
+  <ResponsiveContainer width="100%" height={180}>
+    <PieChart>
+      <Pie
+        data={produccionPorEtapa}
+        dataKey="cantidad"
+        nameKey="etapa"
+        outerRadius={70}
+        label={renderPieLabelTotal}  // solo texto, sin líneas
+  labelLine={false}  
+      >
+        {produccionPorEtapa.map((_, i) => (
+          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+        ))}
+      </Pie>
+
+      <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+</Card>
+
         </div>
       </div>
 
@@ -382,6 +568,43 @@ const variosMeses = useMemo(() => {
             </LineChart>
           </ResponsiveContainer>
         </Card>
+<Card
+  titulo={
+    ultimosXDias === "todos"
+      ? "Producción vs Desperdicio Mensual"
+      : "Producción vs Desperdicio por Fecha"
+  }
+  className="card-grafico"
+>
+  <ResponsiveContainer width="100%" height={250}>
+    {ultimosXDias === "todos" ? (
+      // 📊 --- GRÁFICO MENSUAL ---
+      <BarChart data={desperdicioMensual}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <XAxis dataKey="mes" stroke="#ccc" />
+        <YAxis stroke="#ccc" />
+        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+        <Legend />
+
+        <Bar dataKey="produccion" fill="#d88346ff" name="Producción" />
+        <Bar dataKey="desperdicio" fill="#b13c7e" name="Desperdicio" />
+      </BarChart>
+    ) : (
+      // 📊 --- GRÁFICO POR FECHA ---
+      <BarChart data={desperdicioPorFecha}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <XAxis dataKey="fecha" stroke="#ccc" />
+        <YAxis stroke="#ccc" />
+        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+        <Legend />
+
+        {/* SIEMPRE VS */}
+        <Bar dataKey="produccion" fill="#d88346ff" name="Producción" />
+        <Bar dataKey="desperdicio" fill="#b13c7e" name="Desperdicio" />
+      </BarChart>
+    )}
+  </ResponsiveContainer>
+</Card>
 
         {/* PRODUCCIÓN POR PRODUCTO */}
         <Card titulo="Producción por Producto">
@@ -391,10 +614,24 @@ const variosMeses = useMemo(() => {
               <XAxis dataKey="producto" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="cantidad" fill="#b13c7e" />
+              <Bar dataKey="cantidad" fill="#b062ceff" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
+        <Card titulo="Producción y Desperdicio por Producto" className="card-grafico">
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={desperdicioPorProductoArray}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+      <XAxis dataKey="producto" stroke="#ccc" tick={{ fontSize: 9 }} />
+      <YAxis stroke="#ccc" />
+      <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+      <Legend />
+
+      <Bar dataKey="producido" fill="#d88346ff" name="Producido" />
+      <Bar dataKey="desperdiciado" fill="#b13c7e" name="Desperdiciado" />
+    </BarChart>
+  </ResponsiveContainer>
+</Card>
       </div>
     </div>
   );
@@ -420,7 +657,8 @@ export const ResumenCardDark = ({ titulo, valor, color }: any) => (
     style={{
       flex: 1,
       minWidth: 200,
-      background: "#0e1217",
+      background: "#151a21",
+      boxShadow: "0 10px 20px rgba(32, 38, 45, 0)",
       borderRadius: 12,
       padding: "20px 25px",
       display: "flex",

@@ -15,7 +15,6 @@ import {
   type MRT_ColumnDef,
 } from "material-react-table";
 
-import { useFaceAuth } from "../Context/FaceAuthContext";
 import { useUsuarios, type Empleado } from "../Context/UsuarioContext";
 import SinResultados from "../components/estaticos/SinResultados";
 import '../styles/tablas.css'
@@ -30,8 +29,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 
 const TablaUsuarios: React.FC = () => {
-  const { empleados, usuario, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
-  const { logout } = useFaceAuth();
+  const { empleados, usuario, cargando, agregarEmpleado, error, logout, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
   const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
   const navigate = useNavigate();
   const limpiarError = (campo: string) =>
