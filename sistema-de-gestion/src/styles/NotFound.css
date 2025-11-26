@@ -1,0 +1,70 @@
+.not-found {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+
+    /* DARK THEME */
+    background: #0d0d0d;
+    color: #e0e0e0;
+
+    /* Light grid pattern */
+    background-image:
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.not-found h1 {
+    font-size: 9rem;
+    margin-bottom: 0;
+    color: #ff007f;
+    text-shadow: 0 0 20px #ff007f, 0 0 40px #ff2cb3;
+    animation: glow 2s infinite alternate;
+}
+
+.not-found h2 {
+    font-size: 2rem;
+    margin: 0.4em 0;
+    color: #00eaff;
+    text-shadow: 0 0 12px #00eaff;
+}
+
+.not-found p {
+    margin-bottom: 1em;
+    font-size: 1.2rem;
+    color: #9acdff;
+    text-shadow: 0 0 8px #0088ff;
+}
+
+.back-home {
+    text-decoration: none;
+    padding: 12px 28px;
+    background-color: #ff007f;
+    color: black;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 0 15px #ff007f;
+    transition: all 0.2s ease-in-out;
+}
+
+.back-home:hover {
+    background-color: #00eaff;
+    box-shadow: 0 0 20px #00eaff;
+    transform: scale(1.05);
+}
+
+/* Subtle glow animation */
+@keyframes glow {
+    from {
+        text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
+    }
+    to {
+        text-shadow: 0 0 30px #ff2cb3, 0 0 60px #ff2cb3;
+    }
+}
