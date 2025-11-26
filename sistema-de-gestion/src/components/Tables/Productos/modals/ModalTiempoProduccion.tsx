@@ -1,8 +1,8 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography, } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { TiempoProduccionContext, type TiempoProduccion } from "../../../../Context/TiempoProduccionContext";
-import { PERMISOS } from "../../../../Context/PanelContext";
-import { AuthContext } from "../../../../Context/AuthContext";
+// import { PERMISOS } from "../../../../Context/PanelContext";
+// import { AuthContext } from "../../../../Context/AuthContext";
 
 export default function ModalTiempoProduccion({
     open,
@@ -20,9 +20,9 @@ export default function ModalTiempoProduccion({
         tiempoCiclo: 0,
         maximoTanda: 0,
     });
-    const { user } = useContext(AuthContext)!;
-    const rol = user?.rol as keyof typeof PERMISOS;
-    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
+    // const { user } = useContext(AuthContext)!;
+    // const rol = user?.rol as keyof typeof PERMISOS;
+    // const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     // Cargar datos cuando se abre
     useEffect(() => {
@@ -112,10 +112,12 @@ export default function ModalTiempoProduccion({
             <DialogActions sx={{ justifyContent: "center", paddingBottom: 2 }}>
 
                 {/* Si NO está editando → mostrar botón EDITAR */}
-                {!editMode && permisos?.crearInsumos && (
+                {/* {!editMode && permisos?.crearInsumos && ( */}
+                {!editMode && (
                 <Button variant="contained" onClick={() => setEditMode(true)}>
                     Editar
                 </Button>
+                // {/* )} */}
                 )}
 
                 {/* Si está editando → mostrar GUARDAR + CANCELAR */}

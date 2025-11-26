@@ -1,21 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import "../styles/Login.css";
-// import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
+    const { handleSubmit, user,isAuthChecking  } = useContext(AuthContext)!;
 
-    const { handleSubmit, user } = useContext(AuthContext)!;
     const [legajo, setLegajo] = useState("");
     const [password, setPassword] = useState("");
     const [status, setStatus] = useState("");
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-
-
-    useEffect(() => {
-
-    }, []);
+    const [attemptedLogin, setAttemptedLogin] = useState(false); // ⭐ NUEVO
 
     const handleManualLogin = async () => {
         if (!legajo || !password) {
@@ -23,26 +18,35 @@ const Login: React.FC = () => {
             setSuccess(false);
             return;
         }
-
         setLoading(true);
-
+        setAttemptedLogin(true); // ⭐ Activamos que ya intentó loguear
         await handleSubmit(legajo, password);
-
-        if (user) {
-            setStatus("✅ Credenciales correctas");
-            setSuccess(true);
-        } else {
-            setStatus("❌ Credenciales inválidas");
-            setSuccess(false);
-        }
-
         setLoading(false);
     };
+
+useEffect(() => {
+    if (!attemptedLogin) return;
+
+    // 🟡 Si está validando, no mostrar nada
+    if (isAuthChecking) return;
+
+    // 🟢 Login correcto
+    if (user) {
+        setStatus("✅ Credenciales correctas");
+        setSuccess(true);
+        return;
+    }
+
+    // 🔴 Login incorrecto
+    setStatus("❌ Credenciales inválidas");
+    setSuccess(false);
+
+}, [user, attemptedLogin, isAuthChecking]);
+
 
 
     return (
         <div className="login-container">
-            {/* ⭐ LOGO */}
             <div className="logo-box">
                 <img src="/logo-blanco.png" alt="Logo" className="logo-img" />
                 <h1 className="text-4xl font-extrabold text-white">
@@ -76,7 +80,7 @@ const Login: React.FC = () => {
                 </div>
             </div>
 
-            {status && (
+            {attemptedLogin && status && (
                 <p className={success ? "status-success" : "status-error"}>{status}</p>
             )}
         </div>

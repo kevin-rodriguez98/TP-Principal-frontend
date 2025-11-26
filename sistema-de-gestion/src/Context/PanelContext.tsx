@@ -134,10 +134,10 @@ export const PERMISOS = {
     },
 
     gerente: {
-        crearInsumos: false,
-        crearProductos: false,
-        cambiarEstadoOrden: false,
+        crearInsumos: true,
+        crearProductos: true,
+        cambiarEstadoOrden: true,
         verReportes: true,
-        administrarUsuarios: false,
+        administrarUsuarios: true,
     }
 } as const;

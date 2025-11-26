@@ -17,6 +17,7 @@ interface AuthContextType {
     role: string | null;
     errors: Record<string, string>;
     isLoading: boolean;
+    isAuthChecking: boolean;
 
     handleSubmit: (legajo: string, password: string) => Promise<void>;
     modificarPassword: (legajo: string, password: string) => Promise<void>;
@@ -30,6 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [role, setRole] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [isAuthChecking, setIsAuthChecking] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -41,30 +44,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    const handleSubmit = async (legajo: string, password: string) => {
-        try {
-            const res = await fetch(`${URL_empleados}/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ legajo, password }),
-            });
-            if (!res.ok) {
-                setErrors({ login: "Credenciales inválidas" });
-                return;
-            }
-            const data = await res.json();
-            setUser(data);
-            setRole(data.rol);
-            localStorage.setItem("user", JSON.stringify(data));
+const handleSubmit = async (legajo: string, password: string) => {
+    try {
+        setIsAuthChecking(true); // 🟢 empieza validación
 
+        const res = await fetch(`${URL_empleados}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ legajo, password }),
+        });
 
-            console.log("USER LOGUEADO →", data);
-            navigate("/menu");
-        } catch (error) {
-            console.error("Error en login:", error);
-            setErrors({ login: "Error en el servidor" });
+        if (!res.ok) {
+            setErrors({ login: "Credenciales inválidas" });
+            setUser(null);
+            setIsAuthChecking(false); // 🔴 terminó validación
+            return;
         }
-    };
+
+        const data = await res.json();
+
+        setUser(data);
+        setRole(data.rol);
+        localStorage.setItem("user", JSON.stringify(data));
+
+        setIsAuthChecking(false); // 🟢 final exitoso
+
+        navigate("/menu");
+    } catch (error) {
+        setUser(null);
+        setRole(null);
+        localStorage.removeItem("user");
+        setErrors({ login: "Error en el servidor" });
+        setIsAuthChecking(false);
+    }
+};
 
     const logout = () => {
         setUser(null);
@@ -101,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 handleSubmit,
                 modificarPassword,
                 logout,
+                isAuthChecking
             }}
         >
             {children}

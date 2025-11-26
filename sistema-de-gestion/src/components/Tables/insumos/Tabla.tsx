@@ -1,30 +1,30 @@
-import React, { useContext, useState, type JSX } from "react";
+import React, { useState, } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
 import InsumosBajoStock from "./InsumosBajoStock";
 import ListaInsumos from "./ListaInsumos";
 import "../../../styles/tablas.css";
-import { PERMISOS } from "../../../Context/PanelContext";
-import { AuthContext } from "../../../Context/AuthContext";
+// import { PERMISOS } from "../../../Context/PanelContext";
+// import { AuthContext } from "../../../Context/AuthContext";
 
 const Tabla: React.FC = () => {
-    const { user } = useContext(AuthContext)!; // dentro del componente
-    const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
-const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
+    // const { user } = useContext(AuthContext)!; // dentro del componente
+    // const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    // const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const [tabActiva, setTabActiva] = useState(0);
 
     // Solo mostrar pestaña de "Insumos bajo Stock" si tiene permiso
-    const pestañasDisponibles = [
-        { label: "Lista Insumos", componente: <ListaInsumos /> },
-        permisos.crearInsumos || permisos.crearProductos
-            ? { label: "Insumos bajo Stock", componente: <InsumosBajoStock /> }
-            : null,
-    ].filter(Boolean) as { label: string; componente: JSX.Element }[];
+    // const pestañasDisponibles = [
+    //     { label: "Lista Insumos", componente: <ListaInsumos /> },
+    //     permisos.crearInsumos || permisos.crearProductos
+    //         ? { label: "Insumos bajo Stock", componente: <InsumosBajoStock /> }
+    //         : null,
+    // ].filter(Boolean) as { label: string; componente: JSX.Element }[];
 
-//     const handleCrearInsumo = () => {
-//     if (!permisos.crearInsumos) return; // ❌ no hace nada si no tiene permiso
-//     // código para crear insumo
-// };
+    //     const handleCrearInsumo = () => {
+    //     if (!permisos.crearInsumos) return; // ❌ no hace nada si no tiene permiso
+    //     // código para crear insumo
+    // };
 
     return (
         <Paper
@@ -91,9 +91,8 @@ const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
                     },
                 }}
             >
-                {pestañasDisponibles.map((p, i) => (
-                    <Tab key={i} label={p.label} />
-                ))}
+                <Tab label="Lista de Insumos" />
+                <Tab label="Insumos con bajo stock" />
             </Tabs>
 
             {/* Contenido */}
@@ -107,7 +106,8 @@ const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
                     borderRadius: "0 0 16px 16px",
                 }}
             >
-                {pestañasDisponibles[tabActiva]?.componente}
+                {tabActiva === 0 && <ListaInsumos />}
+                {tabActiva === 1 && <InsumosBajoStock />}
             </Box>
         </Paper>
     );

@@ -11,60 +11,59 @@
 
     /* DARK THEME */
     background: #0d0d0d;
-    color: #e0e0e0;
+    color: #dcdcdc;
 
     /* Light grid pattern */
     background-image:
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
 .not-found h1 {
-    font-size: 9rem;
+    font-size: 8rem;
     margin-bottom: 0;
-    color: #ff007f;
-    text-shadow: 0 0 20px #ff007f, 0 0 40px #ff2cb3;
-    animation: glow 2s infinite alternate;
+    color: #ff4da6;
+
+    /* brillo MUY reducido */
+    text-shadow: 
+        0 0 6px #ff4da6,
+        0 0 12px rgba(255, 77, 166, 0.4);
 }
 
 .not-found h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     margin: 0.4em 0;
-    color: #00eaff;
-    text-shadow: 0 0 12px #00eaff;
+    color: #66e0ff;
+
+    /* brillo suave */
+    text-shadow: 0 0 6px rgba(102, 224, 255, 0.4);
 }
 
 .not-found p {
     margin-bottom: 1em;
-    font-size: 1.2rem;
-    color: #9acdff;
-    text-shadow: 0 0 8px #0088ff;
+    font-size: 1.1rem;
+    color: #9bc8ff;
+    text-shadow: 0 0 4px rgba(155, 200, 255, 0.3);
 }
 
 .back-home {
     text-decoration: none;
-    padding: 12px 28px;
-    background-color: #ff007f;
+    padding: 10px 26px;
+    background-color: #ff4da6;
     color: black;
     border-radius: 8px;
     font-weight: bold;
-    box-shadow: 0 0 15px #ff007f;
+
+    /* glow reducido */
+    box-shadow: 0 0 10px rgba(255, 77, 166, 0.4);
     transition: all 0.2s ease-in-out;
 }
 
 .back-home:hover {
-    background-color: #00eaff;
-    box-shadow: 0 0 20px #00eaff;
-    transform: scale(1.05);
-}
+    background-color: #66e0ff;
 
-/* Subtle glow animation */
-@keyframes glow {
-    from {
-        text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
-    }
-    to {
-        text-shadow: 0 0 30px #ff2cb3, 0 0 60px #ff2cb3;
-    }
+    /* glow también suave */
+    box-shadow: 0 0 12px rgba(102, 224, 255, 0.4);
+    transform: scale(1.04);
 }
