@@ -143,7 +143,6 @@ export function TiempoProduccionProvider({ children }: TiempoProduccionProviderP
                 categoria: item.producto?.categoria || "",
                 linea: item.producto?.linea || "",
             }));
-            console.log(data)
             setTiempos(listaTransformada);
         } catch {
             toast.error("❌ No se pudieron obtener los tiempos de producción");

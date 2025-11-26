@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from "react";
+import React, { useMemo, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography, } from "@mui/material";
 import { Movimiento_producto_context, type movimiento_producto } from "../../../Context/Movimiento_producto_context";
@@ -6,30 +6,17 @@ import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
+import { useValidationFields } from "../../../hooks/ValidacionesError";
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
 const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const { productos } = useContext(ProductosContext)!;
-    const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+    const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
     const { usuario } = useUsuarios();
-
     const { toUpperObject } = useToUpper();
 
-
-    const limpiarError = (campo: string) =>
-        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
-
-    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-        required: true,
-        error: !!validationErrors[campo],
-        helperText: validationErrors[campo] ? (
-            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
-        ) : null,
-        onFocus: () => limpiarError(campo),
-        ...extraProps,
-    });
 
     const opcionesProductos = useMemo(() =>
         productos.map((p) => ({

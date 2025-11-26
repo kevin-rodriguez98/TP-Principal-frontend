@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from "react";
+import React, { useMemo, useContext } from "react";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, type MRT_TableOptions, MRT_EditActionButtons } from "material-react-table";
 import { Box, Button, CircularProgress, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from "@mui/material";
 import { OrdenesContext, type OrdenProduccion, estados } from "../../../Context/OrdenesContext";
@@ -9,7 +9,8 @@ import SinResultados from "../../estaticos/SinResultados";
 import HistorialEtapas from "./HistorialEtapas";
 import { useToUpper } from "../../../hooks/useToUpper";
 import { useUsuarios } from "../../../Context/UsuarioContext";
-import { PERMISOS } from "../../../Context/PanelContext";
+import { useValidationFields } from "../../../hooks/ValidacionesError";
+// import { PERMISOS } from "../../../Context/PanelContext";
 
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
@@ -18,22 +19,8 @@ const TablaOrden: React.FC = () => {
     const { ordenes, isLoading, handleAddOrden, generarCodigoLote, error, notificarEtapa, finalizarOrden, agregarNota } = useContext(OrdenesContext)!;
     const { productos } = useContext(ProductosContext)!;
     const { usuario } = useUsuarios();
-    const [validationErrors, setValidationErrors] = useState<Record<string, string | undefined>>({});
+    const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
     const { toUpperObject } = useToUpper();
-    const limpiarError = (campo: string) =>
-        setValidationErrors((prev) => ({ ...prev, [campo]: undefined }));
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
-    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
-
-    const baseTextFieldProps = (campo: string, extraProps = {}) => ({
-        required: true,
-        error: !!validationErrors[campo],
-        helperText: validationErrors[campo] ? (
-            <span style={{ color: "red" }}>{validationErrors[campo]}</span>
-        ) : null,
-        onFocus: () => limpiarError(campo),
-        ...extraProps,
-    });
 
     const opcionesProductos = useMemo(() =>
         productos.map((p) => ({
@@ -41,10 +28,8 @@ const TablaOrden: React.FC = () => {
             label: `${p.codigo} - ${p.nombre} - ${p.linea}`,
         })), [productos]);
 
-
     const columns = useMemo<MRT_ColumnDef<OrdenProduccion>[]>(
         () => [
-
             {
                 accessorKey: "id",
                 header: "ID",
@@ -431,7 +416,7 @@ const TablaOrden: React.FC = () => {
                                 variant="subtitle1"
                                 sx={{
                                     mb: 2,
-                                                color: "#64b5f6",
+                                    color: "#64b5f6",
                                     borderBottom: "1px solid #1976d2",
                                     pb: 1,
                                     textAlign: "center",
@@ -464,7 +449,7 @@ const TablaOrden: React.FC = () => {
                                 variant="subtitle1"
                                 sx={{
                                     mb: 2,
-                                                color: "#b0bec5",
+                                    color: "#b0bec5",
                                     borderBottom: "1px solid #424242",
                                     pb: 1,
                                     textAlign: "center",

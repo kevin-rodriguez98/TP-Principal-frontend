@@ -21,10 +21,10 @@ const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
             : null,
     ].filter(Boolean) as { label: string; componente: JSX.Element }[];
 
-    const handleCrearInsumo = () => {
-    if (!permisos.crearInsumos) return; // ❌ no hace nada si no tiene permiso
-    // código para crear insumo
-};
+//     const handleCrearInsumo = () => {
+//     if (!permisos.crearInsumos) return; // ❌ no hace nada si no tiene permiso
+//     // código para crear insumo
+// };
 
     return (
         <Paper
