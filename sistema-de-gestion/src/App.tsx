@@ -11,7 +11,7 @@ import ReportesOrdenes from "./pages/ReportesOrdenes";
 import { ModalContext } from "./components/modal/ModalContext";
 import Modal from "./components/modal/Modal";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./ProtectedRoute";
+// import ProtectedRoute from "./ProtectedRoute";
 
 // URL´s SERVER
 export const URL = "https://tp-principal-backend.onrender.com/";
@@ -38,7 +38,7 @@ function App() {
           element={
             // <ProtectedRoute>
               <Menu />
-            // </ProtectedRoute>
+            //  </ProtectedRoute>
           }
         />
 

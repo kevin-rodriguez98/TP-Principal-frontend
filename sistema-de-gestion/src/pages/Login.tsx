@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthContext";
 import "../styles/Login.css";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
 
@@ -12,13 +12,10 @@ const Login: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
 
     useEffect(() => {
-        if (user) {
-            navigate("/menu");
-        }
-    }, [user]);
+
+    }, []);
 
     const handleManualLogin = async () => {
         if (!legajo || !password) {
@@ -42,8 +39,10 @@ const Login: React.FC = () => {
         setLoading(false);
     };
 
+
     return (
         <div className="login-container">
+            {/* ⭐ LOGO */}
             <div className="logo-box">
                 <img src="/logo-blanco.png" alt="Logo" className="logo-img" />
                 <h1 className="text-4xl font-extrabold text-white">

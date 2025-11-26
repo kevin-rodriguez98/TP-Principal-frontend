@@ -5,8 +5,8 @@ import { Movimiento_producto_context, type movimiento_producto } from "../../../
 import SinResultados from "../../estaticos/SinResultados";
 import { ProductosContext } from "../../../Context/ProductosContext";
 import { useToUpper } from "../../../hooks/useToUpper";
-import { useUsuarios } from "../../../Context/UsuarioContext";
 import { useValidationFields } from "../../../hooks/ValidacionesError";
+import { AuthContext } from "../../../Context/AuthContext";
 
 const ESTILOS_CABECERA = { style: { color: "#8c52ff" } };
 
@@ -14,7 +14,7 @@ const TablaEgreso: React.FC = () => {
     const { movimiento_productos, handleAdd_Movimiento_producto, error, isLoading } = useContext(Movimiento_producto_context)!;
     const { productos } = useContext(ProductosContext)!;
     const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
-    const { usuario } = useUsuarios();
+    const { user } = useContext(AuthContext)!;
     const { toUpperObject } = useToUpper();
 
 
@@ -138,7 +138,7 @@ const TablaEgreso: React.FC = () => {
             header: "Responsable",
             enableEditing: false,
             muiTableHeadCellProps: ESTILOS_CABECERA,
-            muiEditTextFieldProps: { value: `${usuario?.legajo}` },
+            muiEditTextFieldProps: { value: `${user?.legajo}` },
             Cell: ({ row }) => `${row.original.legajo} - ${row.original.responsableApellido} ${row.original.responsableNombre}   ` || "—",
         },
         {
@@ -171,7 +171,7 @@ const TablaEgreso: React.FC = () => {
         const nuevaOrden = {
             ...values,
             tipo: values.tipo && values.tipo.trim() !== "" ? values.tipo : "EGRESO",
-            legajo: values.legajo?.trim() !== "" ? values.legajo : usuario?.legajo,
+            legajo: values.legajo?.trim() !== "" ? values.legajo : user?.legajo,
         };
         const valoresEnMayus = toUpperObject(nuevaOrden);
         setValidationErrors({});

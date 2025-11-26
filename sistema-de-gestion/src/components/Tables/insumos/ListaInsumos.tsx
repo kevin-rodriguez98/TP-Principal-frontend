@@ -375,14 +375,15 @@ const TablaInsumos: React.FC = () => {
         ),
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: "flex", gap: "1rem" }}>
-                {permisos.crearInsumos && (
+                {permisos?.crearInsumos && (
                     <Tooltip title="Editar">
                         <IconButton onClick={() => table.setEditingRow(row)}>
                             <EditIcon />
                         </IconButton>
                     </Tooltip>
-                )}
-                {permisos.crearInsumos && (
+                    )}
+                    {permisos?.crearInsumos && (
+
                     <Tooltip title="Eliminar">
                         <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
                             <DeleteIcon />
@@ -406,7 +407,7 @@ const TablaInsumos: React.FC = () => {
                     gap: 2,
                 }}
             >
-                {permisos.crearInsumos && (
+                {permisos?.crearInsumos && (
                     <Button
                         variant="contained"
                         onClick={() => table.setCreatingRow(true)}

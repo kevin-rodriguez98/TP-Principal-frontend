@@ -14,7 +14,7 @@ box-sizing: border-box;
 
 .resumen-container > * {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer; /* Opcional: indica que es interactivo */
+    cursor: pointer;
     background-color: #0e1217;
 
 }
@@ -24,7 +24,6 @@ box-sizing: border-box;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Gráficos */
 .graficos-grid > *, .main-chart, .pie-wrapper > * {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
@@ -33,15 +32,14 @@ box-sizing: border-box;
 
 .graficos-grid > *:hover, .main-chart:hover, .pie-wrapper > *:hover {
     transform: scale(1.03);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 20px #151a2100;
 }
 
-/* --- TARJETAS --- */
 .dashboard-card {
 background: #151a2100;
 border-radius: 14px;
 padding: 22px 25px;
-box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+box-shadow: 0 6px 20px #151a2100;
 transition: 0.2s ease;
 width: 100%;
 box-sizing: border-box;

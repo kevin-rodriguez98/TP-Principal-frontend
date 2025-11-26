@@ -7,20 +7,28 @@ interface Props {
     roles?: string[]; // opcional: si querés validar solo algunos roles
 }
 
-export default function ProtectedRoute({ children}: Props) {
+export default function ProtectedRoute({ children }: Props) {
     const { user } = useContext(AuthContext)!;
 
-    const isLogged = user || localStorage.getItem("user") !== null;
-
-    if (!isLogged) {
-        console.log("🔴 No autenticado — redirigiendo a /login");
-        return <Navigate to="/login" replace />;
+    if (user) {
+        return children;
     }
 
-    // Si la ruta requiere roles específicos
-    // if (roles && (!user || !roles.includes(user.rol))) {
-    //     return <Navigate to="/not-found" replace />;
-    // }
+    const storedUser = localStorage.getItem("user");
 
-    return children;
+    if (storedUser) {
+        try {
+            const parsed = JSON.parse(storedUser);
+
+            // Si querés, podés validar campos:
+            if (parsed?.legajo) {
+                return children;
+            }
+        } catch (e) {
+            console.error("Error leyendo usuario almacenado", e);
+        }
+    }
+
+    console.log("🔴 No autenticado — redirigiendo a /login");
+    return <Navigate to="/login" replace />;
 }

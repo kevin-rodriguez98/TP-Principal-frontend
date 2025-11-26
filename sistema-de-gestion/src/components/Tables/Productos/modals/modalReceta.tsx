@@ -8,6 +8,8 @@ import AddReceta from "./AddReceta";
 import ModalTiempoProduccion from "./ModalTiempoProduccion";
 import { RecetaContext } from "../../../../Context/RecetaContext";
 import { TiempoProduccionContext } from "../../../../Context/TiempoProduccionContext";
+import { PERMISOS } from "../../../../Context/PanelContext";
+import { AuthContext } from "../../../../Context/AuthContext";
 
 export default function ModalReceta({
     open,
@@ -22,6 +24,9 @@ export default function ModalReceta({
 
     // 👉 Nuevo estado para resaltar el insumo agregado
     const [highlightId, setHighlightId] = useState<string | null>(null);
+    const { user } = useContext(AuthContext)!;
+    const rol = user?.rol as keyof typeof PERMISOS;
+    const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const handleNuevoInsumo = (codigoInsumo: string) => {
         setHighlightId(codigoInsumo);
@@ -119,10 +124,10 @@ export default function ModalReceta({
                         borderTop: "1px solid #333",
                     }}
                 >
-                    <Button variant="contained" onClick={() => setOpenAgregar(true)}>
+                   { permisos?.crearInsumos && (<Button variant="contained" onClick={() => setOpenAgregar(true)}>
                         Agregar insumo
                     </Button>
-
+                    )}
                     <Button
                         variant="outlined"
                         startIcon={<AccessTimeIcon />}

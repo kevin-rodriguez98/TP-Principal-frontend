@@ -18,7 +18,7 @@ const roles = ["GERENTE", "SUPERVISOR", "ADMINISTRADOR", "OPERARIO"];
 
 const TablaUsuarios: React.FC = () => {
   const { empleados, cargando, agregarEmpleado, error, isLoading, eliminarEmpleado, modificarEmpleado } = useUsuarios();
-  const {user } = useContext(AuthContext)!;
+  const {user, logout } = useContext(AuthContext)!;
   const navigate = useNavigate();
   const { validationErrors, setValidationErrors, baseTextFieldProps } = useValidationFields();
 
@@ -307,7 +307,7 @@ const TablaUsuarios: React.FC = () => {
                 variant="contained"
                 size="small"
                 color="error"
-                // onClick={logout}
+                onClick={logout}
                 sx={{
                   textTransform: "none",
                   borderRadius: "8px",

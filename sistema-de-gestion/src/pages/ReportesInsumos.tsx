@@ -122,39 +122,35 @@ const ReportesInsumos = () => {
             {/* === DOS PIE CHARTS JUNTOS (UNO ARRIBA DEL OTRO) === */}
             <div className="pie-wrapper">
 
-                <Card titulo="Distribución de Categorías (%)" className="pie-card">
-                    <ResponsiveContainer width="100%" height={180}>
-                        <PieChart>
-                            <Pie data={stockPorCategoria} nameKey="categoria" dataKey="stock" outerRadius={70} label>
-                                {stockPorCategoria.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                        <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
+            <Card titulo="Ingresos por Mes" className="card-grafico">
+                <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
 
-<Card titulo="Stock por Categoría (Ingresado)" className="pie-card">
-    <ResponsiveContainer width="100%" height={220}>
-        <BarChart
-            layout="vertical"
-            data={stockPorCategoriaInsumo}
-            margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
-        >
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis type="number" stroke="#ccc" />
-            <YAxis type="category" dataKey="categoria" stroke="#ccc" />
-            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-            <Bar dataKey="stock" fill="#8c52ff">
-                {stockPorCategoriaInsumo.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-            </Bar>
-        </BarChart>
-    </ResponsiveContainer>
-</Card>
+                        <Pie
+                            data={ingresosPorMes}
+                            dataKey="cantidad"
+                            nameKey="mes"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}   // 👈 hace el hueco central (ARO)
+                            outerRadius={80}
+                            paddingAngle={3}   // 👈 separa un poquito los meses, queda más prolijo
+                            label
+                            labelLine={false}  
+
+                        >
+                            {ingresosPorMes.map((_, index) => (
+                                <Cell
+                                    key={index}
+                                    fill={COLORS[index % COLORS.length]}
+                                />
+                            ))}
+                        </Pie>
+                     <Legend />
+                    </PieChart>
+                </ResponsiveContainer>
+            </Card>
 
             </div>
         </div>
@@ -163,18 +159,51 @@ const ReportesInsumos = () => {
             RESTO DE GRÁFICOS ABAJO 
         =================================================================================== */}
         <div className="graficos-grid">
+        <Card titulo="Stock por Categoría (Ingresado)" className="pie-card">
+            <ResponsiveContainer width="100%" height={220}>
+                <BarChart
+                    layout="vertical"
+                    data={stockPorCategoriaInsumo}
+                    margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis type="number" stroke="#ccc" />
+                    <YAxis type="category" dataKey="categoria" stroke="#ccc" />
+                    <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+                    <Bar dataKey="stock" fill="#8c52ff">
+                        {stockPorCategoriaInsumo.map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+                    </Card>
+<Card titulo="Distribución de Categorías (%)" className="card-grafico">
+    <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={stockPorCategoria}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
 
-            <Card titulo="Stock por Categoría" className="card-grafico">
-                <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={stockPorCategoria}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                        <XAxis dataKey="categoria" stroke="#ccc" />
-                        <YAxis stroke="#ccc" />
-                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                        <Bar dataKey="stock" fill="#d88346ff" />
-                    </BarChart>
-                </ResponsiveContainer>
-            </Card>
+            <XAxis
+                dataKey="categoria"
+                stroke="#ccc"
+                tick={{ fontSize: 10 }}
+            />
+
+            <YAxis stroke="#ccc" />
+
+            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+
+            {/** Colores por categoría */}
+            <Bar dataKey="stock">
+                {stockPorCategoria.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+            </Bar>
+
+            <Legend />
+        </BarChart>
+    </ResponsiveContainer>
+</Card>
 
             <Card titulo="Stock por Marca" className="card-grafico">
                 <ResponsiveContainer width="100%" height={200}>
@@ -188,17 +217,6 @@ const ReportesInsumos = () => {
                 </ResponsiveContainer>
             </Card>
 
-            <Card titulo="Ingresos por Mes" className="card-grafico">
-                <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={ingresosPorMes}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                        <XAxis dataKey="mes" stroke="#ccc" />
-                        <YAxis stroke="#ccc" />
-                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                        <Bar dataKey="cantidad" fill="#b13c7e" />
-                    </BarChart>
-                </ResponsiveContainer>
-            </Card>
 
             <Card titulo="Ingresos por Proveedor" className="card-grafico">
                 <ResponsiveContainer width="100%" height={250}>
@@ -212,17 +230,29 @@ const ReportesInsumos = () => {
                 </ResponsiveContainer>
             </Card>
 
-            <Card titulo="Ingresos por Responsable" className="card-grafico">
-                <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={ingresosPorResponsable}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                        <XAxis dataKey="responsable" stroke="#ccc" tick={{ fontSize: 9 }} />
-                        <YAxis stroke="#ccc" />
-                        <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-                        <Bar dataKey="cantidad" fill="#8c52ff" />
-                    </BarChart>
-                </ResponsiveContainer>
-            </Card>
+<Card titulo="Ingresos por Responsable" className="pie-card">
+    <ResponsiveContainer width="100%" height={200}>
+        <PieChart>
+            <Pie
+                data={ingresosPorResponsable}
+                nameKey="responsable"
+                dataKey="cantidad"
+                innerRadius={40}   // 👈 aro
+                outerRadius={70}
+                paddingAngle={3}
+                label
+            >
+                {ingresosPorResponsable.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+            </Pie>
+
+            <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+            <Legend />
+        </PieChart>
+    </ResponsiveContainer>
+</Card>
+
 
         </div>
 

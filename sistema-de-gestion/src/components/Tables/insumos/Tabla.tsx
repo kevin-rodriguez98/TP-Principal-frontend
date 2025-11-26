@@ -1,14 +1,14 @@
-import React, { useState, type JSX } from "react";
+import React, { useContext, useState, type JSX } from "react";
 import { Box, Tabs, Tab, Paper, Typography } from "@mui/material";
 import InsumosBajoStock from "./InsumosBajoStock";
 import ListaInsumos from "./ListaInsumos";
 import "../../../styles/tablas.css";
-import { useUsuarios } from "../../../Context/UsuarioContext";
 import { PERMISOS } from "../../../Context/PanelContext";
+import { AuthContext } from "../../../Context/AuthContext";
 
 const Tabla: React.FC = () => {
-    const { usuario } = useUsuarios(); // dentro del componente
-    const rol = usuario?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
+    const { user } = useContext(AuthContext)!; // dentro del componente
+    const rol = user?.rol?.toLowerCase() as keyof typeof PERMISOS | undefined;
 const permisos = rol ? PERMISOS[rol] : PERMISOS.operario;
 
     const [tabActiva, setTabActiva] = useState(0);

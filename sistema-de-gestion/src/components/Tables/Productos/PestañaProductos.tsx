@@ -320,7 +320,8 @@ const TablaProductos: React.FC = () => {
           gap: 2,
         }}
       >
-        {permisos.crearProductos && (
+
+        {permisos?.crearProductos && (
           <Button
             variant="contained"
             onClick={() => table.setCreatingRow(true)}

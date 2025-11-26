@@ -56,8 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(data);
             setRole(data.rol);
             localStorage.setItem("user", JSON.stringify(data));
+
+
             console.log("USER LOGUEADO →", data);
-            navigate("/");
+            navigate("/menu");
         } catch (error) {
             console.error("Error en login:", error);
             setErrors({ login: "Error en el servidor" });
@@ -70,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("user");
         navigate("/login");
         toast.info("Sesión cerrada");
+        console.log(user)
     };
 
     const modificarPassword = async (legajo: string, password: string) => {
