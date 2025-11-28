@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import ReportExport from "../components/estaticos/ReportExport";
 
-const COLORS = ["#b062ceff", "#8c52ff","#b13c7e", "#d88346ff",  "#f1c40f"];
+const COLORS = ["#b13c7e", "#d88346ff",  "#f1c40f" ,"#8c52ff","#5852ffff","#b062ceff",];
 
 const ReportesOrdenes = () => {
   const { ordenes, filtrarOrdenes } = useContext(OrdenesContext)!;
@@ -93,29 +93,41 @@ const ReportesOrdenes = () => {
     resumen[dia][o.estado] += 1;
   });
 
-  return Object.values(resumen);
-}, [ordenesFiltradas]);
+return Object.values(resumen).sort((a, b) => {
+  const [diaA, mesA] = a.dia.split("/").map(Number);
+  const [diaB, mesB] = b.dia.split("/").map(Number);
+
+  // ordenar MM/DD
+  if (mesA === mesB) return diaA - diaB;
+  return mesA - mesB;
+});}, [ordenesFiltradas]);
 
   // -------------------------------
   // GRÁFICO: Órdenes por día
   // -------------------------------
-  const ordenesUltimosXDias = useMemo(() => {
-    const resumen: Record<string, number> = {};
+const ordenesUltimosXDias = useMemo(() => {
+  const resumen: Record<string, { clave: string; dia: string; cantidad: number }> = {};
 
-    ordenesFiltradas.forEach((o) => {
-      const fecha = new Date(o.fechaCreacion);
-      const dia = fecha.toLocaleDateString("es-AR", {
-        day: "2-digit",
-        month: "2-digit",
-      });
-      resumen[dia] = (resumen[dia] || 0) + 1;
+  ordenesFiltradas.forEach((o) => {
+    const fecha = new Date(o.fechaCreacion);
+
+    const clave = fecha.toISOString().split("T")[0]; // ordenable
+    const diaLabel = fecha.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
     });
 
-    return Object.entries(resumen).map(([dia, cantidad]) => ({
-      dia,
-      cantidad,
-    }));
-  }, [ordenesFiltradas]);
+    if (!resumen[clave]) {
+      resumen[clave] = { clave, dia: diaLabel, cantidad: 0 };
+    }
+
+    resumen[clave].cantidad += 1;
+  });
+
+  return Object.values(resumen).sort((a, b) =>
+    a.clave.localeCompare(b.clave)
+  );
+}, [ordenesFiltradas]);
 
   // -------------------------------
   // GRÁFICO: Producción por marca
@@ -125,12 +137,13 @@ const produccionPorEtapa = useMemo(() => {
 
   ordenesFiltradas.forEach((o) => {
     const etapa = o.etapa ?? "Sin Etapa";
-    resumen[etapa] = (resumen[etapa] || 0) + 1; // cuenta órdenes por etapa
+    resumen[etapa] = (resumen[etapa] || 0) + 1;
   });
 
   return Object.entries(resumen).map(([etapa, cantidad]) => ({
     etapa,
     cantidad,
+    total: cantidad,   // 👈 IMPORTANTE
   }));
 }, [ordenesFiltradas]);
 
@@ -198,7 +211,8 @@ const desperdicioPorFecha = useMemo(() => {
   > = {};
 
   finalizadas.forEach((o) => {
-    const fecha = new Date(o.fechaCreacion).toLocaleDateString("es-AR");
+    const fechaObj = new Date(o.fechaCreacion);
+    const fecha = fechaObj.toLocaleDateString("es-AR");
 
     if (!resultado[fecha]) {
       resultado[fecha] = {
@@ -210,15 +224,22 @@ const desperdicioPorFecha = useMemo(() => {
 
     const planificada = o.stockRequerido ?? 0;
     const real = o.stockProducidoReal ?? 0;
-
-    let desperdicio = planificada - real;
-    if (desperdicio < 0) desperdicio = 0;
+    const desperdicio = Math.max(planificada - real, 0);
 
     resultado[fecha].produccion += real;
     resultado[fecha].desperdicio += desperdicio;
   });
 
-  return Object.values(resultado);
+  // 🔥 ORDENAR FECHAS CORRECTAMENTE
+  return Object.values(resultado).sort((a, b) => {
+    const fa = a.fecha.split("/"); // dd/mm/aaaa
+    const fb = b.fecha.split("/");
+
+    const dateA = new Date(+fa[2], +fa[1] - 1, +fa[0]); 
+    const dateB = new Date(+fb[2], +fb[1] - 1, +fb[0]);
+
+    return dateA.getTime() - dateB.getTime();
+  });
 }, [ordenesFiltradas]);
 
 const produccionYDesperdicioPorProducto = ordenesFiltradas
@@ -294,6 +315,7 @@ const desperdicioMensual = useMemo(() => {
 }, [ordenesFiltradas, ultimosXDias]);
 
 const resumenDesperdicio = useMemo(() => {
+  // trabajamos solo con órdenes finalizadas (igual que antes)
   const finalizadas = ordenesFiltradas.filter(
     (o: OrdenProduccion) => o.estado === estados.finalizada
   );
@@ -305,35 +327,35 @@ const resumenDesperdicio = useMemo(() => {
     const producido = Number(o.stockProducidoReal) || 0;
     const requerido = Number(o.stockRequerido) || 0;
 
-    // ❗ Si no produjo nada, NO considerarlo desperdicio
-    if (producido === 0) return;
-
-    const desperdicioReal = Math.max(requerido - producido, 0);
+    const desperdicio = Math.max(requerido - producido, 0);
 
     totalProducido += producido;
-    totalDesperdicio += desperdicioReal;
+    totalDesperdicio += desperdicio;
   });
 
-  const total = totalProducido + totalDesperdicio || 1;
+  const total = totalProducido + totalDesperdicio;
+
+  if (total === 0) {
+    return [
+      { name: "Producido", value: 0, total: totalProducido },
+      { name: "Desperdiciado", value: 0, total: totalDesperdicio },
+    ];
+  }
 
   return [
     {
       name: "Producido",
       value: Number(((totalProducido / total) * 100).toFixed(2)),
+      total: totalProducido,
     },
     {
       name: "Desperdiciado",
       value: Number(((totalDesperdicio / total) * 100).toFixed(2)),
+      total: totalDesperdicio,
     },
   ];
 }, [ordenesFiltradas]);
 
-const renderPieLabelTotal = (props: any) => {
-  // props.payload es el item (ej: { name: 'Finalizadas', value: 10 })
-  const label = props.payload?.name ?? props.payload?.etapa ?? props.payload?.estado ?? "";
-  const value = props.value ?? props.payload?.value ?? 0;
-  return `${label}: ${value}`;
-};
 
   return (
     <div className="insumos-dashboard">
@@ -474,7 +496,7 @@ const renderPieLabelTotal = (props: any) => {
         <Line
           type="monotone"
           dataKey={estados.enProduccion}
-          stroke="#82ca8c52ff9d"
+          stroke="#8c52ff"
           name="En Producción"
         />
         <Line
@@ -534,8 +556,8 @@ const renderPieLabelTotal = (props: any) => {
         dataKey="cantidad"
         nameKey="etapa"
         outerRadius={70}
-        label={renderPieLabelTotal}  // solo texto, sin líneas
-  labelLine={false}  
+        label={false}
+        labelLine={false}  
       >
         {produccionPorEtapa.map((_, i) => (
           <Cell key={i} fill={COLORS[i % COLORS.length]} />
